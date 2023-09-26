@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from arrrg.tokens import parse
+from beta.tokens import parse
 
 
 class SimpleModel(BaseModel):

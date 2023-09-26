@@ -22,7 +22,7 @@ class MainModel(BaseModel):
 
 
 def test_nested_model_correct_submodel():
-    model = MainModel(debug="true", sub_command=SubModelTwo(value="1a"))
+    model = MainModel(debug="true", sub_command=SubModelTwo(value="1"))
     assert model.sub_command.value == "1"
 
 

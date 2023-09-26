@@ -11,7 +11,7 @@ from pydantic import BaseModel
 class Token:
     key: str
 
-    def match(self, idx: int, values: list[str]) -> int:
+    def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         """Consume a list of values and return the new index for
         a next token to start consuming."""
         raise NotImplementedError()
@@ -21,26 +21,37 @@ class Token:
 
 
 @dataclass
-class Node:
-    props: list[Token] = field(default_factory=list)
-    children: list["Node"] = field(default_factory=list)
-
-
-@dataclass
 class PositionalArg(Token):
     key: str
     indices: slice | None = None
 
-    def match(self, idx: int, values: list[str]) -> int:
+    def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         if values[idx].startswith("--"):
             # Not a positional. No match.
-            return idx
+            return False, idx
         # would fit as a positional
         self.indices = slice(idx, idx + 1)
-        return idx + 1
+        return True, idx + 1
 
     def parse(self, values: list[str]) -> dict[str, str]:
-        return {self.key: values[self.indices]}
+        return {self.key: values[self.indices][0]}
+
+
+@dataclass
+class OptionalArg(Token):
+    key: str
+    indices: slice | None = None
+
+    def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
+        if not values[idx] == f"--{self.key}":
+            # As this is an optional, we are returning true to continue matching.
+            return True, idx
+        # consume next two values
+        self.indices = slice(idx, idx + 2)
+        return True, idx + 2
+
+    def parse(self, values: list[str]) -> dict[str, str]:
+        return {self.key: values[self.indices][-1]}
 
 
 @dataclass
@@ -50,14 +61,86 @@ class Subcommand(Token):
     cls: type[BaseModel]
     indices: slice | None = None
 
-    def match(self, idx: int, values: list[str]) -> int:
-        if values[idx] == self.sub_command_name:
-            self.indices = slice(idx, idx + 1)
-            return idx + 1
-        return idx
+    args: list[Token] = field(default_factory=list)
+    sub_commands: list["Subcommand"] = field(default_factory=list)
 
-    def parse(self, values: list[str]) -> dict[str, str]:
-        return {self.key: self.cls}
+    def tokens(self) -> list[list["Subcommand"]]:
+        base = [self]
+
+        if self.sub_commands:
+            args = []
+            for sub in self.sub_commands:
+                for token in sub.tokens():
+                    new_ = base + token
+                    args.append(new_)
+            return args
+        return [base]
+
+    def help(self):
+        print(self.cls.__fields__.__doc__)
+        print("")
+        for arg in self.args:
+            arg.help()
+        for sub_command in self.sub_commands:
+            print(sub_command.__doc__)
+
+    def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
+        """Check for token match.
+
+        As a result the subcommand has been stripped down to a one-branch tree, meaning
+        all sub_commands collections in all (nested)
+        subcommands have only one or no children.
+
+
+        Args:
+            idx: values index to start the matching from.
+            values: the list of provided arguments that need parsing
+
+        Returns:
+            tuple of bool and int.
+                bool indicates whether to continue matching
+                int indicates the new starting point for the next token to match.
+        """
+        start_idx = idx
+        if not values[idx] == self.sub_command_name:
+            return False, start_idx
+
+        self.indices = slice(idx, idx + 1)
+
+        idx += 1
+        for arg in self.args:
+            success, idx = arg.match(idx, values)
+            if not success:
+                return False, start_idx
+
+        if len(self.sub_commands) == 0:
+            return True, idx
+
+        single_sub_command: Subcommand | None = None
+        for sub_command in self.sub_commands:
+            success, idx = sub_command.match(idx, values)
+            if success:
+                if single_sub_command is not None:
+                    raise ValueError(
+                        "two token-trees found which resolve to a solution. Don't know what to do"
+                    )
+                single_sub_command = sub_command
+        if not success:
+            return False, start_idx
+        self.sub_commands = [single_sub_command]
+        return True, idx
+
+    def parse(self, arguments: list[str]) -> dict[str, BaseModel]:
+        """Populate all tokens with the provided arguments."""
+        args: dict[str, str] = {}
+        [args.update(parsed.parse(arguments)) for parsed in self.args]
+        sub_commands: dict[str, BaseModel] = {}
+        assert len(self.sub_commands) <= 1
+        [sub_commands.update(parsed.parse(arguments)) for parsed in self.sub_commands]
+
+        model = self.cls(**args, **sub_commands)
+
+        return {self.key: model}
 
 
 def _is_subcommand(attribute: str, field_info: FieldInfo) -> bool:
@@ -71,84 +154,29 @@ def _is_subcommand(attribute: str, field_info: FieldInfo) -> bool:
     return True
 
 
-def tokenize(model: BaseModel, node: Node):
+def tokenize(model: type[BaseModel], sub_command: Subcommand) -> None:
     for key, value in model.model_fields.items():
         if _is_subcommand(key, value):
             for annotated_model in get_args(value.annotation):
-                sub_node = Node(
-                    props=[
-                        Subcommand(
-                            key,
-                            sub_command_name=annotated_model.__name__,
-                            cls=annotated_model,
-                        )
-                    ]
+                new_sub_command = Subcommand(
+                    key, annotated_model.__name__, cls=annotated_model
                 )
-                node.children.append(sub_node)
-                tokenize(annotated_model, sub_node)
-        elif isinstance(value.annotation, UnionType):
-            pass
+
+                sub_command.sub_commands.append(new_sub_command)
+                tokenize(annotated_model, new_sub_command)
+
         elif value.is_required():
             # becomes a positional
-            node.props.append(PositionalArg(key))
+            sub_command.args.append(PositionalArg(key))
+        else:
+            sub_command.args.append(OptionalArg(key))
 
 
-def get_all_paths(node: Node):
-    if len(node.children) == 0:
-        return [node.props]
+def parse(model: type[BaseModel], args: list[str]) -> BaseModel:
+    args = ["__main_entry__"] + args
+    root_node = Subcommand("__main_entry__", "__main_entry__", model)
+    tokenize(model=model, sub_command=root_node)
 
-    return [
-        node.props + path for child in node.children for path in get_all_paths(child)
-    ]
-
-
-def match(args: list[str], token_lists: list[list[Token]]):
-    matches = []
-    arg_count = len(args)
-    for token_list in token_lists:
-        idx = 0
-        for token in token_list:
-            new_idx = token.match(idx, args)
-            if new_idx == idx:
-                # no match. stop attempt and proceed to the next one.
-                break
-            idx = new_idx
-        if idx == arg_count:
-            matches.append(token_list)
-    return matches
-
-
-def populate(args: list[str], token_list: list[Token]):
-    dct = {}
-    for token in token_list:
-        parsed = token.parse(args)
-
-        if isinstance(token, Subcommand):
-            new_dct = {}
-
-
-# def all_paths(token: tk, previous: tk):
-#     if isinstance(token, list):
-#         return [previous + [all_paths(tk, previous)] for tk in token]
-
-#     return previous
-
-
-def parse(model: BaseModel, args: list[str]):
-    root_node = Node()
-    tokenize(model=model, node=root_node)
-
-    pths = get_all_paths(root_node)
-    matches = match(args, pths)
-    print(matches)
-    print(pths)
-    # traverse(0, args, tokens, [])
-
-
-# nd = Node(
-#     props=[PositionalArg],
-#     children=[
-#         Node(props=[Subcommand, PositionalArg, PositionalArg]),
-#         Node(props=[Subcommand, PositionalArg]),
-#     ],
-# )
+    root_node.match(0, args)
+    parsed = root_node.parse(args)
+    return parsed["__main_entry__"]

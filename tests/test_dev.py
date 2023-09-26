@@ -17,6 +17,8 @@ class SubModelTwo(BaseModel):
 
 
 class MainModel(BaseModel):
+    """The main entry point."""
+
     debug: bool
     """Enable debugging"""
 
@@ -24,9 +26,10 @@ class MainModel(BaseModel):
 
 
 def test_parse_simple():
-    # starting_point = []
-    # tokens["main"] = starting_point
-    # result = tokenize(MainModel, starting_point)
-    # print(tokens)
+    model = parse(SimpleModel, ["true", "--proceed", "false"])
+    assert model == SimpleModel(verbose=True, proceed=False)
 
-    parse(MainModel, ["true", "SubModelTwo", "10"])
+
+def test_parse_nested():
+    model = parse(MainModel, ["true", "SubModelTwo", "10"])
+    assert model == MainModel(debug=True, sub_command=SubModelTwo(value="10"))

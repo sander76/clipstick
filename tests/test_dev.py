@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from beta.tokens import parse
+from smlcli.tokens import parse
 
 
 class SimpleModel(BaseModel):

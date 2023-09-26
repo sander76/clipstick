@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "beta"
+name = "smplcli"
 version = "0.1.0"
 description = ""
 authors = ["Your Name <you@example.com>"]

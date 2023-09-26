@@ -1,7 +1,5 @@
 from pydantic import BaseModel
 
-from arrrg.tokens import parse
-
 
 class SimpleModel(BaseModel):
     verbose: bool
@@ -23,10 +21,11 @@ class MainModel(BaseModel):
     sub_command: SubModelOne | SubModelTwo
 
 
-def test_parse_simple():
-    # starting_point = []
-    # tokens["main"] = starting_point
-    # result = tokenize(MainModel, starting_point)
-    # print(tokens)
+def test_nested_model_correct_submodel():
+    model = MainModel(debug="true", sub_command=SubModelTwo(value="1a"))
+    assert model.sub_command.value == "1"
 
-    parse(MainModel, ["true", "SubModelTwo", "10"])
+
+def test_nested_model_from_dict():
+    dct = {"debug": "true", "sub_command": {"value": "1"}}
+    model = MainModel.model_validate(dct)

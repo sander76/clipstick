@@ -1,10 +1,13 @@
 from dataclasses import dataclass, field
+import sys
 
 from types import UnionType
 from typing import Any, ForwardRef, Protocol, TypeAlias, Union, get_args
 from pydantic.fields import FieldInfo
 
 from pydantic import BaseModel
+
+from smplcli.docstring import set_undefined_field_descriptions_from_var_docstrings
 
 
 @dataclass
@@ -26,8 +29,11 @@ class PositionalArg(Token):
     indices: slice | None = None
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
-        if values[idx].startswith("--"):
-            # Not a positional. No match.
+        try:
+            if values[idx].startswith("--"):
+                # Not a positional. No match.
+                return False, idx
+        except IndexError:
             return False, idx
         # would fit as a positional
         self.indices = slice(idx, idx + 1)
@@ -43,15 +49,22 @@ class OptionalArg(Token):
     indices: slice | None = None
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
-        if not values[idx] == f"--{self.key}":
+        try:
+            if not values[idx] == f"--{self.key}":
+                # As this is an optional, we are returning true to continue matching.
+                return True, idx
+        except IndexError:
             # As this is an optional, we are returning true to continue matching.
             return True, idx
+
         # consume next two values
         self.indices = slice(idx, idx + 2)
         return True, idx + 2
 
     def parse(self, values: list[str]) -> dict[str, str]:
-        return {self.key: values[self.indices][-1]}
+        if self.indices:
+            return {self.key: values[self.indices][-1]}
+        return {}
 
 
 @dataclass
@@ -77,12 +90,18 @@ class Subcommand(Token):
         return [base]
 
     def help(self):
-        print(self.cls.__fields__.__doc__)
+        print(self.cls.__doc__)
         print("")
         for arg in self.args:
-            arg.help()
+            try:
+                field_info = self.cls.model_fields[arg.key]
+                print(field_info.description)
+            except KeyError:
+                # a key error might be raised when -for example- we're trying
+                # to get the field info of a -h / --help argument. which doesn't exist.
+                pass
         for sub_command in self.sub_commands:
-            print(sub_command.__doc__)
+            print(sub_command.cls.__name__, "\n\n")
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         """Check for token match.
@@ -102,7 +121,10 @@ class Subcommand(Token):
                 int indicates the new starting point for the next token to match.
         """
         start_idx = idx
-        if not values[idx] == self.sub_command_name:
+        try:
+            if not values[idx] == self.sub_command_name:
+                return False, start_idx
+        except IndexError:
             return False, start_idx
 
         self.indices = slice(idx, idx + 1)
@@ -116,19 +138,27 @@ class Subcommand(Token):
         if len(self.sub_commands) == 0:
             return True, idx
 
-        single_sub_command: Subcommand | None = None
+        subcommands: list[tuple[bool, int, Subcommand]] = []
         for sub_command in self.sub_commands:
-            success, idx = sub_command.match(idx, values)
-            if success:
-                if single_sub_command is not None:
-                    raise ValueError(
-                        "two token-trees found which resolve to a solution. Don't know what to do"
-                    )
-                single_sub_command = sub_command
-        if not success:
+            sub_command_start_idx = idx
+            result = sub_command.match(sub_command_start_idx, values)
+            subcommands.append((*result, sub_command))
+
+        succesfull_subcommands = [
+            sub_command_structure
+            for sub_command_structure in subcommands
+            if sub_command_structure[0] is True
+        ]
+
+        if len(succesfull_subcommands) > 1:
+            raise ValueError(
+                "more than one solution-tree is found. Don't know what to do now."
+            )
+        if len(succesfull_subcommands) == 0:
             return False, start_idx
-        self.sub_commands = [single_sub_command]
-        return True, idx
+
+        self.sub_commands = [succesfull_subcommands[0][2]]
+        return True, idx + succesfull_subcommands[0][1]
 
     def parse(self, arguments: list[str]) -> dict[str, BaseModel]:
         """Populate all tokens with the provided arguments."""
@@ -143,6 +173,28 @@ class Subcommand(Token):
         return {self.key: model}
 
 
+@dataclass
+class HelpArg(Token):
+    key: str
+    sub_command: Subcommand
+    indices: slice | None = None
+
+    def match(self, idx, values: list[str]) -> tuple[bool, int]:
+        try:
+            if not values[idx] == "-h":
+                return True, idx
+        except IndexError:
+            return True, idx
+        self.indices = slice(idx, len(values))
+        return True, idx + len(values)
+
+    def parse(self, values: list[str]) -> dict[str, str]:
+        if self.indices:
+            self.sub_command.help()
+            sys.exit(0)
+        return {}
+
+
 def _is_subcommand(attribute: str, field_info: FieldInfo) -> bool:
     if not isinstance(field_info.annotation, UnionType):
         return False
@@ -155,6 +207,10 @@ def _is_subcommand(attribute: str, field_info: FieldInfo) -> bool:
 
 
 def tokenize(model: type[BaseModel], sub_command: Subcommand) -> None:
+    # todo: move this somewhere else.
+    set_undefined_field_descriptions_from_var_docstrings(model)
+
+    sub_command.args.append(HelpArg("help", sub_command))
     for key, value in model.model_fields.items():
         if _is_subcommand(key, value):
             for annotated_model in get_args(value.annotation):

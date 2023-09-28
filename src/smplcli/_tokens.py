@@ -1,13 +1,9 @@
 from dataclasses import dataclass, field
 import sys
 
-from types import UnionType
-from typing import Any, ForwardRef, Protocol, TypeAlias, Union, get_args
-from pydantic.fields import FieldInfo
-
+from typing import ForwardRef, Protocol, TypeAlias, Union
+from itertools import chain
 from pydantic import BaseModel
-
-from smplcli.docstring import set_undefined_field_descriptions_from_var_docstrings
 
 
 @dataclass
@@ -28,9 +24,13 @@ class PositionalArg(Token):
     key: str
     indices: slice | None = None
 
+    @property
+    def user_key(self) -> str:
+        return self.key.replace("_", "-")
+
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         try:
-            if values[idx].startswith("--"):
+            if values[idx].startswith("-"):
                 # Not a positional. No match.
                 return False, idx
         except IndexError:
@@ -44,7 +44,7 @@ class PositionalArg(Token):
 
 
 @dataclass
-class OptionalArg(Token):
+class OptionalKeyArgs(Token):
     key: str
     indices: slice | None = None
 
@@ -70,11 +70,17 @@ class OptionalArg(Token):
 @dataclass
 class Subcommand(Token):
     key: str
+    """Reference to the key in the pydantic model."""
     sub_command_name: str
     cls: type[BaseModel]
+    """Pydantic class. Used for instantiating this command."""
     indices: slice | None = None
+    """The indices which are consumed of the provided arguments."""
 
+    help_args: list[Token] = field(default_factory=list)
     args: list[Token] = field(default_factory=list)
+    optional_kwargs: list[Token] = field(default_factory=list)
+
     sub_commands: list["Subcommand"] = field(default_factory=list)
 
     def tokens(self) -> list[list["Subcommand"]]:
@@ -93,15 +99,15 @@ class Subcommand(Token):
         print(self.cls.__doc__)
         print("")
         for arg in self.args:
-            try:
-                field_info = self.cls.model_fields[arg.key]
-                print(field_info.description)
-            except KeyError:
-                # a key error might be raised when -for example- we're trying
-                # to get the field info of a -h / --help argument. which doesn't exist.
-                pass
+            print("positional args:")
+            field_info = self.cls.model_fields[arg.key]
+            print(field_info.description)
+        for kwarg in self.optional_kwargs:
+            print("optional keyword arguments:")
+            field_info = self.cls.model_fields[kwarg.key]
+            print(field_info.description)
         for sub_command in self.sub_commands:
-            print(sub_command.cls.__name__, "\n\n")
+            print(sub_command.cls.__name__)
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         """Check for token match.
@@ -130,7 +136,14 @@ class Subcommand(Token):
         self.indices = slice(idx, idx + 1)
 
         idx += 1
-        for arg in self.args:
+
+        help_success, idx = self.help_args[0].match(idx, values)
+        if help_success:
+            # only one argument is valid now: the help argument.
+            # self.args = []
+            # self.optional_kwargs = []
+            return True, idx
+        for arg in chain(self.args, self.optional_kwargs):
             success, idx = arg.match(idx, values)
             if not success:
                 return False, start_idx
@@ -163,7 +176,10 @@ class Subcommand(Token):
     def parse(self, arguments: list[str]) -> dict[str, BaseModel]:
         """Populate all tokens with the provided arguments."""
         args: dict[str, str] = {}
-        [args.update(parsed.parse(arguments)) for parsed in self.args]
+        [
+            args.update(parsed.parse(arguments))
+            for parsed in chain(self.args, self.optional_kwargs, self.help_args)
+        ]
         sub_commands: dict[str, BaseModel] = {}
         assert len(self.sub_commands) <= 1
         [sub_commands.update(parsed.parse(arguments)) for parsed in self.sub_commands]
@@ -182,9 +198,9 @@ class HelpArg(Token):
     def match(self, idx, values: list[str]) -> tuple[bool, int]:
         try:
             if not values[idx] == "-h":
-                return True, idx
+                return False, idx
         except IndexError:
-            return True, idx
+            return False, idx
         self.indices = slice(idx, len(values))
         return True, idx + len(values)
 
@@ -193,46 +209,3 @@ class HelpArg(Token):
             self.sub_command.help()
             sys.exit(0)
         return {}
-
-
-def _is_subcommand(attribute: str, field_info: FieldInfo) -> bool:
-    if not isinstance(field_info.annotation, UnionType):
-        return False
-    args = get_args(field_info.annotation)
-    if not all(issubclass(arg, BaseModel) for arg in args):
-        return False
-    if not field_info.is_required():
-        raise ValueError("Should be required values.")
-    return True
-
-
-def tokenize(model: type[BaseModel], sub_command: Subcommand) -> None:
-    # todo: move this somewhere else.
-    set_undefined_field_descriptions_from_var_docstrings(model)
-
-    sub_command.args.append(HelpArg("help", sub_command))
-    for key, value in model.model_fields.items():
-        if _is_subcommand(key, value):
-            for annotated_model in get_args(value.annotation):
-                new_sub_command = Subcommand(
-                    key, annotated_model.__name__, cls=annotated_model
-                )
-
-                sub_command.sub_commands.append(new_sub_command)
-                tokenize(annotated_model, new_sub_command)
-
-        elif value.is_required():
-            # becomes a positional
-            sub_command.args.append(PositionalArg(key))
-        else:
-            sub_command.args.append(OptionalArg(key))
-
-
-def parse(model: type[BaseModel], args: list[str]) -> BaseModel:
-    args = ["__main_entry__"] + args
-    root_node = Subcommand("__main_entry__", "__main_entry__", model)
-    tokenize(model=model, sub_command=root_node)
-
-    root_node.match(0, args)
-    parsed = root_node.parse(args)
-    return parsed["__main_entry__"]

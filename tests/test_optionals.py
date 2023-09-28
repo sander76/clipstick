@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from smplcli.tokens import parse
+from smplcli._clipstick import parse
 
 
 class OptionalsModel(BaseModel):
@@ -34,4 +34,5 @@ def test_help(capsys):
 
     cap = capsys.readouterr()
     out = cap.out
-    print(cap.out)
+    assert "A model with only optionals." in out
+    assert "Optional value 1." in out

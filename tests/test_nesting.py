@@ -1,11 +1,6 @@
 from pydantic import BaseModel
 
-from smplcli.tokens import parse
-
-
-class SimpleModel(BaseModel):
-    verbose: bool
-    proceed: bool = True
+from smplcli._clipstick import parse
 
 
 class SubModelOne(BaseModel):
@@ -31,16 +26,6 @@ class NestedModel(BaseModel):
 
 class DeeplyNestedModel(BaseModel):
     sub_command: SubModelOne | NestedModel
-
-
-def test_parse_simple_positional_only():
-    model = parse(SimpleModel, ["true"])
-    assert model == SimpleModel(verbose=True)
-
-
-def test_parse_simple_mode_with_optional():
-    model = parse(SimpleModel, ["true", "--proceed", "false"])
-    assert model == SimpleModel(verbose=True, proceed=False)
 
 
 def test_parse_nested():

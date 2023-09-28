@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from smplcli._clipstick import parse
+from clipstick._clipstick import parse
 
 
 class SubModelOne(BaseModel):

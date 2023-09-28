@@ -1,3 +1,8 @@
+"""General tests that check pydantic v2 functionality.
+
+Can probably be removed later when code is more mature.
+"""
+
 from pydantic import BaseModel
 
 
@@ -28,4 +33,13 @@ def test_nested_model_correct_submodel():
 
 def test_nested_model_from_dict():
     dct = {"debug": "true", "sub_command": {"value": "1"}}
-    model = MainModel.model_validate(dct)
+    MainModel.model_validate(dct)
+
+
+class ModelWithListOfInts(BaseModel):
+    items: list[int]
+
+
+def test_model_with_list():
+    model = ModelWithListOfInts(items=["1", "2", "3"])
+    assert model.items == [1, 2, 3]

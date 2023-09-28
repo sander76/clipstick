@@ -1,0 +1,50 @@
+name: CI
+on: 
+  push:
+  pull_request:
+
+jobs:
+  test:
+    name: ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10","3.11"]
+      
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install nox
+      - run: pip install poetry
+      - run: nox --session test-${{ matrix.python-version }}
+        env:
+          PYTHONDEVMODE: 1
+  quality:
+    name: quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - run: pip install nox
+      - run: pip install poetry
+      - run: nox --session quality
+        env:
+          PYTHONDEVMODE: 1

@@ -116,18 +116,39 @@ class Subcommand(Token[TPydanticModel]):
         return [base]
 
     def help(self):
-        print(self.cls.__doc__)
         print("")
-        for arg in self.args:
-            print("positional args:")
-            field_info = self.cls.model_fields[arg.key]
-            print(arg.user_key, ":  ", field_info.description)
-        for kwarg in self.optional_kwargs:
+        _args_string = ", ".join(_arg.user_key for _arg in self.args)
+        _kwargs_string = ", ".join(
+            f"[{_kwarg.user_key}]" for _kwarg in self.optional_kwargs
+        )
+        _subcommands = ""
+        if self.sub_commands:
+            _subcommands = (
+                "{" + ", ".join(sub.cls.__name__ for sub in self.sub_commands) + "}"
+            )
+        _all = " ".join(
+            (arg for arg in (_args_string, _kwargs_string, _subcommands) if arg)
+        )
+        print(f"usage: <your entrypoint here> [-h] {_all}")
+        print("")
+        print(self.cls.__doc__)
+        if self.args:
+            print("")
+            print("positional arguments:")
+            for arg in self.args:
+                field_info = self.cls.model_fields[arg.key]
+                print(f"    {arg.user_key:<25}{field_info.description}")
+        if self.optional_kwargs:
+            print("")
             print("optional keyword arguments:")
-            field_info = self.cls.model_fields[kwarg.key]
-            print(kwarg.user_key, ": ", field_info.description)
-        for sub_command in self.sub_commands:
-            print(sub_command.cls.__name__)
+            for kwarg in self.optional_kwargs:
+                field_info = self.cls.model_fields[kwarg.key]
+                print(f"    {kwarg.user_key:<25}{field_info.description}")
+        if self.sub_commands:
+            print("")
+            print("subcommands:")
+            for sub_command in self.sub_commands:
+                print(f"    {sub_command.cls.__name__:<25}{sub_command.cls.__doc__}")
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         """Check for token match.

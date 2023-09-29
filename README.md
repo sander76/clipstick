@@ -9,7 +9,7 @@ The goal of clipstip is to use pydantic to model your cli by leveraging:
 
 - The automatic casting of input variables.
 - The powerful validation capabilities.
-- Docstrings as cli documentation
+- Docstrings as cli documentation.
 
 ## Installation
 

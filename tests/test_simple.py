@@ -7,6 +7,7 @@ class SimpleModel(BaseModel):
     """A simple model. Main description."""
 
     snake_cased: bool
+    """A snake cased argument."""
     snake_cased_kwarg: int = 10
 
 
@@ -26,8 +27,10 @@ def test_parse_simple_model_help(capsys):
     except SystemExit:
         pass
 
-    cap = capsys.readouterr()
-    out = cap.out
+    out = capsys.readouterr().out
+
     assert "snake-cased" in out
+    assert "A snake cased argument." in out
+
     assert "snake-cased-kwarg" in out
     assert "A simple model. Main description." in out

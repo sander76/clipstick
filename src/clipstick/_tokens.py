@@ -82,7 +82,7 @@ class OptionalKeyArgs(Token[str]):
 
 
 @dataclass
-class Subcommand(Token[TPydanticModel]):
+class Command(Token[TPydanticModel]):
     key: str
     """Reference to the key in the pydantic model."""
 
@@ -90,11 +90,15 @@ class Subcommand(Token[TPydanticModel]):
 
     cls: type[TPydanticModel]
     """Pydantic class. Used for instantiating this command."""
+
     indices: slice | None = None
     """The indices which are consumed of the provided arguments."""
 
     args: list[Token] = field(default_factory=list)
+    """Collection of required arguments associated with this command."""
+
     optional_kwargs: list[Token] = field(default_factory=list)
+    """Collection of optional keyword arguments associated with this command."""
 
     sub_commands: list["Subcommand"] = field(default_factory=list)
 
@@ -102,18 +106,6 @@ class Subcommand(Token[TPydanticModel]):
     def user_key(self) -> str:
         snaked = to_snake(self.cls.__name__)
         return snaked.replace("_", "-")
-
-    def tokens(self) -> list[list["Subcommand"]]:
-        base = [self]
-
-        if self.sub_commands:
-            args = []
-            for sub in self.sub_commands:
-                for token in sub.tokens():
-                    new_ = base + token
-                    args.append(new_)
-            return args
-        return [base]
 
     def help(self):
         print("")
@@ -124,7 +116,7 @@ class Subcommand(Token[TPydanticModel]):
         _subcommands = ""
         if self.sub_commands:
             _subcommands = (
-                "{" + ", ".join(sub.cls.__name__ for sub in self.sub_commands) + "}"
+                "{" + ", ".join(sub.user_key for sub in self.sub_commands) + "}"
             )
         _all = " ".join(
             (arg for arg in (_args_string, _kwargs_string, _subcommands) if arg)
@@ -148,7 +140,7 @@ class Subcommand(Token[TPydanticModel]):
             print("")
             print("subcommands:")
             for sub_command in self.sub_commands:
-                print(f"    {sub_command.cls.__name__:<25}{sub_command.cls.__doc__}")
+                print(f"    {sub_command.user_key:<25}{sub_command.cls.__doc__}")
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         """Check for token match.
@@ -168,15 +160,6 @@ class Subcommand(Token[TPydanticModel]):
                 int indicates the new starting point for the next token to match.
         """
         start_idx = idx
-        try:
-            if not values[idx] == self.cls.__name__:  # self.sub_command_name:
-                return False, start_idx
-        except IndexError:
-            return False, start_idx
-
-        self.indices = slice(idx, idx + 1)
-
-        idx += 1
 
         if _is_help_key(idx, values):
             self.help()
@@ -225,6 +208,39 @@ class Subcommand(Token[TPydanticModel]):
         model = self.cls(**args, **sub_commands)
 
         return {self.key: model}
+
+
+@dataclass
+class Subcommand(Command):
+    def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
+        """Check for token match.
+
+        As a result the subcommand has been stripped down to a one-branch tree, meaning
+        all sub_commands collections in all (nested)
+        subcommands have only one or no children.
+
+
+        Args:
+            idx: values index to start the matching from.
+            values: the list of provided arguments that need parsing
+
+        Returns:
+            tuple of bool and int.
+                bool indicates whether to continue matching
+                int indicates the new starting point for the next token to match.
+        """
+        start_idx = idx
+        try:
+            if not values[idx] == self.user_key:  # self.sub_command_name:
+                return False, start_idx
+        except IndexError:
+            return False, start_idx
+
+        self.indices = slice(idx, idx + 1)
+
+        idx += 1
+
+        return super().match(idx, values)
 
 
 def _is_help_key(idx, values: list[str]) -> bool:

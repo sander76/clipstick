@@ -1,5 +1,5 @@
 from clipstick._parse import tokenize
-from clipstick._tokens import Subcommand, TPydanticModel
+from clipstick._tokens import Command, TPydanticModel
 import sys
 
 
@@ -7,8 +7,7 @@ def parse(model: type[TPydanticModel], args: list[str] | None = None) -> TPydant
     if args is None:
         args = sys.argv[1:]
 
-    args = [model.__name__] + args
-    root_node = Subcommand("__main_entry__", model.__name__, model)
+    root_node = Command("__main_entry__", model.__name__, model)
     tokenize(model=model, sub_command=root_node)
 
     success, _ = root_node.match(0, args)

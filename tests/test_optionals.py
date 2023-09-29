@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from smplcli._clipstick import parse
+from clipstick._clipstick import parse
 
 
 class OptionalsModel(BaseModel):
@@ -17,12 +17,12 @@ def test_no_optionals():
 
 
 def test_some_optionals():
-    model = parse(OptionalsModel, ["--value_1", "24"])
+    model = parse(OptionalsModel, ["--value-1", "24"])
     assert model == OptionalsModel(value_1=24)
 
 
 def test_all_optionals():
-    model = parse(OptionalsModel, ["--value_1", "24", "--value_2", "25"])
+    model = parse(OptionalsModel, ["--value-1", "24", "--value-2", "25"])
     assert model == OptionalsModel(value_1=24, value_2="25")
 
 
@@ -35,4 +35,6 @@ def test_help(capsys):
     cap = capsys.readouterr()
     out = cap.out
     assert "A model with only optionals." in out
+    assert "--value-1" in out
     assert "Optional value 1." in out
+    assert "--value-2" in out

@@ -1,20 +1,28 @@
 [tool.poetry]
-name = "smplcli"
+name = "clipstick"
 version = "0.1.0"
 description = ""
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
 pydantic = "^2.3.0"
 
 
 [tool.poetry.group.dev.dependencies]
-mypy = "^1.5.1"
-pytest = "^7.4.2"
-ruff = "^0.0.291"
+mypy = ">=1.5.1"
+pytest = ">=7.4.2"
+ruff = ">=0.0.291"
+nox = ">=2023.4.22"
+black = ">=23.9.1"
+cogapp = ">=3.3.0"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+ignore = [
+    'E501', # line-length. Black handles this.
+]

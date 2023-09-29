@@ -29,7 +29,7 @@ def quality(session):
     session.run("ruff", PROJECT_FOLDER)
 
 
-@nox.session
+@nox.session(python=["3.10", "3.11"])
 def test(session):
     session.run("poetry", "install", "--sync", external=True)
     session.run("pytest", "tests")

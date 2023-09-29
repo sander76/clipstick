@@ -40,6 +40,7 @@ def build(session):
     session.run("poetry", "build", external=True)
 
 
-@nox.session
+@nox.session(python=None)
 def build_readme(session):
     session.run("poetry", "install", "--sync", external=True)
+    session.run("cog", "-r", "README.md")

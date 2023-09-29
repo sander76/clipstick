@@ -73,10 +73,10 @@ usage: <your entrypoint here> [-h] name [--repeat-count]
 A simple model demonstrating clipstick.
 
 positional arguments:
-    name                     Your name
+    name                     Your name [str]
 
 optional keyword arguments:
-    --repeat-count           How many times to repeat your name.
+    --repeat-count           How many times to repeat your name. [int]
 ```
 <!-- [[[end]]] -->
 

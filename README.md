@@ -5,6 +5,12 @@ A cli-tool based on Pydantic models.
 There are many other tools out there, that do kind of the same, 
 but they all didn't do quite exactly what I wanted.
 
+The goal of clipstip is to use pydantic to model your cli by leveraging:
+
+- The automatic casting of input variables.
+- The powerful validation capabilities.
+- Docstrings as cli documentation
+
 ## Installation
 
 `pip install clipstick`

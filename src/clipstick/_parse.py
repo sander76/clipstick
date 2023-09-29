@@ -1,7 +1,7 @@
 from pydantic.fields import FieldInfo
 from types import UnionType
 from clipstick._docstring import set_undefined_field_descriptions_from_var_docstrings
-from clipstick._tokens import OptionalKeyArgs, PositionalArg, Subcommand
+from clipstick._tokens import OptionalKeyArgs, PositionalArg, Subcommand, Command
 
 
 from pydantic import BaseModel
@@ -21,7 +21,7 @@ def _is_subcommand(attribute: str, field_info: FieldInfo) -> bool:
     return True
 
 
-def tokenize(model: type[BaseModel], sub_command: Subcommand) -> None:
+def tokenize(model: type[BaseModel], sub_command: Subcommand | Command) -> None:
     # todo: move this somewhere else.
     set_undefined_field_descriptions_from_var_docstrings(model)
 
@@ -37,6 +37,6 @@ def tokenize(model: type[BaseModel], sub_command: Subcommand) -> None:
 
         elif value.is_required():
             # becomes a positional
-            sub_command.args.append(PositionalArg(key))
+            sub_command.args.append(PositionalArg(key, field_info=value))
         else:
-            sub_command.optional_kwargs.append(OptionalKeyArgs(key))
+            sub_command.optional_kwargs.append(OptionalKeyArgs(key, field_info=value))

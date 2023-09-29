@@ -5,6 +5,8 @@ from typing import Generic, TypeVar
 from itertools import chain
 from pydantic import BaseModel
 from pydantic.alias_generators import to_snake
+from pydantic.fields import FieldInfo
+from clipstick._help import field_description
 
 TTokenType = TypeVar("TTokenType")
 TPydanticModel = TypeVar("TPydanticModel", bound=BaseModel)
@@ -12,14 +14,27 @@ TPydanticModel = TypeVar("TPydanticModel", bound=BaseModel)
 
 @dataclass
 class Token(Generic[TTokenType]):
+    """Represents either a pydantic model or a pydantic field.
+
+    It serves two (many ?) purposes:
+
+    - Evaluating and parsing the provided arguments (the cli entries)
+    - Generating help information based on pydantic data.
+    """
+
     key: str
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
-        """Consume a list of values and return the new index for
-        a next token to start consuming."""
+        """Try to match a (range of) value(s) starting from an index.
+
+        Matching logic is implemented depending on argument type (like positional, optional etc.)
+
+        If a match is found it will be added to the list of tokens which are used for final parsing.
+        """
         raise NotImplementedError()
 
     def parse(self, values: list[str]) -> dict[str, TTokenType]:
+        """Parse data from the provided values based on the match logic implemented in this class."""
         raise NotImplementedError()
 
     @property
@@ -30,6 +45,7 @@ class Token(Generic[TTokenType]):
 @dataclass
 class PositionalArg(Token[str]):
     key: str
+    field_info: FieldInfo
     indices: slice | None = None
 
     @property
@@ -56,6 +72,7 @@ class PositionalArg(Token[str]):
 @dataclass
 class OptionalKeyArgs(Token[str]):
     key: str
+    field_info: FieldInfo
     indices: slice | None = None
 
     @property
@@ -94,10 +111,10 @@ class Command(Token[TPydanticModel]):
     indices: slice | None = None
     """The indices which are consumed of the provided arguments."""
 
-    args: list[Token] = field(default_factory=list)
+    args: list[PositionalArg] = field(default_factory=list)
     """Collection of required arguments associated with this command."""
 
-    optional_kwargs: list[Token] = field(default_factory=list)
+    optional_kwargs: list[OptionalKeyArgs] = field(default_factory=list)
     """Collection of optional keyword arguments associated with this command."""
 
     sub_commands: list["Subcommand"] = field(default_factory=list)
@@ -128,14 +145,12 @@ class Command(Token[TPydanticModel]):
             print("")
             print("positional arguments:")
             for arg in self.args:
-                field_info = self.cls.model_fields[arg.key]
-                print(f"    {arg.user_key:<25}{field_info.description}")
+                print(f"    {arg.user_key:<25}{field_description(arg.field_info)}")
         if self.optional_kwargs:
             print("")
             print("optional keyword arguments:")
             for kwarg in self.optional_kwargs:
-                field_info = self.cls.model_fields[kwarg.key]
-                print(f"    {kwarg.user_key:<25}{field_info.description}")
+                print(f"    {kwarg.user_key:<25}{field_description(kwarg.field_info)}")
         if self.sub_commands:
             print("")
             print("subcommands:")

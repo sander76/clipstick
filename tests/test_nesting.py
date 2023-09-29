@@ -79,6 +79,7 @@ def test_model_help_second_level(capsys):
     out = capsys.readouterr().out
     assert "First level model." not in out
     assert "second-level-model-one" not in out
+
     assert "Second level model 1." in out
     assert "third-level-model-two" in out
     assert "third-level-model-one" in out

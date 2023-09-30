@@ -74,7 +74,7 @@ are converted to cli positional arguments.
 
 <!-- [[[cog
 import cog
-file="examples/positional.py"
+file="examples/positional_arg.py"
 
 contents = open(file).read() 
 

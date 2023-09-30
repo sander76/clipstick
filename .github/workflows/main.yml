@@ -52,7 +52,6 @@ jobs:
     name: update_readme
     runs-on: ubuntu-latest
     steps:
-      - uses: actions
       - uses: actions/checkout@v3
       - uses: actions/cache@v3
         with:
@@ -63,7 +62,7 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-      - run: pip install cog
+      - run: pip install cogapp
       - run: cog -r README.md
       - name: Commit updated README.md
         id: commit
@@ -73,15 +72,7 @@ jobs:
           git config --local user.name "github-actions[bot]"
           if git diff --quiet && git diff --staged --quiet; then
             echo "No changes in README.md, skipping commit."
-            echo "commit_status=skipped" >> $GITHUB_ENV
           else
             git commit -m "Update README.md"
-            echo "commit_status=committed" >> $GITHUB_ENV
+            git push
           fi
-
-      - name: Push changes
-        if: env.commit_status == 'committed'
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.head_ref }}

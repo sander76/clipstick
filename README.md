@@ -166,3 +166,44 @@ assert model == MyModel(my_value=25)
 
 ## Subcommands
 
+Subcommands are possible by adding a property with a union of `BaseModel`.
+Only one subcommand per model is allowed. (If you need more, have a look at [tyro](https://brentyi.github.io/tyro/))
+Nesting of subcommands is also possible.
+
+<!-- [[[cog
+import cog
+file="docs/source/subcommand_arg.py"
+
+contents = open(file).read() 
+
+cog.outl("```python")
+cog.outl(contents)
+cog.outl("```")
+]]]> -->
+```python
+from pydantic import BaseModel
+from clipstick import parse
+
+
+class Routes(BaseModel):
+    route_name: str
+
+
+class Climbers(BaseModel):
+    climber_name: str
+
+
+class Boulder(BaseModel):
+    """The base model with a subcommand."""
+
+    sub_command: Routes | Climbers
+
+
+model = parse(Boulder, ["climbers", "Adam Ondra"])
+assert model == Boulder(sub_command=Climbers(climber_name="Adam Ondra"))
+
+model = parse(Boulder, ["routes", "Burden of Dreams"])
+assert model == Boulder(sub_command=Routes(route_name="Burden of Dreams"))
+
+```
+<!-- [[[end]]] -->

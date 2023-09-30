@@ -76,19 +76,6 @@ cog.out(result.stdout.decode('utf-8'))
 cog.outl("```")
 ]]]> -->
 ```
-
-usage: <your entrypoint here> [-h] name [--repeat-count]
-
-A simple model demonstrating clipstick.
-
-    This is used in help as describing the main command.
-    
-
-positional arguments:
-    name                     Your name. This is used in help describing name. [str]
-
-optional keyword arguments:
-    --repeat-count           How many times to repeat your name. Used in help describing repeat_count. [int]
 ```
 <!-- [[[end]]] -->
 
@@ -103,9 +90,6 @@ cog.out(result.stdout.decode('utf-8'))
 cog.outl("```")
 ]]]> -->
 ```
-hello: alex
-hello: alex
-hello: alex
 ```
 <!-- [[[end]]] -->
 

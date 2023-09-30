@@ -10,6 +10,10 @@ The goal of clipstip is to use pydantic to model your cli by leveraging:
 - The automatic casting of input variables.
 - The powerful validation capabilities.
 - Docstrings as cli documentation.
+- No other mental model required than Typing and Pydantic.
+
+Clipstick is inspired by [tyro](https://brentyi.github.io/tyro/). It is excellent and is more versatile than this tool. But in my opionion it's primary focus is not building a cli tool along the lines of Argparse or Click, but more on composing complex objects from the command line. Making tyro behave like a "traditional" cli tool requires additional `Annotation` flags, which I didn't want.
+
 
 ## Installation
 
@@ -23,7 +27,6 @@ import cog
 contents = open("examples/simple.py").read() 
 
 cog.outl("```python")
-cog.outl("# examples/simple.py")
 cog.outl("")
 cog.out(contents)
 cog.outl("```")
@@ -56,7 +59,7 @@ if __name__ == "__main__":
 <!-- [[[end]]] -->
 
 
-running the above `python examples/simple.py -h` gives you:
+`python examples/simple.py -h` gives you:
 <!-- [[[cog
 import cog
 import subprocess
@@ -80,7 +83,7 @@ optional keyword arguments:
 ```
 <!-- [[[end]]] -->
 
-running the above `python examples/simple.py alex --repeat-count 3` gives you:
+`python examples/simple.py alex --repeat-count 3` gives you:
 <!-- [[[cog
 import cog
 import subprocess
@@ -97,7 +100,22 @@ hello: alex
 ```
 <!-- [[[end]]] -->
 
-## Fields
+The inclusion of the `def main(self)` method is not a requirement. `clipstick` generates a pydantic model based on provided cli arguments and gives it back to you for your further usage. Using `def main()` is one of the options to further process it.
+
+
+## Positional arguments
+
+All properties in your pydantic model without a default value
+are converted to cli positional arguments.
+
+```python
+class MyModel:
+    my_value: int
+```
+
+Once converted you will use the cli as `mycli 22`
+
+## Keyword arguments
 
 ## Choices
 

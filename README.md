@@ -1,5 +1,7 @@
 # Clipstick
 
+*Work in progress*
+
 A cli-tool based on Pydantic models.
 
 There are many other tools out there, that do kind of the same, 
@@ -74,6 +76,19 @@ cog.out(result.stdout.decode('utf-8'))
 cog.outl("```")
 ]]]> -->
 ```
+
+usage: <your entrypoint here> [-h] name [--repeat-count]
+
+A simple model demonstrating clipstick.
+
+    This is used in help as describing the main command.
+    
+
+positional arguments:
+    name                     Your name. This is used in help describing name. [str]
+
+optional keyword arguments:
+    --repeat-count           How many times to repeat your name. Used in help describing repeat_count. [int]
 ```
 <!-- [[[end]]] -->
 
@@ -88,11 +103,13 @@ cog.out(result.stdout.decode('utf-8'))
 cog.outl("```")
 ]]]> -->
 ```
+hello: alex
+hello: alex
+hello: alex
 ```
 <!-- [[[end]]] -->
 
-> [!INFO]
->
+> [!NOTE]
 > The inclusion of the `def main(self)` method is not a requirement. `clipstick` generates a pydantic model based on provided cli arguments and gives it back to you for your further usage. Using `def main()` is one of the options to further process it.
 
 
@@ -104,7 +121,7 @@ are converted to cli positional arguments.
 
 <!-- [[[cog
 import cog
-file="examples/positional_arg.py"
+file="docs/source/positional_arg.py"
 
 contents = open(file).read() 
 
@@ -130,6 +147,32 @@ assert model == MyModel(my_value=10)
 
 
 ## Keyword arguments
+
+<!-- [[[cog
+import cog
+file="docs/source/keyword_arg.py"
+
+contents = open(file).read() 
+
+cog.outl("```python")
+cog.outl(contents)
+cog.outl("```")
+]]]> -->
+```python
+from pydantic import BaseModel
+from clipstick import parse
+
+
+class MyModel(BaseModel):
+    my_value: int = 22
+
+
+model = parse(MyModel, ["--my-value", "25"])
+
+assert model == MyModel(my_value=25)
+
+```
+<!-- [[[end]]] -->
 
 ## Choices
 

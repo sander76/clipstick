@@ -4,8 +4,8 @@
 
 A cli-tool based on Pydantic models.
 
-There are many other tools out there, that do kind of the same, 
-but they all didn't do quite exactly what I wanted.
+There are many other tools out there that do kind of the same, 
+but they all don't do quite exactly what I want.
 
 The goal of clipstip is to use pydantic to model your cli by leveraging:
 
@@ -14,7 +14,7 @@ The goal of clipstip is to use pydantic to model your cli by leveraging:
 - Docstrings as cli documentation.
 - No other mental model required than Typing and Pydantic.
 
-Clipstick is inspired by [tyro](https://brentyi.github.io/tyro/). It is excellent and is more versatile than this tool. But in my opionion it's primary focus is not building a cli tool along the lines of Argparse or Click, but more on composing complex objects from the command line. Making tyro behave like a "traditional" cli tool requires additional `Annotation` flags, which I didn't want.
+Clipstick is inspired by [tyro](https://brentyi.github.io/tyro/). It is excellent and is more versatile than this tool. But in my opionion its primary focus is not building a cli tool along the lines of Argparse or Click, but more on composing complex objects from the command line. Making tyro behave like a "traditional" cli requires additional `Annotation` flags, which I don't want.
 
 
 ## Installation

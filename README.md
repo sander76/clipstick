@@ -182,9 +182,7 @@ assert model == MyModel(my_value=25)
 
 ## Subcommands
 
-Subcommands are possible by adding a property with a union of `BaseModel`.
-Only one subcommand per model is allowed. (If you need more, have a look at [tyro](https://brentyi.github.io/tyro/))
-Nesting of subcommands is also possible.
+Subcommands are possible by adding a property with a union of `BaseModel`, each defined as new path in the sub-command tree.
 
 <!-- [[[cog
 import cog
@@ -223,3 +221,7 @@ assert model == Boulder(sub_command=Routes(route_name="Burden of Dreams"))
 
 ```
 <!-- [[[end]]] -->
+
+- Only one subcommand per model is allowed. (If you need more (and want to follow the more object-composition path), have a look at [tyro](https://brentyi.github.io/tyro/))
+- `sub_command` as a name is not required. Any name will do.
+- Nesting of subcommands is possible.

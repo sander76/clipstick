@@ -70,7 +70,7 @@ if __name__ == "__main__":
 import cog
 import subprocess
 
-result = subprocess.run(['python','examples/simple.py','-h'],capture_output=True)
+result = subprocess.run(['python','examples/simple.py','-h'], check=True, stdout=subprocess.PIPE)
 cog.outl("```")
 cog.out(result.stdout.decode('utf-8'))
 cog.outl("```")

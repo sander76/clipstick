@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from clipstick._clipstick import parse
+import pytest
 
 
 class OptionalsModel(BaseModel):
@@ -14,6 +15,11 @@ class OptionalsModel(BaseModel):
 def test_no_optionals():
     model = parse(OptionalsModel, [])
     assert model == OptionalsModel()
+
+
+def test_positional():
+    with pytest.raises(Exception):
+        parse(OptionalsModel, [20])
 
 
 def test_some_optionals():

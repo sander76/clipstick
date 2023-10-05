@@ -6,6 +6,5 @@ class MyModel(BaseModel):
     my_value: int = 22
 
 
-model = parse(MyModel, ["--my-value", "25"])
-
-assert model == MyModel(my_value=25)
+if __name__ == "__main__":
+    model = parse(MyModel)

@@ -77,7 +77,7 @@ cog.outl("```")
 ]]]> -->
 ```
 
-usage: <your entrypoint here> [-h] name [--repeat-count]
+usage: <your entrypoint here> [-h] name [['--repeat-count']]
 
 A simple model demonstrating clipstick.
 
@@ -121,15 +121,25 @@ are converted to cli positional arguments.
 
 <!-- [[[cog
 import cog
-file="docs/source/positional_arg.py"
 
-contents = open(file).read() 
+from docs.source import positional_arg as module
+from docs.source import cogger
 
 cog.outl("```python")
-cog.outl(contents)
+cog.outl(cogger.print_source(module))
 cog.outl("```")
+cog.outl("```python")
+cog.outl(cogger.print_output(module.MyModel,['10']))
+cog.outl("```")
+cog.outl("```")
+cog.outl(cogger.print_help(module.MyModel))
+cog.outl("```")
+
+
 ]]]> -->
 ```python
+# source/positional_arg.py
+
 from pydantic import BaseModel
 from clipstick import parse
 
@@ -138,9 +148,24 @@ class MyModel(BaseModel):
     my_value: int
 
 
-model = parse(MyModel, ["10"])
+if __name__ == "__main__":
+    """your cli entrypoint"""
+    model = parse(MyModel)
 
-assert model == MyModel(my_value=10)
+```
+```python
+# >>> python source/positional_arg.py 10
+MyModel(my_value=10)
+```
+```
+# >>> python source/positional_arg.py -h
+
+usage: <your entrypoint here> [-h] my-value
+
+None
+
+positional arguments:
+    my-value                 None [int]
 
 ```
 <!-- [[[end]]] -->
@@ -150,15 +175,25 @@ assert model == MyModel(my_value=10)
 
 <!-- [[[cog
 import cog
-file="docs/source/keyword_arg.py"
 
-contents = open(file).read() 
+from docs.source import keyword_arg as module
+from docs.source import cogger
 
 cog.outl("```python")
-cog.outl(contents)
+cog.outl(cogger.print_source(module))
 cog.outl("```")
+cog.outl("```python")
+cog.outl(cogger.print_output(module.MyModel,['10']))
+cog.outl("```")
+cog.outl("```")
+cog.outl(cogger.print_help(module.MyModel))
+cog.outl("```")
+
+
 ]]]> -->
 ```python
+# source/keyword_arg.py
+
 from pydantic import BaseModel
 from clipstick import parse
 
@@ -167,9 +202,23 @@ class MyModel(BaseModel):
     my_value: int = 22
 
 
-model = parse(MyModel, ["--my-value", "25"])
+if __name__ == "__main__":
+    model = parse(MyModel)
 
-assert model == MyModel(my_value=25)
+```
+```python
+# >>> python source/keyword_arg.py 10
+MyModel(my_value=22)
+```
+```
+# >>> python source/keyword_arg.py -h
+
+usage: <your entrypoint here> [-h] [['--my-value']]
+
+None
+
+optional keyword arguments:
+    --my-value               None [int]
 
 ```
 <!-- [[[end]]] -->
@@ -186,15 +235,25 @@ Subcommands are possible by adding a property with a union of `BaseModel`, each 
 
 <!-- [[[cog
 import cog
-file="docs/source/subcommand_arg.py"
 
-contents = open(file).read() 
+from docs.source import subcommand_arg as module
+from docs.source import cogger
 
 cog.outl("```python")
-cog.outl(contents)
+cog.outl(cogger.print_source(module))
 cog.outl("```")
+cog.outl("```python")
+cog.outl(cogger.print_output(module.MyModel,['climbers','Ondra']))
+cog.outl("```")
+cog.outl("```")
+cog.outl(cogger.print_help(module.MyModel))
+cog.outl("```")
+
+
 ]]]> -->
 ```python
+# source/subcommand_arg.py
+
 from pydantic import BaseModel
 from clipstick import parse
 
@@ -207,17 +266,30 @@ class Climbers(BaseModel):
     climber_name: str
 
 
-class Boulder(BaseModel):
+class MyModel(BaseModel):
     """The base model with a subcommand."""
 
     sub_command: Routes | Climbers
 
 
-model = parse(Boulder, ["climbers", "Adam Ondra"])
-assert model == Boulder(sub_command=Climbers(climber_name="Adam Ondra"))
+if __name__ == "__main__":
+    model = parse(MyModel)
 
-model = parse(Boulder, ["routes", "Burden of Dreams"])
-assert model == Boulder(sub_command=Routes(route_name="Burden of Dreams"))
+```
+```python
+# >>> python source/subcommand_arg.py climbers Ondra
+MyModel(sub_command=Climbers(climber_name='Ondra'))
+```
+```shell
+# >>> python source/subcommand_arg.py -h
+
+usage: <your entrypoint here> [-h] {routes, climbers}
+
+The base model with a subcommand.
+
+subcommands:
+    routes                   None
+    climbers                 None
 
 ```
 <!-- [[[end]]] -->

@@ -6,6 +6,6 @@ class MyModel(BaseModel):
     my_value: int
 
 
-model = parse(MyModel, ["10"])
-
-assert model == MyModel(my_value=10)
+if __name__ == "__main__":
+    """your cli entrypoint"""
+    model = parse(MyModel)

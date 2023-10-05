@@ -1,6 +1,5 @@
 # Clipstick
 
-*Work in progress*
 
 A cli-tool based on Pydantic models.
 
@@ -131,7 +130,7 @@ cog.outl("```")
 cog.outl("```python")
 cog.outl(cogger.print_output(module.MyModel,['10']))
 cog.outl("```")
-cog.outl("```")
+cog.outl("```shell")
 cog.outl(cogger.print_help(module.MyModel))
 cog.outl("```")
 
@@ -157,7 +156,7 @@ if __name__ == "__main__":
 # >>> python source/positional_arg.py 10
 MyModel(my_value=10)
 ```
-```
+```shell
 # >>> python source/positional_arg.py -h
 
 usage: <your entrypoint here> [-h] my-value
@@ -173,6 +172,8 @@ positional arguments:
 
 ## Keyword arguments
 
+All fields with a default value are converted to cli optional arguments.
+
 <!-- [[[cog
 import cog
 
@@ -183,9 +184,9 @@ cog.outl("```python")
 cog.outl(cogger.print_source(module))
 cog.outl("```")
 cog.outl("```python")
-cog.outl(cogger.print_output(module.MyModel,['10']))
+cog.outl(cogger.print_output(module.MyModel,['--my-value','10']))
 cog.outl("```")
-cog.outl("```")
+cog.outl("```shell")
 cog.outl(cogger.print_help(module.MyModel))
 cog.outl("```")
 
@@ -207,10 +208,10 @@ if __name__ == "__main__":
 
 ```
 ```python
-# >>> python source/keyword_arg.py 10
-MyModel(my_value=22)
+# >>> python source/keyword_arg.py --my-value 10
+MyModel(my_value=10)
 ```
-```
+```shell
 # >>> python source/keyword_arg.py -h
 
 usage: <your entrypoint here> [-h] [['--my-value']]
@@ -229,6 +230,62 @@ optional keyword arguments:
 
 ## Booleans/Flags
 
+<!-- [[[cog
+import cog
+
+from docs.source import boolean_required_arg as module
+from docs.source import cogger
+
+cog.outl("```python")
+cog.outl(cogger.print_source(module))
+cog.outl("```")
+cog.outl("```python")
+cog.outl(cogger.print_output(module.MyModel,['--verbose']))
+cog.outl("```")
+cog.outl("```python")
+cog.outl(cogger.print_output(module.MyModel,['--no-verbose']))
+cog.outl("```")
+cog.outl("```shell")
+cog.outl(cogger.print_help(module.MyModel))
+cog.outl("```")
+
+
+]]]> -->
+```python
+# source/boolean_required_arg.py
+
+from pydantic import BaseModel
+from clipstick import parse
+
+
+class MyModel(BaseModel):
+    verbose: bool
+
+
+if __name__ == "__main__":
+    model = parse(MyModel)
+
+```
+```python
+# >>> python source/boolean_required_arg.py --verbose
+MyModel(verbose=True)
+```
+```python
+# >>> python source/boolean_required_arg.py --no-verbose
+MyModel(verbose=False)
+```
+```shell
+# >>> python source/boolean_required_arg.py -h
+
+usage: <your entrypoint here> [-h] --verbose
+
+None
+
+positional arguments:
+    --verbose/--no-verbose   None [bool]
+
+```
+<!-- [[[end]]] -->
 ## Subcommands
 
 Subcommands are possible by adding a property with a union of `BaseModel`, each defined as new path in the sub-command tree.
@@ -280,7 +337,7 @@ if __name__ == "__main__":
 # >>> python source/subcommand_arg.py climbers Ondra
 MyModel(sub_command=Climbers(climber_name='Ondra'))
 ```
-```shell
+```
 # >>> python source/subcommand_arg.py -h
 
 usage: <your entrypoint here> [-h] {routes, climbers}

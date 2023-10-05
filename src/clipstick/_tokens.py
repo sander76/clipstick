@@ -287,9 +287,11 @@ class Command(Token[TPydanticModel]):
             )
         if len(succesfull_subcommands) == 0:
             return False, start_idx
+        _, new_idx, sub_commands = succesfull_subcommands[0]
+        self.sub_commands = [sub_commands]
 
-        self.sub_commands = [succesfull_subcommands[0][2]]
-        return True, idx + succesfull_subcommands[0][1]
+        # self.sub_commands = [succesfull_subcommands[0][2]]
+        return True, new_idx
 
     def parse(self, arguments: list[str]) -> dict[str, TPydanticModel]:
         """Populate all tokens with the provided arguments."""

@@ -2,6 +2,8 @@ from pydantic import BaseModel
 
 from clipstick._clipstick import parse
 
+import pytest
+
 
 class SimpleModel(BaseModel):
     """A simple model. Main description."""
@@ -19,6 +21,11 @@ def test_parse_simple_positional_only():
 def test_parse_simple_mode_with_optional():
     model = parse(SimpleModel, ["Adam", "--snake-cased-kwarg", "10"])
     assert model == SimpleModel(my_name="Adam", snake_cased_kwarg=10)
+
+
+def test_too_much_positionals_must_raise():
+    with pytest.raises(Exception):
+        parse(SimpleModel, ["Adam", "Ondra"])
 
 
 def test_parse_simple_model_help(capture_output):

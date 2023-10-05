@@ -18,7 +18,7 @@ def test_no_optionals():
 
 
 def test_positional():
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         parse(OptionalsModel, [20])
 
 

@@ -51,9 +51,9 @@ def test_default_false_model_help(capture_output):
 
 
 def test_default_true_model():
-    model = parse(DefaultTrueFlaggedModel, ["--no-my-false-flag"])
+    model = parse(DefaultTrueFlaggedModel, ["--no-my-true-flag"])
 
-    assert model == DefaultTrueFlaggedModel(my_false_flag=False)
+    assert model == DefaultTrueFlaggedModel(my_true_flag=False)
 
 
 def test_default_true_model_help(capture_output):

@@ -1,0 +1,14 @@
+
+usage: <your entrypoint here> [-h] pos-value-1, pos-value-2, --required-bool [['--optional-1']], [['--optional-2']], [['--optional-bool']]
+
+None
+
+positional arguments:
+    pos-value-1              None [str]
+    pos-value-2              None [int]
+    --required-bool/--no-required-boolNone [bool]
+
+optional keyword arguments:
+    --optional-1             None [str]
+    --optional-2             None [int]
+    --optional-bool          None [bool]

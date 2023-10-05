@@ -3,7 +3,7 @@ from clipstick import parse
 
 
 class MyModel(BaseModel):
-    my_value: int = 22
+    verbose: bool
 
 
 if __name__ == "__main__":

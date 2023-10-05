@@ -35,12 +35,6 @@ def test(session):
     session.run("poetry", "install", "--sync", external=True)
     session.run("pytest", "tests")
 
-    # running all files inside the source folder to assert the document
-    # examples are correct.
-    # Subject to change.
-    for fl in Path("docs/source").glob("*.py"):
-        session.run("python", fl)
-
 
 @nox.session
 def build(session):

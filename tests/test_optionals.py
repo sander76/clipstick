@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from clipstick._clipstick import parse
+import pytest
 
 
 class OptionalsModel(BaseModel):
@@ -16,6 +17,11 @@ def test_no_optionals():
     assert model == OptionalsModel()
 
 
+def test_positional():
+    with pytest.raises(ValueError):
+        parse(OptionalsModel, [20])
+
+
 def test_some_optionals():
     model = parse(OptionalsModel, ["--value-1", "24"])
     assert model == OptionalsModel(value_1=24)
@@ -26,14 +32,9 @@ def test_all_optionals():
     assert model == OptionalsModel(value_1=24, value_2="25")
 
 
-def test_help(capsys):
-    try:
-        parse(OptionalsModel, ["-h"])
-    except SystemExit:
-        pass
+def test_help(capture_output):
+    out = capture_output(OptionalsModel, ["-h"])
 
-    cap = capsys.readouterr()
-    out = cap.out
     assert "A model with only optionals." in out
     assert "--value-1" in out
     assert "Optional value 1." in out

@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from functools import cached_property
 import sys
 
 from typing import Generic, TypeVar
@@ -6,7 +7,7 @@ from itertools import chain
 from pydantic import BaseModel
 from pydantic.alias_generators import to_snake
 from pydantic.fields import FieldInfo
-from clipstick._help import field_description
+from clipstick._help import field_description, user_keys
 
 TTokenType = TypeVar("TTokenType")
 TPydanticModel = TypeVar("TPydanticModel", bound=BaseModel)
@@ -38,7 +39,7 @@ class Token(Generic[TTokenType]):
         raise NotImplementedError()
 
     @property
-    def user_key(self) -> str:
+    def user_key(self) -> list[str]:
         raise NotImplementedError()
 
 
@@ -49,8 +50,8 @@ class PositionalArg(Token[str]):
     indices: slice | None = None
 
     @property
-    def user_key(self) -> str:
-        return self.key.replace("_", "-")
+    def user_key(self) -> list[str]:
+        return [self.key.replace("_", "-")]
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         try:
@@ -76,12 +77,12 @@ class OptionalKeyArgs(Token[str]):
     indices: slice | None = None
 
     @property
-    def user_key(self) -> str:
-        return f"--{self.key.replace('_','-')}"
+    def user_key(self) -> list[str]:
+        return [f"--{self.key.replace('_','-')}"]
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         try:
-            if not values[idx] == self.user_key:
+            if values[idx] not in self.user_key:
                 # As this is an optional, we are returning true to continue matching.
                 return True, idx
         except IndexError:
@@ -99,6 +100,79 @@ class OptionalKeyArgs(Token[str]):
 
 
 @dataclass
+class BooleanFlag(Token[bool]):
+    """A positional (required) boolean flag value."""
+
+    key: str
+    field_info: FieldInfo
+    indices: slice | None = None
+
+    @property
+    def true_value(self) -> str:
+        return f"--{self.key}".replace("_", "-")
+
+    @property
+    def false_value(self) -> str:
+        return f"--no-{self.key}".replace("_", "-")
+
+    @property
+    def user_key(self) -> list[str]:
+        return [self.true_value, self.false_value]
+
+    def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
+        if len(values) <= idx:
+            return False, idx
+
+        if values[idx] in self.user_key:
+            self.indices = slice(idx, idx + 1)
+            return True, idx + 1
+        return False, idx
+
+    def parse(self, values: list[str]) -> dict[str, bool]:
+        if self.indices:
+            val = values[self.indices][0] == self.true_value
+            return {self.key: val}
+        return {}
+
+
+@dataclass
+class OptionalBooleanFlag(Token[bool]):
+    key: str
+    field_info: FieldInfo
+    indices: slice | None = None
+
+    @property
+    def true_value(self) -> str:
+        return f"--{self.key}".replace("_", "-")
+
+    @property
+    def false_value(self) -> str:
+        return f"--no-{self.key}".replace("_", "-")
+
+    @cached_property
+    def user_key(self) -> list[str]:
+        if self.field_info.default is False:
+            return [self.true_value]
+        else:
+            return [self.false_value]
+
+    def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
+        if len(values) <= idx:
+            return True, idx
+
+        if values[idx] in self.user_key:
+            self.indices = slice(idx, idx + 1)
+            return True, idx + 1
+        return True, idx
+
+    def parse(self, values: list[str]) -> dict[str, bool]:
+        if self.indices:
+            val = values[self.indices][0] == self.true_value
+            return {self.key: val}
+        return {}
+
+
+@dataclass
 class Command(Token[TPydanticModel]):
     key: str
     """Reference to the key in the pydantic model."""
@@ -111,29 +185,31 @@ class Command(Token[TPydanticModel]):
     indices: slice | None = None
     """The indices which are consumed of the provided arguments."""
 
-    args: list[PositionalArg] = field(default_factory=list)
+    args: list[PositionalArg | BooleanFlag] = field(default_factory=list)
     """Collection of required arguments associated with this command."""
 
-    optional_kwargs: list[OptionalKeyArgs] = field(default_factory=list)
+    optional_kwargs: list[OptionalKeyArgs | OptionalBooleanFlag] = field(
+        default_factory=list
+    )
     """Collection of optional keyword arguments associated with this command."""
 
     sub_commands: list["Subcommand"] = field(default_factory=list)
 
     @property
-    def user_key(self) -> str:
+    def user_key(self) -> list[str]:
         snaked = to_snake(self.cls.__name__)
-        return snaked.replace("_", "-")
+        return [snaked.replace("_", "-")]
 
     def help(self):
         print("")
-        _args_string = ", ".join(_arg.user_key for _arg in self.args)
+        _args_string = ", ".join(_arg.user_key[0] for _arg in self.args)
         _kwargs_string = ", ".join(
             f"[{_kwarg.user_key}]" for _kwarg in self.optional_kwargs
         )
         _subcommands = ""
         if self.sub_commands:
             _subcommands = (
-                "{" + ", ".join(sub.user_key for sub in self.sub_commands) + "}"
+                "{" + ", ".join(sub.user_key[0] for sub in self.sub_commands) + "}"
             )
         _all = " ".join(
             (arg for arg in (_args_string, _kwargs_string, _subcommands) if arg)
@@ -145,17 +221,23 @@ class Command(Token[TPydanticModel]):
             print("")
             print("positional arguments:")
             for arg in self.args:
-                print(f"    {arg.user_key:<25}{field_description(arg.field_info)}")
+                print(
+                    f"    {user_keys(arg.user_key):<25}{field_description(arg.field_info)}"
+                )
         if self.optional_kwargs:
             print("")
             print("optional keyword arguments:")
             for kwarg in self.optional_kwargs:
-                print(f"    {kwarg.user_key:<25}{field_description(kwarg.field_info)}")
+                print(
+                    f"    {user_keys(kwarg.user_key):<25}{field_description(kwarg.field_info)}"
+                )
         if self.sub_commands:
             print("")
             print("subcommands:")
             for sub_command in self.sub_commands:
-                print(f"    {sub_command.user_key:<25}{sub_command.cls.__doc__}")
+                print(
+                    f"    {user_keys(sub_command.user_key):<25}{sub_command.cls.__doc__}"
+                )
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         """Check for token match.
@@ -205,13 +287,15 @@ class Command(Token[TPydanticModel]):
             )
         if len(succesfull_subcommands) == 0:
             return False, start_idx
+        _, new_idx, sub_commands = succesfull_subcommands[0]
+        self.sub_commands = [sub_commands]
 
-        self.sub_commands = [succesfull_subcommands[0][2]]
-        return True, idx + succesfull_subcommands[0][1]
+        # self.sub_commands = [succesfull_subcommands[0][2]]
+        return True, new_idx
 
     def parse(self, arguments: list[str]) -> dict[str, TPydanticModel]:
         """Populate all tokens with the provided arguments."""
-        args: dict[str, str] = {}
+        args: dict[str, str | bool] = {}
         [
             args.update(parsed.parse(arguments))
             for parsed in chain(self.args, self.optional_kwargs)
@@ -246,7 +330,7 @@ class Subcommand(Command):
         """
         start_idx = idx
         try:
-            if not values[idx] == self.user_key:  # self.sub_command_name:
+            if values[idx] not in self.user_key:  # self.sub_command_name:
                 return False, start_idx
         except IndexError:
             return False, start_idx

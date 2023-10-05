@@ -1,0 +1,11 @@
+
+usage: <your entrypoint here> [-h] [['--value']] {third-level-model-two, third-level-model-one}
+
+Second level model 1.
+
+optional keyword arguments:
+    --value                  Second level model one value. [str]
+
+subcommands:
+    third-level-model-two    None
+    third-level-model-one    None

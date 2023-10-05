@@ -1,0 +1,8 @@
+
+usage: <your entrypoint here> [-h] {second-level-model-one, second-level-model-two}
+
+First level model.
+
+subcommands:
+    second-level-model-one   Second level model 1.
+    second-level-model-two   Second level model 2.

@@ -1,4 +1,3 @@
-from contextlib import suppress
 from typing import Literal
 from pydantic import BaseModel, ValidationError
 from clipstick import parse
@@ -20,11 +19,8 @@ def test_wrong_choice():
         parse(ModelWithChoice, ["wrong_options"])
 
 
-def test_model_help(capsys):
-    with suppress(SystemExit):
-        parse(ModelWithChoice, ["-h"])
-
-    out = capsys.readouterr().out
+def test_model_help(capture_output):
+    out = capture_output(ModelWithChoice, ["-h"])
 
     assert "allowed values" in out
     assert "option1" in out

@@ -25,3 +25,7 @@ def field_description(field_info: FieldInfo) -> str:
         _type = f"[{name_from_annotation(field_info)}]"
 
     return f"{d} {_type}"
+
+
+def user_keys(user_keys: list[str]) -> str:
+    return "/".join(user_keys)

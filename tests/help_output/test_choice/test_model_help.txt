@@ -1,0 +1,7 @@
+
+usage: <your entrypoint here> [-h] choice
+
+None
+
+positional arguments:
+    choice                   None [allowed values: option1, option2]

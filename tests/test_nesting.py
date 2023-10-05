@@ -23,7 +23,7 @@ class SecondLevelModelOne(BaseModel):
 class SecondLevelModelTwo(BaseModel):
     """Second level model 2."""
 
-    value: bool
+    value: int
 
 
 class FirstLevelNestedModel(BaseModel):
@@ -51,17 +51,13 @@ def test_deeply_nested_model_nest_2():
 
 
 def test_deeply_nested_model_nest_3():
-    model = parse(FirstLevelNestedModel, ["second-level-model-two", "true"])
-    assert model == FirstLevelNestedModel(sub_command=SecondLevelModelTwo(value=True))
+    model = parse(FirstLevelNestedModel, ["second-level-model-two", "21"])
+    assert model == FirstLevelNestedModel(sub_command=SecondLevelModelTwo(value=21))
 
 
-def test_model_help_first_level(capsys):
-    try:
-        parse(FirstLevelNestedModel, ["-h"])
-    except SystemExit:
-        pass
+def test_model_help_first_level(capture_output):
+    out = capture_output(FirstLevelNestedModel, ["-h"])
 
-    out = capsys.readouterr().out
     assert "First level model." in out
     assert "second-level-model-one" in out
     assert "Second level model 1." in out
@@ -70,13 +66,9 @@ def test_model_help_first_level(capsys):
     assert "Second level model 2." in out
 
 
-def test_model_help_second_level(capsys):
-    try:
-        parse(FirstLevelNestedModel, ["second-level-model-one", "-h"])
-    except SystemExit:
-        pass
+def test_model_help_second_level(capture_output):
+    out = capture_output(FirstLevelNestedModel, ["second-level-model-one", "-h"])
 
-    out = capsys.readouterr().out
     assert "First level model." not in out
     assert "second-level-model-one" not in out
 

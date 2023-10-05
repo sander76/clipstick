@@ -26,14 +26,9 @@ def test_all_optionals():
     assert model == OptionalsModel(value_1=24, value_2="25")
 
 
-def test_help(capsys):
-    try:
-        parse(OptionalsModel, ["-h"])
-    except SystemExit:
-        pass
+def test_help(capture_output):
+    out = capture_output(OptionalsModel, ["-h"])
 
-    cap = capsys.readouterr()
-    out = cap.out
     assert "A model with only optionals." in out
     assert "--value-1" in out
     assert "Optional value 1." in out

@@ -1,0 +1,10 @@
+
+usage: <your entrypoint here> [-h] my-name [['--snake-cased-kwarg']]
+
+A simple model. Main description.
+
+positional arguments:
+    my-name                  A snake cased argument. [str]
+
+optional keyword arguments:
+    --snake-cased-kwarg      None [int]

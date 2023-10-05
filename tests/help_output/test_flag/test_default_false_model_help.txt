@@ -1,0 +1,7 @@
+
+usage: <your entrypoint here> [-h] [['--my-false-flag']]
+
+A model including an optional boolean flag.
+
+optional keyword arguments:
+    --my-false-flag          my optional flag [bool]

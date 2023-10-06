@@ -3,8 +3,9 @@ import io
 from contextlib import redirect_stdout
 import inspect
 from pathlib import Path
+from rich.console import Console
 
-base_path = Path(__file__).parent.parent
+base_path = Path(__file__).parent.parent.parent
 
 
 def get_source_path(item):
@@ -25,7 +26,8 @@ def print_output(model, args):
 
 
 def print_help(model):
-    cmd = f"# >>> python {get_source_path(model)} -h\n"
+    src = get_source_path(model)
+    cmd = f"Printing help:  python {src} -h\n"
     with redirect_stdout(io.StringIO()) as fl:
         try:
             model = parse(model, ["-h"])
@@ -33,4 +35,10 @@ def print_help(model):
             pass
 
     print_output = fl.getvalue()
-    return cmd + print_output
+
+    console = Console(record=True, width=100, highlight=False)
+    console.print(print_output)
+    svg = src.with_suffix(".svg")
+    console.save_svg(svg, title=cmd)
+
+    return str(svg)

@@ -4,6 +4,7 @@ from contextlib import redirect_stdout
 import inspect
 from pathlib import Path
 from rich.console import Console
+from rich.markup import escape
 
 base_path = Path(__file__).parent.parent.parent
 
@@ -27,7 +28,7 @@ def print_output(model, args):
 
 def print_help(model):
     src = get_source_path(model)
-    cmd = f"Printing help:  python {src} -h\n"
+    cmd = f">>>  python {src} -h\n"
     with redirect_stdout(io.StringIO()) as fl:
         try:
             model = parse(model, ["-h"])
@@ -36,9 +37,10 @@ def print_help(model):
 
     print_output = fl.getvalue()
 
-    console = Console(record=True, width=100, highlight=False)
-    console.print(print_output)
+    console = Console(record=True, width=110, highlight=False)
+    console.print(cmd)
+    console.print(escape(print_output))
     svg = src.with_suffix(".svg")
-    console.save_svg(svg, title=cmd)
+    console.save_svg(svg, title="")
 
     return str(svg)

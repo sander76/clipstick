@@ -76,7 +76,7 @@ cog.outl("```")
 ]]]> -->
 ```
 
-usage: <your entrypoint here> [-h] name [['--repeat-count']]
+usage: examples/simple.py [-h] name [--repeat-count]
 
 A simple model demonstrating clipstick.
 
@@ -87,7 +87,7 @@ positional arguments:
     name                     Your name. This is used in help describing name. [str]
 
 optional keyword arguments:
-    --repeat-count           How many times to repeat your name. Used in help describing repeat_count. [int]
+    --repeat-count           How many times to repeat your name. Used in help describing repeat_count. [int][default=10]
 ```
 <!-- [[[end]]] -->
 
@@ -159,7 +159,7 @@ MyModel(my_value=10)
 ```shell
 # >>> python source/positional_arg.py -h
 
-usage: <your entrypoint here> [-h] my-value
+usage: dummy-entrypoint [-h] my-value
 
 None
 
@@ -191,6 +191,7 @@ cog.outl(cogger.print_help(module.MyModel))
 cog.outl("```")
 
 
+
 ]]]> -->
 ```python
 # source/keyword_arg.py
@@ -214,12 +215,12 @@ MyModel(my_value=10)
 ```shell
 # >>> python source/keyword_arg.py -h
 
-usage: <your entrypoint here> [-h] [['--my-value']]
+usage: dummy-entrypoint [-h] [--my-value]
 
 None
 
 optional keyword arguments:
-    --my-value               None [int]
+    --my-value               None [int][default=22]
 
 ```
 <!-- [[[end]]] -->
@@ -277,7 +278,7 @@ MyModel(verbose=False)
 ```shell
 # >>> python source/boolean_required_arg.py -h
 
-usage: <your entrypoint here> [-h] --verbose
+usage: dummy-entrypoint [-h] --verbose/--no-verbose
 
 None
 
@@ -340,7 +341,7 @@ MyModel(sub_command=Climbers(climber_name='Ondra'))
 ```
 # >>> python source/subcommand_arg.py -h
 
-usage: <your entrypoint here> [-h] {routes, climbers}
+usage: dummy-entrypoint [-h] {routes, climbers}
 
 The base model with a subcommand.
 

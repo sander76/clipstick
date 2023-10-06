@@ -7,4 +7,4 @@ positional arguments:
     my-name                  A snake cased argument. [str]
 
 optional keyword arguments:
-    --snake-cased-kwarg      None [int]
+    --snake-cased-kwarg      None [int][default=10]

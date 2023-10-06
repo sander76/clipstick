@@ -9,6 +9,6 @@ positional arguments:
     --required-bool/--no-required-boolNone [bool]
 
 optional keyword arguments:
-    --optional-1             None [str]
-    --optional-2             None [int]
-    --optional-bool          None [bool]
+    --optional-1             None [str][default=opt1]
+    --optional-2             None [int][default=20]
+    --optional-bool          None [bool][default=False]

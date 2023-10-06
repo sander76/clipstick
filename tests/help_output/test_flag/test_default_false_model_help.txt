@@ -1,5 +1,5 @@
 
-usage: dummy-entrypoint [-h] [['--my-false-flag']]
+usage: dummy-entrypoint [-h] [--my-false-flag]
 
 A model including an optional boolean flag.
 

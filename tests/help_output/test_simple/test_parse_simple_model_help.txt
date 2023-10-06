@@ -1,5 +1,5 @@
 
-usage: dummy-entrypoint [-h] my-name [['--snake-cased-kwarg']]
+usage: dummy-entrypoint [-h] my-name [--snake-cased-kwarg]
 
 A simple model. Main description.
 

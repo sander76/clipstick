@@ -209,9 +209,9 @@ class Command(Token[TPydanticModel]):
             (user_keys(token.user_key) for token in reversed(call_stack))
         )
 
-        _args_string = ", ".join(_arg.user_key[0] for _arg in self.args)
-        _kwargs_string = ", ".join(
-            f"[{_kwarg.user_key}]" for _kwarg in self.optional_kwargs
+        _args_string = " ".join(user_keys(_arg.user_key) for _arg in self.args)
+        _kwargs_string = " ".join(
+            f"[{user_keys(_kwarg.user_key)}]" for _kwarg in self.optional_kwargs
         )
         _subcommands = ""
         if self.sub_commands:

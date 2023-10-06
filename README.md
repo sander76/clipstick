@@ -130,14 +130,12 @@ cog.outl("```")
 cog.outl("```python")
 cog.outl(cogger.print_output(module.MyModel,['10']))
 cog.outl("```")
-cog.outl("```shell")
-cog.outl(cogger.print_help(module.MyModel))
-cog.outl("```")
+cog.outl(f"![helpoutput]({cogger.print_help(module.MyModel)})")
 
 
 ]]]> -->
 ```python
-# source/positional_arg.py
+# docs/source/positional_arg.py
 
 from pydantic import BaseModel
 from clipstick import parse
@@ -153,20 +151,10 @@ if __name__ == "__main__":
 
 ```
 ```python
-# >>> python source/positional_arg.py 10
+# >>> python docs/source/positional_arg.py 10
 MyModel(my_value=10)
 ```
-```shell
-# >>> python source/positional_arg.py -h
-
-usage: dummy-entrypoint [-h] my-value
-
-None
-
-positional arguments:
-    my-value                 None [int]
-
-```
+![helpoutput](docs/source/positional_arg.svg)
 <!-- [[[end]]] -->
 
 
@@ -186,15 +174,13 @@ cog.outl("```")
 cog.outl("```python")
 cog.outl(cogger.print_output(module.MyModel,['--my-value','10']))
 cog.outl("```")
-cog.outl("```shell")
-cog.outl(cogger.print_help(module.MyModel))
-cog.outl("```")
+cog.outl(f"![helpoutput]({cogger.print_help(module.MyModel)})")
 
 
 
 ]]]> -->
 ```python
-# source/keyword_arg.py
+# docs/source/keyword_arg.py
 
 from pydantic import BaseModel
 from clipstick import parse
@@ -209,20 +195,10 @@ if __name__ == "__main__":
 
 ```
 ```python
-# >>> python source/keyword_arg.py --my-value 10
+# >>> python docs/source/keyword_arg.py --my-value 10
 MyModel(my_value=10)
 ```
-```shell
-# >>> python source/keyword_arg.py -h
-
-usage: dummy-entrypoint [-h] [--my-value]
-
-None
-
-optional keyword arguments:
-    --my-value               None [int][default=22]
-
-```
+![helpoutput](docs/source/keyword_arg.svg)
 <!-- [[[end]]] -->
 
 ## Choices
@@ -246,14 +222,12 @@ cog.outl("```")
 cog.outl("```python")
 cog.outl(cogger.print_output(module.MyModel,['--no-verbose']))
 cog.outl("```")
-cog.outl("```shell")
-cog.outl(cogger.print_help(module.MyModel))
-cog.outl("```")
+cog.outl(f"![helpoutput]({cogger.print_help(module.MyModel)})")
 
 
 ]]]> -->
 ```python
-# source/boolean_required_arg.py
+# docs/source/boolean_required_arg.py
 
 from pydantic import BaseModel
 from clipstick import parse
@@ -268,24 +242,14 @@ if __name__ == "__main__":
 
 ```
 ```python
-# >>> python source/boolean_required_arg.py --verbose
+# >>> python docs/source/boolean_required_arg.py --verbose
 MyModel(verbose=True)
 ```
 ```python
-# >>> python source/boolean_required_arg.py --no-verbose
+# >>> python docs/source/boolean_required_arg.py --no-verbose
 MyModel(verbose=False)
 ```
-```shell
-# >>> python source/boolean_required_arg.py -h
-
-usage: dummy-entrypoint [-h] --verbose/--no-verbose
-
-None
-
-positional arguments:
-    --verbose/--no-verbose   None [bool]
-
-```
+![helpoutput](docs/source/boolean_required_arg.svg)
 <!-- [[[end]]] -->
 ## Subcommands
 
@@ -303,14 +267,12 @@ cog.outl("```")
 cog.outl("```python")
 cog.outl(cogger.print_output(module.MyModel,['climbers','Ondra']))
 cog.outl("```")
-cog.outl("```")
-cog.outl(cogger.print_help(module.MyModel))
-cog.outl("```")
+cog.outl(f"![helpoutput]({cogger.print_help(module.MyModel)})")
 
 
 ]]]> -->
 ```python
-# source/subcommand_arg.py
+# docs/source/subcommand_arg.py
 
 from pydantic import BaseModel
 from clipstick import parse
@@ -335,21 +297,10 @@ if __name__ == "__main__":
 
 ```
 ```python
-# >>> python source/subcommand_arg.py climbers Ondra
+# >>> python docs/source/subcommand_arg.py climbers Ondra
 MyModel(sub_command=Climbers(climber_name='Ondra'))
 ```
-```
-# >>> python source/subcommand_arg.py -h
-
-usage: dummy-entrypoint [-h] {routes, climbers}
-
-The base model with a subcommand.
-
-subcommands:
-    routes                   None
-    climbers                 None
-
-```
+![helpoutput](docs/source/subcommand_arg.svg)
 <!-- [[[end]]] -->
 
 - Only one subcommand per model is allowed. (If you need more (and want to follow the more object-composition path), have a look at [tyro](https://brentyi.github.io/tyro/))

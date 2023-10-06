@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "clipstick"
-version = "0.1.3"
+version = "0.1.4"
 description = "A cli tool based on Pydantic models."
 license = "MIT"
 authors = ["Sander Teunissen <s.teunissen@gmail.co>"]

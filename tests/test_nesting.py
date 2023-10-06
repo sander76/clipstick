@@ -70,7 +70,7 @@ def test_model_help_second_level(capture_output):
     out = capture_output(FirstLevelNestedModel, ["second-level-model-one", "-h"])
 
     assert "First level model." not in out
-    assert "second-level-model-one" not in out
+    assert "dummy-entrypoint second-level-model-one" in out
 
     assert "Second level model 1." in out
     assert "third-level-model-two" in out

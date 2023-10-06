@@ -1,5 +1,5 @@
 
-usage: <your entrypoint here> [-h] [['--value-1']], [['--value-2']]
+usage: dummy-entrypoint [-h] [['--value-1']], [['--value-2']]
 
 A model with only optionals.
 

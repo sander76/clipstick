@@ -1,5 +1,5 @@
 
-usage: dummy-entrypoint [-h] [['--no-my-true-flag']]
+usage: dummy-entrypoint [-h] [--no-my-true-flag]
 
 None
 

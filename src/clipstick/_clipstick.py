@@ -5,9 +5,13 @@ import sys
 
 def parse(model: type[TPydanticModel], args: list[str] | None = None) -> TPydanticModel:
     if args is None:
-        args = sys.argv[1:]
+        entry_point, args = sys.argv[0], sys.argv[1:]
+    else:
+        # Normally the first item in your sys.argv is the command/entrypoint you've entered.
+        # During testing you don't provide that (only the actual arguments you enter after that).
+        entry_point = "dummy-entrypoint"
 
-    root_node = Command("__main_entry__", model.__name__, model)
+    root_node = Command(key=entry_point, cls=model, parent=None)
     tokenize(model=model, sub_command=root_node)
 
     success, idx = root_node.match(0, args)
@@ -17,4 +21,4 @@ def parse(model: type[TPydanticModel], args: list[str] | None = None) -> TPydant
         parsed = root_node.parse(args)
     else:
         raise ValueError("No matching pattern found.")
-    return parsed["__main_entry__"]
+    return parsed[entry_point]

@@ -1,3 +1,4 @@
+from __future__ import annotations
 from dataclasses import dataclass, field
 from functools import cached_property
 import sys
@@ -7,7 +8,7 @@ from itertools import chain
 from pydantic import BaseModel
 from pydantic.alias_generators import to_snake
 from pydantic.fields import FieldInfo
-from clipstick._help import field_description, user_keys
+from clipstick._help import field_description, user_keys, call_stack_from_tokens
 
 TTokenType = TypeVar("TTokenType")
 TPydanticModel = TypeVar("TPydanticModel", bound=BaseModel)
@@ -177,10 +178,11 @@ class Command(Token[TPydanticModel]):
     key: str
     """Reference to the key in the pydantic model."""
 
-    sub_command_name: str
-
     cls: type[TPydanticModel]
     """Pydantic class. Used for instantiating this command."""
+
+    parent: "Command" | "Subcommand" | None
+    """The full command that got you here."""
 
     indices: slice | None = None
     """The indices which are consumed of the provided arguments."""
@@ -197,11 +199,16 @@ class Command(Token[TPydanticModel]):
 
     @property
     def user_key(self) -> list[str]:
-        snaked = to_snake(self.cls.__name__)
-        return [snaked.replace("_", "-")]
+        return [self.key]
 
     def help(self):
         print("")
+        call_stack = list(call_stack_from_tokens(self))
+
+        entry_point = " ".join(
+            (user_keys(token.user_key) for token in reversed(call_stack))
+        )
+
         _args_string = ", ".join(_arg.user_key[0] for _arg in self.args)
         _kwargs_string = ", ".join(
             f"[{_kwarg.user_key}]" for _kwarg in self.optional_kwargs
@@ -214,7 +221,7 @@ class Command(Token[TPydanticModel]):
         _all = " ".join(
             (arg for arg in (_args_string, _kwargs_string, _subcommands) if arg)
         )
-        print(f"usage: <your entrypoint here> [-h] {_all}")
+        print(f"usage: {entry_point} [-h] {_all}")
         print("")
         print(self.cls.__doc__)
         if self.args:
@@ -311,6 +318,11 @@ class Command(Token[TPydanticModel]):
 
 @dataclass
 class Subcommand(Command):
+    @property
+    def user_key(self) -> list[str]:
+        snaked = to_snake(self.cls.__name__)
+        return [snaked.replace("_", "-")]
+
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         """Check for token match.
 
@@ -330,7 +342,7 @@ class Subcommand(Command):
         """
         start_idx = idx
         try:
-            if values[idx] not in self.user_key:  # self.sub_command_name:
+            if values[idx] not in self.user_key:
                 return False, start_idx
         except IndexError:
             return False, start_idx

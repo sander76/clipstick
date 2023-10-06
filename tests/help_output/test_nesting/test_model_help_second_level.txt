@@ -1,5 +1,5 @@
 
-usage: <your entrypoint here> [-h] [['--value']] {third-level-model-two, third-level-model-one}
+usage: dummy-entrypoint second-level-model-one [-h] [['--value']] {third-level-model-two, third-level-model-one}
 
 Second level model 1.
 

@@ -203,6 +203,47 @@ MyModel(my_value=10)
 
 ## Choices
 
+Choices are supported by using the `Literal` type annotation.
+
+<!-- [[[cog
+import cog
+
+from docs.source import choice_arg as module
+from docs.source import cogger
+
+cog.outl("```python")
+cog.outl(cogger.print_source(module))
+cog.outl("```")
+cog.outl("```python")
+cog.outl(cogger.print_output(module.MyModel,['--my-value','option2']))
+cog.outl("```")
+
+cog.outl(f"![helpoutput]({cogger.print_help(module.MyModel)})")
+
+
+]]]> -->
+```python
+# docs/source/choice_arg.py
+
+from typing import Literal
+from pydantic import BaseModel
+from clipstick import parse
+
+
+class MyModel(BaseModel):
+    my_value: Literal["option1", "option2"] = "option1"
+
+
+if __name__ == "__main__":
+    model = parse(MyModel)
+
+```
+```python
+# >>> python docs/source/choice_arg.py --my-value option2
+MyModel(my_value='option2')
+```
+![helpoutput](docs/source/choice_arg.svg)
+<!-- [[[end]]] -->
 ## Lists
 
 ## Booleans/Flags
@@ -251,6 +292,7 @@ MyModel(verbose=False)
 ```
 ![helpoutput](docs/source/boolean_required_arg.svg)
 <!-- [[[end]]] -->
+
 ## Subcommands
 
 Subcommands are possible by adding a property with a union of `BaseModel`, each defined as new path in the sub-command tree.

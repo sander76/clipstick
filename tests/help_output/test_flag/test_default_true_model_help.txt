@@ -4,4 +4,4 @@ usage: dummy-entrypoint [-h] [--no-my-true-flag]
 None
 
 optional keyword arguments:
-    --no-my-true-flag        None [bool]
+    --no-my-true-flag        None [bool][default=True]

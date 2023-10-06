@@ -4,4 +4,4 @@ usage: dummy-entrypoint [-h] [--my-false-flag]
 A model including an optional boolean flag.
 
 optional keyword arguments:
-    --my-false-flag          my optional flag [bool]
+    --my-false-flag          my optional flag [bool][default=False]

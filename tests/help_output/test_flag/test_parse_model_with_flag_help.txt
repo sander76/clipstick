@@ -1,5 +1,5 @@
 
-usage: dummy-entrypoint [-h] --add-flag
+usage: dummy-entrypoint [-h] --add-flag/--no-add-flag
 
 A simple model. Main description.
 

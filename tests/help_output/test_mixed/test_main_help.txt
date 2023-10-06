@@ -1,5 +1,5 @@
 
-usage: dummy-entrypoint [-h] pos-value-1, pos-value-2, --required-bool [['--optional-1']], [['--optional-2']], [['--optional-bool']]
+usage: dummy-entrypoint [-h] pos-value-1 pos-value-2 --required-bool/--no-required-bool [--optional-1] [--optional-2] [--optional-bool]
 
 None
 

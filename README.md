@@ -142,7 +142,10 @@ from clipstick import parse
 
 
 class MyModel(BaseModel):
+    """My model with a required value."""
+
     my_value: int
+    """My required value."""
 
 
 if __name__ == "__main__":
@@ -187,7 +190,10 @@ from clipstick import parse
 
 
 class MyModel(BaseModel):
+    """A model with a keyworded optional value"""
+
     my_value: int = 22
+    """My value with a default."""
 
 
 if __name__ == "__main__":
@@ -231,7 +237,10 @@ from clipstick import parse
 
 
 class MyModel(BaseModel):
+    """My model with choice values."""
+
     my_value: Literal["option1", "option2"] = "option1"
+    """A value with restricted values."""
 
 
 if __name__ == "__main__":
@@ -275,7 +284,10 @@ from clipstick import parse
 
 
 class MyModel(BaseModel):
+    """A model with a required boolean value."""
+
     verbose: bool
+    """Some verbose thingy."""
 
 
 if __name__ == "__main__":
@@ -321,11 +333,17 @@ from clipstick import parse
 
 
 class Routes(BaseModel):
+    """Some climbing routes."""
+
     route_name: str
+    """Name of a route."""
 
 
 class Climbers(BaseModel):
+    """Climbers model."""
+
     climber_name: str
+    """Name of a climber."""
 
 
 class MyModel(BaseModel):

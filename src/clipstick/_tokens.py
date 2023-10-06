@@ -8,7 +8,7 @@ from itertools import chain
 from pydantic import BaseModel
 from pydantic.alias_generators import to_snake
 from pydantic.fields import FieldInfo
-from clipstick._help import field_description, user_keys, call_stack_from_tokens
+from clipstick import _help
 
 TTokenType = TypeVar("TTokenType")
 TPydanticModel = TypeVar("TPydanticModel", bound=BaseModel)
@@ -201,51 +201,6 @@ class Command(Token[TPydanticModel]):
     def user_key(self) -> list[str]:
         return [self.key]
 
-    def help(self):
-        print("")
-        call_stack = list(call_stack_from_tokens(self))
-
-        entry_point = " ".join(
-            (user_keys(token.user_key) for token in reversed(call_stack))
-        )
-
-        _args_string = " ".join(user_keys(_arg.user_key) for _arg in self.args)
-        _kwargs_string = " ".join(
-            f"[{user_keys(_kwarg.user_key)}]" for _kwarg in self.optional_kwargs
-        )
-        _subcommands = ""
-        if self.sub_commands:
-            _subcommands = (
-                "{" + ", ".join(sub.user_key[0] for sub in self.sub_commands) + "}"
-            )
-        _all = " ".join(
-            (arg for arg in (_args_string, _kwargs_string, _subcommands) if arg)
-        )
-        print(f"usage: {entry_point} [-h] {_all}")
-        print("")
-        print(self.cls.__doc__)
-        if self.args:
-            print("")
-            print("positional arguments:")
-            for arg in self.args:
-                print(
-                    f"    {user_keys(arg.user_key):<25}{field_description(arg.field_info)}"
-                )
-        if self.optional_kwargs:
-            print("")
-            print("optional keyword arguments:")
-            for kwarg in self.optional_kwargs:
-                print(
-                    f"    {user_keys(kwarg.user_key):<25}{field_description(kwarg.field_info)}"
-                )
-        if self.sub_commands:
-            print("")
-            print("subcommands:")
-            for sub_command in self.sub_commands:
-                print(
-                    f"    {user_keys(sub_command.user_key):<25}{sub_command.cls.__doc__}"
-                )
-
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         """Check for token match.
 
@@ -266,7 +221,7 @@ class Command(Token[TPydanticModel]):
         start_idx = idx
 
         if _is_help_key(idx, values):
-            self.help()
+            _help.help(self)
             sys.exit(0)
         for arg in chain(self.args, self.optional_kwargs):
             success, idx = arg.match(idx, values)

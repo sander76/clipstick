@@ -4,5 +4,5 @@ usage: dummy-entrypoint [-h] [--value-1] [--value-2]
 A model with only optionals.
 
 optional keyword arguments:
-    --value-1                Optional value 1. [int]
-    --value-2                None [str]
+    --value-1                Optional value 1. [int][default=10]
+    --value-2                None [str][default=ABC]

@@ -1,5 +1,18 @@
+from __future__ import annotations
 from pydantic.fields import FieldInfo
-from typing import Literal, get_args
+from typing import Iterator, Literal, get_args, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from clipstick._tokens import Command, Subcommand
+
+
+def call_stack_from_tokens(
+    token: Command | Subcommand,
+) -> Iterator[Command | Subcommand]:
+    yield token
+    if token.parent is None:
+        return
+    yield from call_stack_from_tokens(token.parent)
 
 
 def is_literal(field_info: FieldInfo) -> bool:

@@ -43,7 +43,7 @@ def tokenize(model: type[BaseModel], sub_command: Subcommand | Command) -> None:
         if _is_subcommand(key, value):
             for annotated_model in get_args(value.annotation):
                 new_sub_command = Subcommand(
-                    key, annotated_model.__name__, cls=annotated_model
+                    key=key, cls=annotated_model, parent=sub_command
                 )
 
                 sub_command.sub_commands.append(new_sub_command)

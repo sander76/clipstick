@@ -1,5 +1,5 @@
 
-usage: <your entrypoint here> [-h] choice
+usage: dummy-entrypoint [-h] choice
 
 None
 

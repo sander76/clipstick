@@ -45,7 +45,7 @@ jobs:
       - run: pip install nox
       - run: pip install poetry
       - run: nox --session quality
-      - run: git fetch --prune --unshallow
+      - run: git fetch --tags
       - run: nox --session check_version
         env:
           PYTHONDEVMODE: 1
@@ -92,7 +92,7 @@ jobs:
       - quality
       - update_readme
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/cache@v3
         with:
           path: ~/.cache/pip

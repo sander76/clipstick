@@ -104,12 +104,14 @@ jobs:
           python-version: "3.11"
       - run: pip install poetry
       - name: create a new tag based on poetry version.
-        run: poetry version --short | xargs -I {} git tag -a v{} -m "version {}"
-      - name: push_the_tag
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          poetry version --short | xargs git push origin 
+        
+          poetry version --short | xargs -I {} git tag -a v{} -m "version {}"
+      - name: push_the_tag
+        run: |
+          poetry version --short | xargs -I {} git push origin v{}
   deploy:
     if: github.ref == 'refs/heads/main'
     needs:

@@ -1,3 +1,7 @@
 # Changelog
 
-## 0.1.4
+## 0.2.0
+
+- updated readme.
+- updated help output.
+

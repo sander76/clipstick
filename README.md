@@ -13,8 +13,9 @@ The goal of clipstip is to use pydantic to model your cli by leveraging:
 - Docstrings as cli documentation.
 - No other mental model required than Typing and Pydantic.
 
-Clipstick is inspired by [tyro](https://brentyi.github.io/tyro/). It is excellent and is more versatile than this tool. But in my opionion its primary focus is not building a cli tool along the lines of Argparse or Click, but more on composing complex objects from the command line. Making tyro behave like a "traditional" cli requires additional `Annotation` flags, which I don't want.
+Clipstick is inspired by [tyro](https://brentyi.github.io/tyro/), which is excellent and more versatile than this tool. But in my opionion its primary focus is not building a cli tool along the lines of Argparse or Click but more on composing complex objects from the command line. Making tyro behave like a "traditional" cli requires additional `Annotation` flags, which I don't want.
 
+Next to that I decided to build my own parser instead of using `Argparse` because... why not.
 
 ## Installation
 
@@ -178,9 +179,6 @@ cog.outl("```python")
 cog.outl(cogger.print_output(module.MyModel,['--my-value','10']))
 cog.outl("```")
 cog.outl(f"![helpoutput]({cogger.print_help(module.MyModel)})")
-
-
-
 ]]]> -->
 ```python
 # docs/source/keyword_arg.py
@@ -207,6 +205,34 @@ MyModel(my_value=10)
 ![helpoutput](docs/source/keyword_arg.svg)
 <!-- [[[end]]] -->
 
+You can add a shorthand to a field by annotating it:
+
+<!-- [[[cog
+import cog
+
+from docs.source import keyword_arg_with_short as module
+from docs.source import cogger
+
+cog.outl("```python")
+cog.outl(cogger.print_source(module))
+cog.outl("```")
+]]]> -->
+```python
+# docs/source/keyword_arg_with_short.py
+
+from typing import Annotated
+from pydantic import BaseModel
+from clipstick import short
+
+
+class MyModel(BaseModel):
+    """A model with a keyworded optional value"""
+
+    my_value: Annotated[int, short("m")] = 22  # <-- this adds a shorthand of `-m`.
+    """My value with a default."""
+
+```
+<!-- [[[end]]] -->
 ## Choices
 
 Choices are supported by using the `Literal` type annotation.
@@ -253,7 +279,6 @@ MyModel(my_value='option2')
 ```
 ![helpoutput](docs/source/choice_arg.svg)
 <!-- [[[end]]] -->
-## Lists
 
 ## Booleans/Flags
 
@@ -304,6 +329,8 @@ MyModel(verbose=False)
 ```
 ![helpoutput](docs/source/boolean_required_arg.svg)
 <!-- [[[end]]] -->
+
+Short annotations `Annotated[int, short('m')]` are also allowed.
 
 ## Subcommands
 

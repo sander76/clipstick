@@ -1,9 +1,10 @@
-from clipstick._parse import tokenize
+from clipstick._parse import tokenize, validate_model
 from clipstick._tokens import Command, TPydanticModel
 import sys
 
 
 def parse(model: type[TPydanticModel], args: list[str] | None = None) -> TPydanticModel:
+    validate_model(model)
     if args is None:
         entry_point, args = sys.argv[0], sys.argv[1:]
     else:

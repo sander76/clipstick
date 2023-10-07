@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0
+
+- Add short flags for optionals and boolean flags.
+
 ## 0.2.1
 
 - update examples

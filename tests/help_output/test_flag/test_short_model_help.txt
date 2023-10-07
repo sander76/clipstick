@@ -1,0 +1,7 @@
+
+usage: dummy-entrypoint [-h] --add-flag/-a/--no-add-flag/-no-a
+
+None
+
+positional arguments:
+    --add-flag/-a/--no-add-flag/-no-aNone [bool]

@@ -1,0 +1,7 @@
+
+usage: dummy-entrypoint [-h] [--value-1/-v]
+
+None
+
+optional keyword arguments:
+    --value-1/-v             None [int][default=10]

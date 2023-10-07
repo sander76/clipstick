@@ -77,9 +77,15 @@ class OptionalKeyArgs(Token[str]):
     field_info: FieldInfo
     indices: slice | None = None
 
+    @cached_property
+    def short_keys(self) -> list[str]:
+        return [short.short for short in self.field_info.metadata]
+
     @property
     def user_key(self) -> list[str]:
-        return [f"--{self.key.replace('_','-')}"]
+        return [f"--{self.key.replace('_','-')}"] + [
+            f"-{short}" for short in self.short_keys
+        ]
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         try:
@@ -105,20 +111,29 @@ class BooleanFlag(Token[bool]):
     """A positional (required) boolean flag value."""
 
     key: str
+    """A pydantic field key/name"""
     field_info: FieldInfo
     indices: slice | None = None
 
-    @property
-    def true_value(self) -> str:
-        return f"--{self.key}".replace("_", "-")
+    @cached_property
+    def arg_key(self) -> str:
+        return self.key.replace("_", "-")
+
+    @cached_property
+    def short_keys(self) -> list[str]:
+        return [short.short for short in self.field_info.metadata]
 
     @property
-    def false_value(self) -> str:
-        return f"--no-{self.key}".replace("_", "-")
+    def true_values(self) -> list[str]:
+        return [f"--{self.arg_key}"] + [f"-{short}" for short in self.short_keys]
+
+    @property
+    def false_values(self) -> list[str]:
+        return [f"--no-{self.arg_key}"] + [f"-no-{short}" for short in self.short_keys]
 
     @property
     def user_key(self) -> list[str]:
-        return [self.true_value, self.false_value]
+        return self.true_values + self.false_values
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         if len(values) <= idx:
@@ -131,31 +146,23 @@ class BooleanFlag(Token[bool]):
 
     def parse(self, values: list[str]) -> dict[str, bool]:
         if self.indices:
-            val = values[self.indices][0] == self.true_value
+            val = values[self.indices][0] in self.true_values
             return {self.key: val}
         return {}
 
 
 @dataclass
-class OptionalBooleanFlag(Token[bool]):
+class OptionalBooleanFlag(BooleanFlag):
     key: str
     field_info: FieldInfo
     indices: slice | None = None
 
-    @property
-    def true_value(self) -> str:
-        return f"--{self.key}".replace("_", "-")
-
-    @property
-    def false_value(self) -> str:
-        return f"--no-{self.key}".replace("_", "-")
-
     @cached_property
     def user_key(self) -> list[str]:
         if self.field_info.default is False:
-            return [self.true_value]
+            return self.true_values
         else:
-            return [self.false_value]
+            return self.false_values
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         if len(values) <= idx:
@@ -165,12 +172,6 @@ class OptionalBooleanFlag(Token[bool]):
             self.indices = slice(idx, idx + 1)
             return True, idx + 1
         return True, idx
-
-    def parse(self, values: list[str]) -> dict[str, bool]:
-        if self.indices:
-            val = values[self.indices][0] == self.true_value
-            return {self.key: val}
-        return {}
 
 
 @dataclass

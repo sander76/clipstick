@@ -1,6 +1,8 @@
+from typing import Annotated
 from pydantic import BaseModel
-
+from clipstick import _annotations
 from clipstick._clipstick import parse
+import pytest
 
 
 class FlaggedModel(BaseModel):
@@ -19,6 +21,17 @@ class DefaultFalseFlaggedModel(BaseModel):
 
 class DefaultTrueFlaggedModel(BaseModel):
     my_true_flag: bool = True
+
+
+class FlaggedModelShort(BaseModel):
+    add_flag: Annotated[bool, _annotations.short("a")]
+
+
+class DefaultFalseFlaggedModelShort(BaseModel):
+    """A model including an optional boolean flag."""
+
+    my_false_flag: Annotated[bool, _annotations.short("m")] = False
+    """my optional flag"""
 
 
 def test_parse_flagged_model():
@@ -43,17 +56,35 @@ def test_default_false_model():
     assert model == DefaultFalseFlaggedModel(my_false_flag=True)
 
 
+def test_default_true_model():
+    model = parse(DefaultTrueFlaggedModel, ["--no-my-true-flag"])
+
+    assert model == DefaultTrueFlaggedModel(my_true_flag=False)
+
+
+@pytest.mark.parametrize("args", (["--add-flag"], ["-a"]))
+def test_short_hand_flag_true(args):
+    model = parse(FlaggedModelShort, args)
+    assert model == FlaggedModelShort(add_flag=True)
+
+
+@pytest.mark.parametrize("args", (["--no-add-flag"], ["-no-a"]))
+def test_short_hand_flag_false(args):
+    model = parse(FlaggedModelShort, args)
+    assert model == FlaggedModelShort(add_flag=False)
+
+
+@pytest.mark.parametrize("args", (["--my-false-flag"], ["-m"]))
+def test_short_hand_flag_default_false(args):
+    model = parse(DefaultFalseFlaggedModelShort, args)
+    assert model == DefaultFalseFlaggedModelShort(my_false_flag=True)
+
+
 def test_default_false_model_help(capture_output):
     out = capture_output(DefaultFalseFlaggedModel, ["-h"])
 
     assert "my-false-flag" in out
     assert "--no-my-false-flag" not in out
-
-
-def test_default_true_model():
-    model = parse(DefaultTrueFlaggedModel, ["--no-my-true-flag"])
-
-    assert model == DefaultTrueFlaggedModel(my_true_flag=False)
 
 
 def test_default_true_model_help(capture_output):
@@ -63,3 +94,8 @@ def test_default_true_model_help(capture_output):
         " my-true-flag" not in out
     )  # prepend it with a space to make sure it doesn't match the --no-my-true-flag
     assert "--no-my-true-flag" in out
+
+
+def test_short_model_help(capture_output):
+    out = capture_output(FlaggedModelShort, ["-h"])
+    print(out)

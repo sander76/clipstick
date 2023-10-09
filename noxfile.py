@@ -3,7 +3,7 @@ import nox
 
 
 nox.options.reuse_existing_virtualenvs = True
-nox.options.sessions = ["quality", "test"]
+nox.options.sessions = ["fix_quality", "quality", "test"]
 PROJECT_FOLDER = "src"
 
 
@@ -14,9 +14,13 @@ def fix_quality(session):
 
     session.run("black", PROJECT_FOLDER)
     session.run("black", "tests")
+    session.run("black", "docs")
+    session.run("black", "examples")
 
     session.run("ruff", PROJECT_FOLDER, "--fix")
     session.run("ruff", "tests", "--fix")
+    session.run("ruff", "docs", "--fix")
+    session.run("ruff", "examples", "--fix")
 
 
 @nox.session

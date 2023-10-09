@@ -1,7 +1,6 @@
-
-usage: dummy-entrypoint [-h] [--no-my-true-flag]
+Usage: dummy-entrypoint [Options]
 
 None
 
-optional keyword arguments:
-    --no-my-true-flag        None [bool][default=True]
+Options:
+     --no-my-true-flag     [bool] [default = True]

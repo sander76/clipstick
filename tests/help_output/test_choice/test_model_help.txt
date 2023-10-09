@@ -1,7 +1,6 @@
-
-usage: dummy-entrypoint [-h] choice
+Usage: dummy-entrypoint [Arguments]
 
 None
 
-positional arguments:
-    choice                   None [allowed values: option1, option2]
+Arguments:
+    choice                [allowed values: option1, option2]

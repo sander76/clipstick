@@ -1,7 +1,6 @@
-
-usage: dummy-entrypoint [-h] [--my-false-flag]
+Usage: dummy-entrypoint [Options]
 
 A model including an optional boolean flag.
 
-optional keyword arguments:
-    --my-false-flag          my optional flag [bool][default=False]
+Options:
+     --my-false-flag      my optional flag [bool] [default = False]

@@ -6,11 +6,17 @@ from pathlib import Path
 from clipstick import parse
 import tests
 
+from clipstick._help import console
+
 TEST_FOLDER = Path(tests.__file__).parent
 
 
 @pytest.fixture
 def capture_output(capsys, request) -> Callable[[type[BaseModel], list[str]], str]:
+    # set this width. othewise rich will assume the console with of your ide window
+    # and potentially wrap output breaking your tests.
+    console.width = 1000
+
     def parse_input(model: type[BaseModel], args: list[str]) -> str:
         try:
             parse(model, args)

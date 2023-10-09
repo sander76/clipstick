@@ -1,7 +1,6 @@
-
-usage: dummy-entrypoint [-h] --add-flag/--no-add-flag
+Usage: dummy-entrypoint [Arguments]
 
 A simple model. Main description.
 
-positional arguments:
+Arguments:
     --add-flag/--no-add-flag my flag [bool]

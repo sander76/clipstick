@@ -1,10 +1,6 @@
 from clipstick import parse
-import io
-from contextlib import redirect_stdout
 import inspect
 from pathlib import Path
-from rich.console import Console
-from rich.markup import escape
 
 base_path = Path(__file__).parent.parent.parent
 
@@ -27,19 +23,20 @@ def print_output(model, args):
 
 
 def print_help(model):
+    from clipstick._help import console
+
+    console.record = True
+    console.width = 110
+
     src = get_source_path(model)
-    cmd = f">>>  python {src} -h\n"
-    with redirect_stdout(io.StringIO()) as fl:
-        try:
-            model = parse(model, ["-h"])
-        except SystemExit:
-            pass
 
-    print_output = fl.getvalue()
+    console.print(f">>>  python {src} -h\n")
 
-    console = Console(record=True, width=110, highlight=False)
-    console.print(cmd)
-    console.print(escape(print_output))
+    try:
+        model = parse(model, ["-h"])
+    except SystemExit:
+        pass
+
     svg = src.with_suffix(".svg")
     console.save_svg(svg, title="")
 

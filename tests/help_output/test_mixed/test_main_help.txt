@@ -1,14 +1,13 @@
-
-usage: dummy-entrypoint [-h] pos-value-1 pos-value-2 --required-bool/--no-required-bool [--optional-1] [--optional-2] [--optional-bool]
+Usage: dummy-entrypoint [Arguments] [Options]
 
 None
 
-positional arguments:
-    pos-value-1              None [str]
-    pos-value-2              None [int]
-    --required-bool/--no-required-boolNone [bool]
+Arguments:
+    pos-value-1                         [str] 
+    pos-value-2                         [int] 
+    --required-bool/--no-required-bool  [bool]
 
-optional keyword arguments:
-    --optional-1             None [str][default=opt1]
-    --optional-2             None [int][default=20]
-    --optional-bool          None [bool][default=False]
+Options:
+     --optional-1          [str]  [default = opt1] 
+     --optional-2          [int]  [default = 20]   
+     --optional-bool       [bool] [default = False]

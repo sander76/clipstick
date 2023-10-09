@@ -68,28 +68,14 @@ if __name__ == "__main__":
 `python examples/simple.py -h` gives you:
 <!-- [[[cog
 import cog
-import subprocess
+from docs.source import cogger
+from docs.source import simple as module
 
-result = subprocess.run(['python','examples/simple.py','-h'], check=True, stdout=subprocess.PIPE)
-cog.outl("```")
-cog.out(result.stdout.decode('utf-8'))
-cog.outl("```")
+cog.outl(f"![helpoutput]({cogger.print_help(module.SimpleModel)})")
+
+
 ]]]> -->
-```
-
-usage: examples/simple.py [-h] name [--repeat-count]
-
-A simple model demonstrating clipstick.
-
-    This is used in help as describing the main command.
-    
-
-positional arguments:
-    name                     Your name. This is used in help describing name. [str]
-
-optional keyword arguments:
-    --repeat-count           How many times to repeat your name. Used in help describing repeat_count. [int][default=10]
-```
+![helpoutput](docs/source/simple.svg)
 <!-- [[[end]]] -->
 
 `python examples/simple.py alex --repeat-count 3` gives you:
@@ -183,8 +169,9 @@ cog.outl(f"![helpoutput]({cogger.print_help(module.MyModel)})")
 ```python
 # docs/source/keyword_arg.py
 
+from typing import Annotated
 from pydantic import BaseModel
-from clipstick import parse
+from clipstick import parse, short
 
 
 class MyModel(BaseModel):
@@ -192,6 +179,8 @@ class MyModel(BaseModel):
 
     my_value: int = 22
     """My value with a default."""
+    another_value: Annotated[str, short("a")] = "value"
+    """Value with a shorthand"""
 
 
 if __name__ == "__main__":
@@ -200,7 +189,7 @@ if __name__ == "__main__":
 ```
 ```python
 # >>> python docs/source/keyword_arg.py --my-value 10
-MyModel(my_value=10)
+MyModel(my_value=10, another_value='value')
 ```
 ![helpoutput](docs/source/keyword_arg.svg)
 <!-- [[[end]]] -->

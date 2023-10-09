@@ -1,11 +1,10 @@
-
-usage: dummy-entrypoint second-level-model-one [-h] [--value] {third-level-model-two, third-level-model-one}
+Usage: dummy-entrypoint second-level-model-one [Options] [Subcommands]
 
 Second level model 1.
 
-optional keyword arguments:
-    --value                  Second level model one value. [str][default=my-second-level-value]
+Options:
+     --value              Second level model one value. [str] [default = my-second-level-value]
 
-subcommands:
-    third-level-model-two    None
-    third-level-model-one    None
+Subcommands:
+    third-level-model-two  
+    third-level-model-one  

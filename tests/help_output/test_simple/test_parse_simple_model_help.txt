@@ -1,10 +1,9 @@
-
-usage: dummy-entrypoint [-h] my-name [--snake-cased-kwarg]
+Usage: dummy-entrypoint [Arguments] [Options]
 
 A simple model. Main description.
 
-positional arguments:
-    my-name                  A snake cased argument. [str]
+Arguments:
+    my-name              A snake cased argument. [str]
 
-optional keyword arguments:
-    --snake-cased-kwarg      None [int][default=10]
+Options:
+     --snake-cased-kwarg   [int] [default = 10]

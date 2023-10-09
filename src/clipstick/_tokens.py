@@ -14,14 +14,28 @@ TTokenType = TypeVar("TTokenType")
 TPydanticModel = TypeVar("TPydanticModel", bound=BaseModel)
 
 
+def _to_false_key(key: str) -> str:
+    return f"--no-{key.replace('_','-')}"
+
+
+def _to_key(key: str) -> str:
+    return f"--{key.replace('_','-')}"
+
+
+def _to_short(key: str) -> str:
+    return f"-{key}"
+
+
+def _to_false_short(key: str) -> str:
+    return f"-no-{key}"
+
+
 @dataclass
 class Token(Generic[TTokenType]):
     """Represents either a pydantic model or a pydantic field.
 
-    It serves two (many ?) purposes:
-
-    - Evaluating and parsing the provided arguments (the cli entries)
-    - Generating help information based on pydantic data.
+    A token is used to interpret provided arguments (check if there is a match) and
+    if so, consume a part of provided arguments (during parsing.)
     """
 
     key: str
@@ -32,6 +46,14 @@ class Token(Generic[TTokenType]):
         Matching logic is implemented depending on argument type (like positional, optional etc.)
 
         If a match is found it will be added to the list of tokens which are used for final parsing.
+        The token stores the indices of the provided argument list to later parse the arguments.
+
+        Returns:
+            A boolean indicating the match was a success.
+                For a positional (required) argument this means an explicit match.
+                For an optional both an exact match will return True, but also no match will return True.
+                The latter is a signal for the match to continue.
+            A new index indicating the starting point for the next token match.
         """
         raise NotImplementedError()
 
@@ -40,7 +62,11 @@ class Token(Generic[TTokenType]):
         raise NotImplementedError()
 
     @property
-    def user_key(self) -> list[str]:
+    def user_keys(self) -> list[str]:
+        """Argument keys (like --verbose or --value) provided by a user to indicate a keyword or flag.
+
+        Many times this is a list of normalized pydantic fields or provided shorthand names.
+        """
         raise NotImplementedError()
 
 
@@ -50,9 +76,13 @@ class PositionalArg(Token[str]):
     field_info: FieldInfo
     indices: slice | None = None
 
+    @cached_property
+    def keys(self) -> list[str]:
+        return [(self.key.replace("_", "-"))]
+
     @property
-    def user_key(self) -> list[str]:
-        return [self.key.replace("_", "-")]
+    def user_keys(self) -> list[str]:
+        return self.keys
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         try:
@@ -79,17 +109,19 @@ class OptionalKeyArgs(Token[str]):
 
     @cached_property
     def short_keys(self) -> list[str]:
-        return [short.short for short in self.field_info.metadata]
+        return [_to_short(short.short) for short in self.field_info.metadata]
 
-    @property
-    def user_key(self) -> list[str]:
-        return [f"--{self.key.replace('_','-')}"] + [
-            f"-{short}" for short in self.short_keys
-        ]
+    @cached_property
+    def keys(self) -> list[str]:
+        return [_to_key(self.key)]
+
+    @cached_property
+    def user_keys(self) -> list[str]:
+        return self.keys + self.short_keys
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         try:
-            if values[idx] not in self.user_key:
+            if values[idx] not in self.user_keys:
                 # As this is an optional, we are returning true to continue matching.
                 return True, idx
         except IndexError:
@@ -116,37 +148,57 @@ class BooleanFlag(Token[bool]):
     indices: slice | None = None
 
     @cached_property
-    def arg_key(self) -> str:
-        return self.key.replace("_", "-")
+    def _short_true_keys(self) -> list[str]:
+        """Return a list of 'shorts' to a list of short hand arguments.
+
+        Example:
+            ['a','b'] --> ['-a','-b']
+        """
+        return [_to_short(short.short) for short in self.field_info.metadata]
+
+    @cached_property
+    def _short_false_keys(self) -> list[str]:
+        """Return a list of 'shorts' to a list of negated short hand arguments.
+
+        Example:
+            ['a','b'] --> ['--no-a','no-b']
+        """
+        return [_to_false_short(short.short) for short in self.field_info.metadata]
+
+    @cached_property
+    def _true_keys(self) -> list[str]:
+        """Return a list of argument keys."""
+        return [_to_key(self.key)]
+
+    @cached_property
+    def _false_keys(self) -> list[str]:
+        """Return a list of negated argument keys."""
+        return [_to_false_key(self.key)]
 
     @cached_property
     def short_keys(self) -> list[str]:
-        return [short.short for short in self.field_info.metadata]
+        return self._short_false_keys + self._short_true_keys
+
+    @cached_property
+    def keys(self) -> list[str]:
+        return self._true_keys + self._false_keys
 
     @property
-    def true_values(self) -> list[str]:
-        return [f"--{self.arg_key}"] + [f"-{short}" for short in self.short_keys]
-
-    @property
-    def false_values(self) -> list[str]:
-        return [f"--no-{self.arg_key}"] + [f"-no-{short}" for short in self.short_keys]
-
-    @property
-    def user_key(self) -> list[str]:
-        return self.true_values + self.false_values
+    def user_keys(self) -> list[str]:
+        return self.short_keys + self.keys
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         if len(values) <= idx:
             return False, idx
 
-        if values[idx] in self.user_key:
+        if values[idx] in self.user_keys:
             self.indices = slice(idx, idx + 1)
             return True, idx + 1
         return False, idx
 
     def parse(self, values: list[str]) -> dict[str, bool]:
         if self.indices:
-            val = values[self.indices][0] in self.true_values
+            val = values[self.indices][0] in self._true_keys + self._short_true_keys
             return {self.key: val}
         return {}
 
@@ -158,17 +210,29 @@ class OptionalBooleanFlag(BooleanFlag):
     indices: slice | None = None
 
     @cached_property
-    def user_key(self) -> list[str]:
+    def short_keys(self) -> list[str]:
         if self.field_info.default is False:
-            return self.true_values
+            return self._short_true_keys
+        return self._short_false_keys
+
+    @cached_property
+    def keys(self) -> list[str]:
+        if self.field_info.default is False:
+            return self._true_keys
+        return self._false_keys
+
+    @cached_property
+    def user_keys(self) -> list[str]:
+        if self.field_info.default is False:
+            return self._true_keys + self._short_true_keys
         else:
-            return self.false_values
+            return self._false_keys + self._short_false_keys
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         if len(values) <= idx:
             return True, idx
 
-        if values[idx] in self.user_key:
+        if values[idx] in self.user_keys:
             self.indices = slice(idx, idx + 1)
             return True, idx + 1
         return True, idx
@@ -176,6 +240,11 @@ class OptionalBooleanFlag(BooleanFlag):
 
 @dataclass
 class Command(Token[TPydanticModel]):
+    """The main/base class of your CLI.
+
+    There will be only one of this in your CLI.
+    """
+
     key: str
     """Reference to the key in the pydantic model."""
 
@@ -199,7 +268,7 @@ class Command(Token[TPydanticModel]):
     sub_commands: list["Subcommand"] = field(default_factory=list)
 
     @property
-    def user_key(self) -> list[str]:
+    def user_keys(self) -> list[str]:
         return [self.key]
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
@@ -253,7 +322,6 @@ class Command(Token[TPydanticModel]):
         _, new_idx, sub_commands = succesfull_subcommands[0]
         self.sub_commands = [sub_commands]
 
-        # self.sub_commands = [succesfull_subcommands[0][2]]
         return True, new_idx
 
     def parse(self, arguments: list[str]) -> dict[str, TPydanticModel]:
@@ -275,7 +343,7 @@ class Command(Token[TPydanticModel]):
 @dataclass
 class Subcommand(Command):
     @property
-    def user_key(self) -> list[str]:
+    def user_keys(self) -> list[str]:
         snaked = to_snake(self.cls.__name__)
         return [snaked.replace("_", "-")]
 
@@ -298,7 +366,7 @@ class Subcommand(Command):
         """
         start_idx = idx
         try:
-            if values[idx] not in self.user_key:
+            if values[idx] not in self.user_keys:
                 return False, start_idx
         except IndexError:
             return False, start_idx

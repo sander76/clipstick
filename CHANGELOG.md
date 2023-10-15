@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2
+
+- Improve validation error output.
+
 ## 0.3.1
 
 - Improve help output.

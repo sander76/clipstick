@@ -2,13 +2,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from functools import cached_property
 import sys
-
+from clipstick._annotations import Short
 from typing import Generic, TypeVar
 from itertools import chain
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 from pydantic.alias_generators import to_snake
 from pydantic.fields import FieldInfo
 from clipstick import _help
+from clipstick._exceptions import FieldError
 
 TTokenType = TypeVar("TTokenType")
 TPydanticModel = TypeVar("TPydanticModel", bound=BaseModel)
@@ -85,13 +86,6 @@ class PositionalArg(Token[str]):
         return self.keys
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
-        try:
-            if values[idx].startswith("-"):
-                # Not a positional. No match.
-                return False, idx
-        except IndexError:
-            return False, idx
-        # would fit as a positional
         self.indices = slice(idx, idx + 1)
         return True, idx + 1
 
@@ -109,7 +103,11 @@ class OptionalKeyArgs(Token[str]):
 
     @cached_property
     def short_keys(self) -> list[str]:
-        return [_to_short(short.short) for short in self.field_info.metadata]
+        return [
+            _to_short(short.short)
+            for short in self.field_info.metadata
+            if isinstance(short, Short)
+        ]
 
     @cached_property
     def keys(self) -> list[str]:
@@ -335,7 +333,10 @@ class Command(Token[TPydanticModel]):
         assert len(self.sub_commands) <= 1
         [sub_commands.update(parsed.parse(arguments)) for parsed in self.sub_commands]
 
-        model = self.cls(**args, **sub_commands)
+        try:
+            model = self.cls(**args, **sub_commands)
+        except ValidationError as err:
+            raise FieldError(err, token=self, provided_args=arguments)
 
         return {self.key: model}
 

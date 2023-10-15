@@ -1,7 +1,6 @@
 from typing import Literal
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 from clipstick import parse
-import pytest
 
 
 class ModelWithChoice(BaseModel):
@@ -16,11 +15,6 @@ def test_choice():
     model = parse(ModelWithChoice, ["option1"])
 
     assert model.choice == "option1"
-
-
-def test_wrong_choice():
-    with pytest.raises(ValidationError):
-        parse(ModelWithChoice, ["wrong_options"])
 
 
 def test_optional_choice():

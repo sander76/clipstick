@@ -111,12 +111,8 @@ import cog
 from docs.source import positional_arg as module
 from docs.source import cogger
 
-cog.outl("```python")
 cog.outl(cogger.print_source(module))
-cog.outl("```")
-cog.outl("```python")
 cog.outl(cogger.print_output(module.MyModel,['10']))
-cog.outl("```")
 cog.outl(f"![helpoutput]({cogger.print_help(module.MyModel)})")
 
 
@@ -142,6 +138,7 @@ if __name__ == "__main__":
 ```
 ```python
 # >>> python docs/source/positional_arg.py 10
+
 MyModel(my_value=10)
 ```
 ![helpoutput](docs/source/positional_arg.svg)
@@ -158,12 +155,8 @@ import cog
 from docs.source import keyword_arg as module
 from docs.source import cogger
 
-cog.outl("```python")
 cog.outl(cogger.print_source(module))
-cog.outl("```")
-cog.outl("```python")
 cog.outl(cogger.print_output(module.MyModel,['--my-value','10']))
-cog.outl("```")
 cog.outl(f"![helpoutput]({cogger.print_help(module.MyModel)})")
 ]]]> -->
 ```python
@@ -189,6 +182,7 @@ if __name__ == "__main__":
 ```
 ```python
 # >>> python docs/source/keyword_arg.py --my-value 10
+
 MyModel(my_value=10, another_value='value')
 ```
 ![helpoutput](docs/source/keyword_arg.svg)
@@ -202,9 +196,7 @@ import cog
 from docs.source import keyword_arg_with_short as module
 from docs.source import cogger
 
-cog.outl("```python")
 cog.outl(cogger.print_source(module))
-cog.outl("```")
 ]]]> -->
 ```python
 # docs/source/keyword_arg_with_short.py
@@ -232,12 +224,8 @@ import cog
 from docs.source import choice_arg as module
 from docs.source import cogger
 
-cog.outl("```python")
 cog.outl(cogger.print_source(module))
-cog.outl("```")
-cog.outl("```python")
 cog.outl(cogger.print_output(module.MyModel,['--my-value','option2']))
-cog.outl("```")
 
 cog.outl(f"![helpoutput]({cogger.print_help(module.MyModel)})")
 
@@ -264,6 +252,7 @@ if __name__ == "__main__":
 ```
 ```python
 # >>> python docs/source/choice_arg.py --my-value option2
+
 MyModel(my_value='option2')
 ```
 ![helpoutput](docs/source/choice_arg.svg)
@@ -277,15 +266,9 @@ import cog
 from docs.source import boolean_required_arg as module
 from docs.source import cogger
 
-cog.outl("```python")
 cog.outl(cogger.print_source(module))
-cog.outl("```")
-cog.outl("```python")
 cog.outl(cogger.print_output(module.MyModel,['--verbose']))
-cog.outl("```")
-cog.outl("```python")
 cog.outl(cogger.print_output(module.MyModel,['--no-verbose']))
-cog.outl("```")
 cog.outl(f"![helpoutput]({cogger.print_help(module.MyModel)})")
 
 
@@ -310,10 +293,12 @@ if __name__ == "__main__":
 ```
 ```python
 # >>> python docs/source/boolean_required_arg.py --verbose
+
 MyModel(verbose=True)
 ```
 ```python
 # >>> python docs/source/boolean_required_arg.py --no-verbose
+
 MyModel(verbose=False)
 ```
 ![helpoutput](docs/source/boolean_required_arg.svg)
@@ -331,12 +316,8 @@ import cog
 from docs.source import subcommand_arg as module
 from docs.source import cogger
 
-cog.outl("```python")
 cog.outl(cogger.print_source(module))
-cog.outl("```")
-cog.outl("```python")
 cog.outl(cogger.print_output(module.MyModel,['climbers','Ondra']))
-cog.outl("```")
 cog.outl(f"![helpoutput]({cogger.print_help(module.MyModel)})")
 
 
@@ -374,6 +355,7 @@ if __name__ == "__main__":
 ```
 ```python
 # >>> python docs/source/subcommand_arg.py climbers Ondra
+
 MyModel(sub_command=Climbers(climber_name='Ondra'))
 ```
 ![helpoutput](docs/source/subcommand_arg.svg)
@@ -382,3 +364,76 @@ MyModel(sub_command=Climbers(climber_name='Ondra'))
 - Only one subcommand per model is allowed. (If you need more (and want to follow the more object-composition path), have a look at [tyro](https://brentyi.github.io/tyro/))
 - `sub_command` as a name is not required. Any name will do.
 - Nesting of subcommands is possible.
+
+## Validators
+
+Using pydantic as a model definition gives you many useful types (including checks) out of the box.
+For a list of pydantic types look here: https://docs.pydantic.dev/latest/api/types/
+
+### Examples
+
+Below code shows a pydantic type of `FilePath` 
+indicating the provided argument should point to an existing file.
+<!-- [[[cog
+import cog
+
+from docs.source import types_file_exists as module
+from docs.source import cogger
+
+cog.outl(cogger.print_source(module))
+cog.outl(f"![helpoutput]({cogger.print_error(module.MyModel,['/non_existing/file.txt'])})")
+
+
+]]]> -->
+```python
+# docs/source/types_file_exists.py
+
+from pydantic import BaseModel, FilePath
+from clipstick import parse
+
+
+class MyModel(BaseModel):
+    my_path: FilePath
+    """provide an existing file location."""
+
+
+if __name__ == "__main__":
+    model = parse(MyModel)
+
+```
+![helpoutput](docs/source/types_file_exists.svg)
+<!-- [[[end]]] -->
+
+Below code shows a pydantic type of `PositiveInt`
+indicating the provided argument should be a positive integer.
+
+<!-- [[[cog
+import cog
+
+from docs.source import types_non_negative_int as module
+from docs.source import cogger
+
+cog.outl(cogger.print_source(module))
+cog.outl(f"![helpoutput]({cogger.print_error(module.MyModel,['-m','-12'])})")
+
+
+]]]> -->
+```python
+# docs/source/types_non_negative_int.py
+
+from typing import Annotated
+from pydantic import BaseModel, PositiveInt
+from clipstick import parse, short
+
+
+class MyModel(BaseModel):
+    my_value: Annotated[PositiveInt, short("m")] = 10
+    """Value must be positive"""
+
+
+if __name__ == "__main__":
+    model = parse(MyModel)
+
+```
+![helpoutput](docs/source/types_non_negative_int.svg)
+<!-- [[[end]]] -->

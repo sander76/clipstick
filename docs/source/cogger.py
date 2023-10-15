@@ -12,14 +12,45 @@ def get_source_path(item):
 
 def print_source(module):
     source = inspect.getsource(module)
-    return f"# {get_source_path(module)}\n\n" + source
+
+    _str = ["```python", f"# {get_source_path(module)}\n", source, "```"]
+
+    return "\n".join(_str)
 
 
-def print_output(model, args):
+def print_output(model, args: list[str]):
     cmd = f"# >>> python {get_source_path(model)} {' '.join(args)}\n"
 
     parsed = parse(model, args)
-    return cmd + parsed.__repr__()
+    return "\n".join(
+        [
+            "```python",
+            cmd,
+            parsed.__repr__(),
+            "```",
+        ]
+    )
+
+
+def print_error(model, args: list[str]):
+    from clipstick._help import console
+
+    console.record = True
+    console.width = 110
+    src = get_source_path(model)
+
+    cmd = f">>> python {src} {' '.join(args)}\n"
+    console.print(cmd)
+
+    try:
+        model = parse(model, args)
+    except SystemExit:
+        pass
+
+    svg = src.with_suffix(".svg")
+    console.save_svg(svg, title="")
+
+    return str(svg)
 
 
 def print_help(model):

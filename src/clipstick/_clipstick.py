@@ -1,6 +1,8 @@
 from clipstick._parse import tokenize, validate_model
 from clipstick._tokens import Command, TPydanticModel
+from clipstick._exceptions import ClipStickError
 import sys
+from clipstick._help import console
 
 
 def parse(model: type[TPydanticModel], args: list[str] | None = None) -> TPydanticModel:
@@ -17,9 +19,16 @@ def parse(model: type[TPydanticModel], args: list[str] | None = None) -> TPydant
 
     success, idx = root_node.match(0, args)
     if not idx == len(args):
-        raise ValueError("Unable to consume all args")
-    if success:
+        console.print("Unable to consume all provided arguments.")
+        sys.exit(1)
+    if not success:
+        console.print("Unable to resolve the arguments into a usable command line.")
+        sys.exit(1)
+
+    try:
         parsed = root_node.parse(args)
+    except ClipStickError as err:
+        console.print(err)
+        sys.exit(1)
     else:
-        raise ValueError("No matching pattern found.")
-    return parsed[entry_point]
+        return parsed[entry_point]

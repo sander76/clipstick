@@ -3,6 +3,7 @@ from itertools import chain
 from pydantic.fields import FieldInfo
 from types import UnionType
 from clipstick._docstring import set_undefined_field_descriptions_from_var_docstrings
+from clipstick._annotations import Short
 from clipstick._tokens import (
     OptionalKeyArgs,
     PositionalArg,
@@ -93,6 +94,7 @@ def _validate_shorts_in_model(model: type[BaseModel]):
     shorts = [
         short.short
         for short in chain(*(field.metadata for field in model.model_fields.values()))
+        if isinstance(short, Short)
     ]
 
     unique_shorts = set(shorts)

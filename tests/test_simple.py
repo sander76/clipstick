@@ -24,7 +24,7 @@ def test_parse_simple_mode_with_optional():
 
 
 def test_too_much_positionals_must_raise():
-    with pytest.raises(Exception):
+    with pytest.raises(SystemExit):
         parse(SimpleModel, ["Adam", "Ondra"])
 
 

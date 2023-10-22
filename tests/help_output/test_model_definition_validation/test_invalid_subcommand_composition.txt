@@ -1,0 +1,1 @@
+A union composing a subcommand must all be of type BaseModel

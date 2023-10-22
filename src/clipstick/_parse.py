@@ -12,7 +12,12 @@ from clipstick._tokens import (
     BooleanFlag,
     OptionalBooleanFlag,
 )
-from clipstick._exceptions import TooManyShortsException
+from clipstick._exceptions import (
+    TooManyShortsException,
+    InvalidTypesInUnion,
+    NoDefaultAllowedForSubcommand,
+    TooManySubcommands,
+)
 
 from pydantic import BaseModel
 
@@ -21,13 +26,14 @@ from typing import Iterator, get_args
 
 
 def _is_subcommand(attribute: str, field_info: FieldInfo) -> bool:
+    """Check if the field annotated as a subcommand."""
     if not isinstance(field_info.annotation, UnionType):
         return False
     args = get_args(field_info.annotation)
     if not all(issubclass(arg, BaseModel) for arg in args):
-        return False
+        raise InvalidTypesInUnion()
     if not field_info.is_required():
-        raise ValueError("Should be required values.")
+        raise NoDefaultAllowedForSubcommand()
     return True
 
 
@@ -41,9 +47,14 @@ def _is_boolean_type(field_info: FieldInfo) -> bool:
 def tokenize(model: type[BaseModel], sub_command: Subcommand | Command) -> None:
     # todo: move this somewhere else.
     set_undefined_field_descriptions_from_var_docstrings(model)
-
+    _sub_command_found: bool = False
     for key, value in model.model_fields.items():
         if _is_subcommand(key, value):
+            if _sub_command_found:
+                raise TooManySubcommands()
+            _sub_command_found = True
+            # each result of the get_args call is a type[BaseModel]
+            # which is processed as a subcommand.
             for annotated_model in get_args(value.annotation):
                 new_sub_command = Subcommand(
                     key=key, cls=annotated_model, parent=sub_command

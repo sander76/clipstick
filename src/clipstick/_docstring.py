@@ -28,9 +28,7 @@ def set_undefined_field_descriptions_from_var_docstrings(
         doc_node = node.value
         if isinstance(doc_node, ast.Constant):
             docstring = doc_node.value  # 'regular' variable doc string
-        elif isinstance(doc_node, (ast.JoinedStr, ast.FormattedValue)):
-            docstring = eval(ast.unparse(doc_node))  # evaluate f-string
         else:
-            raise NotImplementedError(doc_node)
+            raise NotImplementedError(doc_node)  # pragma: nocover
 
         info.description = docstring

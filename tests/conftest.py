@@ -1,4 +1,3 @@
-from typing import Any, Callable
 import pytest
 from pydantic import BaseModel
 from tests import HELP_OUTPUT_FOLDER

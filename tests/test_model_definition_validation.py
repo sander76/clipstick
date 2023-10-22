@@ -6,13 +6,9 @@ from typing import Annotated
 from pydantic import BaseModel
 from clipstick._annotations import short
 from clipstick._parse import _validate_shorts
-from clipstick import parse
 import pytest
 from clipstick._exceptions import (
     TooManyShortsException,
-    TooManySubcommands,
-    InvalidTypesInUnion,
-    NoDefaultAllowedForSubcommand,
 )
 
 

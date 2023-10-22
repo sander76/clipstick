@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.3
+
+- Add coverage
+
 ## 0.3.2
 
 - Improve validation error output.

@@ -1,3 +1,5 @@
+![coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/sander76/a25f1e6bfcb3b085ffe05f520b56e43c/raw/covbadge.json)
+
 # Clipstick
 
 

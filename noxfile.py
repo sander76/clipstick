@@ -3,7 +3,7 @@ import nox
 
 
 nox.options.reuse_existing_virtualenvs = True
-nox.options.sessions = ["fix_quality", "quality", "test"]
+nox.options.sessions = ["fix_quality", "quality", "test", "check_version"]
 PROJECT_FOLDER = "src"
 
 
@@ -41,7 +41,7 @@ def test(session, python):
     session.run("poetry", "install", "--sync", external=True)
     if python == "3.11":
         session.run("coverage", "run", "--source", "src/clipstick", "-m", "pytest")
-        session.run("coverage", "report")
+        session.run("coverage", "json")
     else:
         session.run("pytest", "tests")
 

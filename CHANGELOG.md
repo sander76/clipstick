@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.4
+
+- Add py.typed
+
 ## 0.3.3
 
 - Add coverage

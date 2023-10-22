@@ -2,9 +2,6 @@ from __future__ import annotations
 from pydantic import ValidationError
 from clipstick import _tokens
 
-# if TYPE_CHECKING:
-#     from clipstick._tokens import Command, Subcommand
-
 
 class ClipStickError(Exception):
     """Base clipstick Exception"""
@@ -12,6 +9,28 @@ class ClipStickError(Exception):
     def __init__(self, message: str) -> None:
         super().__init__()
         self.message = message
+
+    def __str__(self) -> str:
+        return self.message
+
+
+class InvalidModel(ClipStickError):
+    """Raised when your clipstick model is invalid"""
+
+
+class InvalidTypesInUnion(InvalidModel):
+    def __init__(self) -> None:
+        super().__init__("A union composing a subcommand must all be of type BaseModel")
+
+
+class NoDefaultAllowedForSubcommand(InvalidModel):
+    def __init__(self) -> None:
+        super().__init__("A subcommand cannot have a default value.")
+
+
+class TooManySubcommands(InvalidModel):
+    def __init__(self) -> None:
+        super().__init__("Only one subcommand per model allowed.")
 
 
 class TooManyShortsException(ClipStickError):

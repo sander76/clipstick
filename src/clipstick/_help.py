@@ -6,7 +6,7 @@ from rich.console import Console
 from rich.table import Table
 
 console = Console()
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from clipstick._tokens import Command, Subcommand
 
 
@@ -84,49 +84,10 @@ def help(command: Command | Subcommand) -> None:
         console.print(tbl)
 
 
-# def _help(command: Command | Subcommand) -> None:
-#     call_stack = list(call_stack_from_tokens(command))
-
-#     entry_point = " ".join(
-#         (user_keys(token.user_key) for token in reversed(call_stack))
-#     )
-
-#     usage_line = ["Usage:"]
-#     usage_line.append(entry_point)
-#     if command.args:
-#         usage_line.append("[Arguments]")
-#     if command.optional_kwargs:
-#         usage_line.append("[Options]")
-#     if command.sub_commands:
-#         usage_line.append("[Subcommands]")
-
-#     print(" ".join(usage_line))
-#     print("")
-#     print(command.cls.__doc__)
-#     if command.args:
-#         print("")
-#         print("Arguments:")
-#         for arg in command.args:
-#             print(
-#                 f"    {user_keys(arg.user_key):<25}{field_description(arg.field_info)}"
-#             )
-#     if command.optional_kwargs:
-#         print("")
-#         print("Options:")
-#         for kwarg in command.optional_kwargs:
-#             print(
-#                 f"    {user_keys(kwarg.user_key):<25}{field_description(kwarg.field_info)}"
-#             )
-#     if command.sub_commands:
-#         print("")
-#         print("Subcommands:")
-#         for sub_command in command.sub_commands:
-#             print(f"    {user_keys(sub_command.user_key):<25}{sub_command.cls.__doc__}")
-
-
 def call_stack_from_tokens(
     token: Command | Subcommand,
 ) -> Iterator[Command | Subcommand]:
+    """Return the sequence of subcommands the user provided to reach this specific subcommand."""
     yield token
     if token.parent is None:
         return

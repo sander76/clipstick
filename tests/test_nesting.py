@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+import pytest
 
 from clipstick import parse
 
@@ -56,23 +57,27 @@ def test_deeply_nested_model_nest_3():
 
 
 def test_model_help_first_level(capture_output):
-    out = capture_output(FirstLevelNestedModel, ["-h"])
+    with pytest.raises(SystemExit) as err:
+        capture_output(FirstLevelNestedModel, ["-h"])
 
-    assert "First level model." in out
-    assert "second-level-model-one" in out
-    assert "Second level model 1." in out
+    assert err.value.code == 0
+    assert "First level model." in capture_output.captured_output
+    assert "second-level-model-one" in capture_output.captured_output
+    assert "Second level model 1." in capture_output.captured_output
 
-    assert "second-level-model-two" in out
-    assert "Second level model 2." in out
+    assert "second-level-model-two" in capture_output.captured_output
+    assert "Second level model 2." in capture_output.captured_output
 
 
 def test_model_help_second_level(capture_output):
-    out = capture_output(FirstLevelNestedModel, ["second-level-model-one", "-h"])
+    with pytest.raises(SystemExit) as err:
+        capture_output(FirstLevelNestedModel, ["second-level-model-one", "-h"])
 
-    assert "First level model." not in out
-    assert "dummy-entrypoint second-level-model-one" in out
+    assert err.value.code == 0
+    assert "First level model." not in capture_output.captured_output
+    assert "dummy-entrypoint second-level-model-one" in capture_output.captured_output
 
-    assert "Second level model 1." in out
-    assert "third-level-model-two" in out
-    assert "third-level-model-one" in out
-    assert "Second level model one value." in out
+    assert "Second level model 1." in capture_output.captured_output
+    assert "third-level-model-two" in capture_output.captured_output
+    assert "third-level-model-one" in capture_output.captured_output
+    assert "Second level model one value." in capture_output.captured_output

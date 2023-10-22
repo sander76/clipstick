@@ -1,5 +1,6 @@
 from typing import Literal
 from pydantic import BaseModel
+import pytest
 from clipstick import parse
 
 
@@ -23,8 +24,10 @@ def test_optional_choice():
 
 
 def test_model_help(capture_output):
-    out = capture_output(ModelWithChoice, ["-h"])
+    with pytest.raises(SystemExit) as err:
+        capture_output(ModelWithChoice, ["-h"])
 
-    assert "allowed values" in out
-    assert "option1" in out
-    assert "option2" in out
+    assert err.value.code == 0  # exit code
+    assert "allowed values" in capture_output.captured_output
+    assert "option1" in capture_output.captured_output
+    assert "option2" in capture_output.captured_output

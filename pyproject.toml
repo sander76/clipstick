@@ -29,6 +29,7 @@ ruff = ">=0.0.291"
 nox = ">=2023.4.22"
 black = ">=23.9.1"
 cogapp = ">=3.3.0"
+coverage = "^7.3.2"
 
 
 [build-system]

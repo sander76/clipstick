@@ -45,13 +45,19 @@ def test_optional_with_short(args):
 
 
 def test_help(capture_output):
-    out = capture_output(OptionalsModel, ["-h"])
+    with pytest.raises(SystemExit) as err:
+        capture_output(OptionalsModel, ["-h"])
 
-    assert "A model with only optionals." in out
-    assert "--value-1" in out
-    assert "Optional value 1." in out
-    assert "--value-2" in out
+    assert err.value.code == 0
+    assert "A model with only optionals." in capture_output.captured_output
+    assert "--value-1" in capture_output.captured_output
+    assert "Optional value 1." in capture_output.captured_output
+    assert "--value-2" in capture_output.captured_output
 
 
 def test_help_with_shorts(capture_output):
-    capture_output(OptionalWithShort, ["-h"])
+    with pytest.raises(SystemExit) as err:
+        capture_output(OptionalWithShort, ["-h"])
+
+    assert err.value.code == 0
+    assert "-v --value-1" in capture_output.captured_output

@@ -6,7 +6,11 @@ from clipstick._help import console
 
 
 def parse(model: type[TPydanticModel], args: list[str] | None = None) -> TPydanticModel:
-    validate_model(model)
+    try:
+        validate_model(model)
+    except ClipStickError as err:
+        console.print(err)
+        sys.exit(1)
     if args is None:
         entry_point, args = sys.argv[0], sys.argv[1:]
     else:
@@ -15,7 +19,11 @@ def parse(model: type[TPydanticModel], args: list[str] | None = None) -> TPydant
         entry_point = "dummy-entrypoint"
 
     root_node = Command(key=entry_point, cls=model, parent=None)
-    tokenize(model=model, sub_command=root_node)
+    try:
+        tokenize(model=model, sub_command=root_node)
+    except ClipStickError as err:
+        console.print(err)
+        sys.exit(1)
 
     success, idx = root_node.match(0, args)
     if not idx == len(args):

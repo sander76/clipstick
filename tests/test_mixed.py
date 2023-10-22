@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+import pytest
 from clipstick import parse
 
 
@@ -62,6 +63,8 @@ def test_main_some_args():
 
 def test_main_help(capture_output):
     """Manually check the output at `help_output` folder."""
-    out = capture_output(Main, ["-h"])
+    with pytest.raises(SystemExit) as err:
+        capture_output(Main, ["-h"])
 
-    assert "pos-value-1" in out
+    assert err.value.code == 0
+    assert "pos-value-1" in capture_output.captured_output

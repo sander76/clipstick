@@ -23,16 +23,20 @@ def test_parse_simple_mode_with_optional():
     assert model == SimpleModel(my_name="Adam", snake_cased_kwarg=10)
 
 
-def test_too_much_positionals_must_raise():
-    with pytest.raises(SystemExit):
-        parse(SimpleModel, ["Adam", "Ondra"])
+def test_too_much_positionals_must_raise(capture_output):
+    with pytest.raises(SystemExit) as err:
+        capture_output(SimpleModel, ["Adam", "Ondra"])
+
+    assert err.value.code == 1
 
 
 def test_parse_simple_model_help(capture_output):
-    out = capture_output(SimpleModel, ["-h"])
+    with pytest.raises(SystemExit) as err:
+        capture_output(SimpleModel, ["-h"])
 
-    assert "snake-cased" in out
-    assert "A snake cased argument." in out
+    assert err.value.code == 0
+    assert "snake-cased" in capture_output.captured_output
+    assert "A snake cased argument." in capture_output.captured_output
 
-    assert "snake-cased-kwarg" in out
-    assert "A simple model. Main description." in out
+    assert "snake-cased-kwarg" in capture_output.captured_output
+    assert "A simple model. Main description." in capture_output.captured_output

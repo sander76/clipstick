@@ -45,9 +45,11 @@ def test_parse_no_flagged_model():
 
 
 def test_parse_model_with_flag_help(capture_output):
-    out = capture_output(FlaggedModel, ["-h"])
+    with pytest.raises(SystemExit) as err:
+        capture_output(FlaggedModel, ["-h"])
 
-    assert "--add-flag/--no-add-flag" in out
+    assert err.value.code == 0
+    assert "--add-flag/--no-add-flag" in capture_output.captured_output
 
 
 def test_default_false_model():
@@ -81,21 +83,28 @@ def test_short_hand_flag_default_false(args):
 
 
 def test_default_false_model_help(capture_output):
-    out = capture_output(DefaultFalseFlaggedModel, ["-h"])
+    with pytest.raises(SystemExit) as err:
+        capture_output(DefaultFalseFlaggedModel, ["-h"])
 
-    assert "my-false-flag" in out
-    assert "--no-my-false-flag" not in out
+    assert err.value.code == 0
+    assert "my-false-flag" in capture_output.captured_output
+    assert "--no-my-false-flag" not in capture_output.captured_output
 
 
 def test_default_true_model_help(capture_output):
-    out = capture_output(DefaultTrueFlaggedModel, ["-h"])
+    with pytest.raises(SystemExit) as err:
+        capture_output(DefaultTrueFlaggedModel, ["-h"])
 
+    assert err.value.code == 0
     assert (
-        " my-true-flag" not in out
+        " my-true-flag" not in capture_output.captured_output
     )  # prepend it with a space to make sure it doesn't match the --no-my-true-flag
-    assert "--no-my-true-flag" in out
+    assert "--no-my-true-flag" in capture_output.captured_output
 
 
 def test_short_model_help(capture_output):
-    out = capture_output(FlaggedModelShort, ["-h"])
-    print(out)
+    with pytest.raises(SystemExit) as err:
+        capture_output(FlaggedModelShort, ["-h"])
+    assert err.value.code == 0
+
+    assert "-no-a/-a/--add-flag/--no-add-flag  [bool]" in capture_output.captured_output

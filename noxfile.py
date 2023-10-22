@@ -35,10 +35,15 @@ def quality(session):
     session.run("ruff", PROJECT_FOLDER)
 
 
-@nox.session(python=["3.10", "3.11"])
-def test(session):
+@nox.session
+@nox.parametrize("python", ["3.10", "3.11"])
+def test(session, python):
     session.run("poetry", "install", "--sync", external=True)
-    session.run("pytest", "tests")
+    if python == "3.11":
+        session.run("coverage", "run", "--source", "src/clipstick", "-m", "pytest")
+        session.run("coverage", "report")
+    else:
+        session.run("pytest", "tests")
 
 
 @nox.session

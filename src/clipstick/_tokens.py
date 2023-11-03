@@ -1,15 +1,17 @@
 from __future__ import annotations
+
+import sys
 from dataclasses import dataclass, field
 from functools import cached_property
-import sys
-from clipstick._annotations import Short
-from typing import Generic, TypeVar
 from itertools import chain
+from typing import Generic, TypeVar
+
 from pydantic import BaseModel, ValidationError
 from pydantic.alias_generators import to_snake
 from pydantic.fields import FieldInfo
-from clipstick import _help
-from clipstick._exceptions import FieldError
+
+from clipstick import _exceptions, _help
+from clipstick._annotations import Short
 
 TTokenType = TypeVar("TTokenType")
 TPydanticModel = TypeVar("TPydanticModel", bound=BaseModel)
@@ -86,6 +88,10 @@ class PositionalArg(Token[str]):
         return self.keys
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
+        if len(values) <= idx:
+            # we need this positional argument to match.
+            # if not, it indicates the user has not provided it.
+            raise _exceptions.MissingPositional(self.key, idx, values)
         self.indices = slice(idx, idx + 1)
         return True, idx + 1
 
@@ -336,7 +342,7 @@ class Command(Token[TPydanticModel]):
         try:
             model = self.cls(**args, **sub_commands)
         except ValidationError as err:
-            raise FieldError(err, token=self, provided_args=arguments)
+            raise _exceptions.FieldError(err, token=self, provided_args=arguments)
 
         return {self.key: model}
 

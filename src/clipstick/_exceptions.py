@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 from pydantic import ValidationError
+
 from clipstick import _tokens
 
 
@@ -12,6 +14,20 @@ class ClipStickError(Exception):
 
     def __str__(self) -> str:
         return self.message
+
+
+class MissingPositional(ClipStickError):
+    """Raised when an incorrect number of positionals is provided."""
+
+    def __init__(self, key: str, idx: int, values: list[str]) -> None:
+        message = "\n".join(
+            (
+                f"Missing a value for positional argument [orange3]{key}[/orange3]",
+                f"user entry: {' '.join(values[:idx])} [bold red]<-- MISSING ARGUMENT[/]",
+            ),
+        )
+
+        super().__init__(message)
 
 
 class InvalidModel(ClipStickError):

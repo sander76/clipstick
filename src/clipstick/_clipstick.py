@@ -1,8 +1,9 @@
+import sys
+
+from clipstick._exceptions import ClipStickError
+from clipstick._help import console
 from clipstick._parse import tokenize, validate_model
 from clipstick._tokens import Command, TPydanticModel
-from clipstick._exceptions import ClipStickError
-import sys
-from clipstick._help import console
 
 
 def parse(model: type[TPydanticModel], args: list[str] | None = None) -> TPydanticModel:
@@ -24,8 +25,11 @@ def parse(model: type[TPydanticModel], args: list[str] | None = None) -> TPydant
     except ClipStickError as err:
         console.print(err)
         sys.exit(1)
-
-    success, idx = root_node.match(0, args)
+    try:
+        success, idx = root_node.match(0, args)
+    except ClipStickError as err:
+        console.print(err)
+        sys.exit(1)
     if not idx == len(args):
         console.print("Unable to consume all provided arguments.")
         sys.exit(1)
@@ -39,4 +43,5 @@ def parse(model: type[TPydanticModel], args: list[str] | None = None) -> TPydant
         console.print(err)
         sys.exit(1)
     else:
+        return parsed[entry_point]
         return parsed[entry_point]

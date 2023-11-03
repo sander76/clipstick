@@ -1,3 +1,4 @@
+Unable to consume all provided arguments.
 Usage: dummy-entrypoint [Options]
 
 A model with only optionals.

@@ -91,7 +91,7 @@ class PositionalArg(Token[str]):
         if len(values) <= idx:
             # we need this positional argument to match.
             # if not, it indicates the user has not provided it.
-            raise _exceptions.MissingPositional(self.key, idx, values)
+            raise _exceptions.MissingPositional("/".join(self.user_keys), idx, values)
         self.indices = slice(idx, idx + 1)
         return True, idx + 1
 

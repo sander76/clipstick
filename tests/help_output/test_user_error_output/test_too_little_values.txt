@@ -1,2 +1,1 @@
-Missing a value for positional argument [orange3]another_value[/orange3]
-user entry: 10 [bold red]<-- MISSING ARGUMENT[/]
+Missing a value for positional argument:another-value

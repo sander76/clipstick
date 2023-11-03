@@ -1,1 +1,1 @@
-too many shorts defined inside model, model=<class 'tests.test_model_definition_validation.Model_1'>, shorts=['v', 'v']
+too many shorts defined inside model

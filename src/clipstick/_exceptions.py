@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pydantic import ValidationError
+from rich.text import Text
 
 from clipstick import _tokens
 
@@ -8,26 +9,32 @@ from clipstick import _tokens
 class ClipStickError(Exception):
     """Base clipstick Exception"""
 
-    def __init__(self, message: str) -> None:
+    def __init__(self, message: str | Text) -> None:
         super().__init__()
         self.message = message
 
-    def __str__(self) -> str:
+    def __rich__(self) -> str | Text:
         return self.message
+
+    def __str__(self) -> str:
+        return str(self.message)
 
 
 class MissingPositional(ClipStickError):
     """Raised when an incorrect number of positionals is provided."""
 
     def __init__(self, key: str, idx: int, values: list[str]) -> None:
-        message = "\n".join(
-            (
-                f"Missing a value for positional argument [orange3]{key}[/orange3]",
-                f"user entry: {' '.join(values[:idx])} [bold red]<-- MISSING ARGUMENT[/]",
-            ),
-        )
+        text = Text("Missing a value for positional argument:")
+        text.append(key, style="orange3")
+        # message = "\n".join(
+        #     (
+        #         "Missing a value for positional argument:",
+        #         Text(key, style="orange3"),
+        #         f"user entry: {' '.join(values[:idx])} [bold red]<REQUIRED: {key}>[/]",
+        #     ),
+        # )
 
-        super().__init__(message)
+        super().__init__(text)
 
 
 class InvalidModel(ClipStickError):
@@ -68,7 +75,6 @@ class FieldError(ClipStickError):
         token: _tokens.Command | _tokens.Subcommand,
         provided_args: list[str],
     ) -> None:
-        super().__init__("A pydantic validation wrapper")
         errors = []
         for error in exception.errors():
             input = error["input"]
@@ -107,7 +113,4 @@ class FieldError(ClipStickError):
                         errors.append(
                             f"Incorrect value for {used_token}. {error_msg}, value: {input}"
                         )
-        self.errors = errors
-
-    def __str__(self) -> str:
-        return "\n".join(self.errors)
+        super().__init__("\n".join(errors))

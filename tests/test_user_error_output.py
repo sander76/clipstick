@@ -1,7 +1,9 @@
-import pytest
 from pathlib import Path
 from typing import Annotated, Literal
+
+import pytest
 from pydantic import BaseModel, FilePath, PositiveInt
+
 from clipstick import short
 
 
@@ -18,6 +20,23 @@ def test_failing_positional(capture_output):
         "Incorrect value for my-value. Input should be greater than 0, value: -5"
         in capture_output.captured_output
     )
+
+
+class RequiredValue(BaseModel):
+    my_value: int
+    another_value: str
+
+
+def test_too_little_values(capture_output):
+    """Two positional values are required.
+
+    Only one is given.
+    """
+    with pytest.raises(SystemExit) as err:
+        capture_output(RequiredValue, ["10"])
+
+    assert err.value.code == 1
+    assert ("Missing a value for positional argument") in capture_output.captured_output
 
 
 class NonExistingPath(BaseModel):

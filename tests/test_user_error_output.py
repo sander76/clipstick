@@ -2,9 +2,8 @@ from pathlib import Path
 from typing import Annotated, Literal
 
 import pytest
-from pydantic import BaseModel, FilePath, PositiveInt
-
 from clipstick import short
+from pydantic import BaseModel, FilePath, PositiveInt
 
 
 class FailingPositional(BaseModel):

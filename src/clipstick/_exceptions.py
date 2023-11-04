@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from pydantic import ValidationError
-from rich.text import Text
+from rich.console import Console, ConsoleOptions, RenderResult
+from rich.text import Span, Text
 
 from clipstick import _tokens
 
@@ -9,12 +10,13 @@ from clipstick import _tokens
 class ClipStickError(Exception):
     """Base clipstick Exception"""
 
-    def __init__(self, message: str | Text) -> None:
+    def __init__(self, *message: str | Text) -> None:
         super().__init__()
-        self.message = message
+        self.message: tuple[str | Text, ...] = message
 
-    def __rich__(self) -> str | Text:
-        return self.message
+    def __rich_console__(self, _: Console, __: ConsoleOptions) -> RenderResult:
+        for line in self.message:
+            yield line
 
     def __str__(self) -> str:
         return str(self.message)
@@ -24,17 +26,15 @@ class MissingPositional(ClipStickError):
     """Raised when an incorrect number of positionals is provided."""
 
     def __init__(self, key: str, idx: int, values: list[str]) -> None:
-        text = Text("Missing a value for positional argument:")
-        text.append(key, style="orange3")
-        # message = "\n".join(
-        #     (
-        #         "Missing a value for positional argument:",
-        #         Text(key, style="orange3"),
-        #         f"user entry: {' '.join(values[:idx])} [bold red]<REQUIRED: {key}>[/]",
-        #     ),
-        # )
-
-        super().__init__(text)
+        super().__init__(
+            Text.assemble(
+                "Missing a value for positional argument:", Text(key, style="orange3")
+            ),
+            Text.assemble(
+                f"user entered: {' '.join(values[:idx])} ",
+                Text(f"<MISSING {key}>", "bold red"),
+            ),
+        )
 
 
 class InvalidModel(ClipStickError):

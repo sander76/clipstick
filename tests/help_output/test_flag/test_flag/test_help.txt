@@ -1,0 +1,6 @@
+Usage: dummy-entrypoint [Arguments]
+
+A model with a flag.
+
+Arguments:
+    --continue-this/--no-continue-this proceed or not. [bool]

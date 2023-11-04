@@ -1,0 +1,6 @@
+Usage: dummy-entrypoint [Options]
+
+A model with flag.
+
+Options:
+     --proceed            continue with this operation. [bool] [default = False]

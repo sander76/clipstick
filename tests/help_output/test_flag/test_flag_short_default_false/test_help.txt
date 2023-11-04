@@ -3,4 +3,4 @@ Usage: dummy-entrypoint [Options]
 A model including an optional boolean flag.
 
 Options:
-     --my-false-flag      my optional flag [bool] [default = False]
+    -m --proceed            my optional flag [bool] [default = False]

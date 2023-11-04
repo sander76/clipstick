@@ -1,0 +1,6 @@
+Usage: dummy-entrypoint [Options]
+
+None
+
+Options:
+     --choice              [allowed values: option1, option2] [default = option1]

@@ -1,6 +1,0 @@
-Usage: dummy-entrypoint [Arguments]
-
-A simple model. Main description.
-
-Arguments:
-    --add-flag/--no-add-flag my flag [bool]

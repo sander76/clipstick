@@ -1,6 +1,0 @@
-Usage: dummy-entrypoint [Options]
-
-None
-
-Options:
-     --no-my-true-flag     [bool] [default = True]

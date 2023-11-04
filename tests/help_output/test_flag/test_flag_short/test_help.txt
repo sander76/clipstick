@@ -1,0 +1,6 @@
+Usage: dummy-entrypoint [Arguments]
+
+Model with a flag with shorthand
+
+Arguments:
+    -no-a/-a/--proceed/--no-proceed Continue with this operation. [bool]

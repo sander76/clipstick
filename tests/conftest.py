@@ -2,11 +2,11 @@ from pathlib import Path
 
 import cairosvg
 import pytest
+from clipstick import parse
+from clipstick._help import console
 from pydantic import BaseModel
 
 import tests
-from clipstick import parse
-from clipstick._help import console
 from tests import HELP_OUTPUT_FOLDER
 
 TEST_FOLDER = Path(tests.__file__).parent
@@ -34,7 +34,7 @@ class CapturedOutput:
             relative_from_test = file_path.relative_to(TEST_FOLDER)
             output = HELP_OUTPUT_FOLDER / relative_from_test.with_suffix("")
 
-            output.mkdir(exist_ok=True)
+            output.mkdir(exist_ok=True, parents=True)
 
             target_base_file = output / self._fixture_request.function.__name__
             raw_text_file = target_base_file.with_suffix(".txt")

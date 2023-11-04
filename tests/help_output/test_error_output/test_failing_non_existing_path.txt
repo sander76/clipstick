@@ -1,1 +1,0 @@
-Incorrect value for my-path. Path does not point to a file, value: clipstick/non_exist

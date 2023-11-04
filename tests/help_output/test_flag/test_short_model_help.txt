@@ -1,6 +1,0 @@
-Usage: dummy-entrypoint [Arguments]
-
-None
-
-Arguments:
-    -no-a/-a/--add-flag/--no-add-flag  [bool]

@@ -1,1 +1,1 @@
-Incorrect value for my-value. Input should be greater than 0, value: -5
+Incorrect value for my-value (-5). Input should be greater than 0

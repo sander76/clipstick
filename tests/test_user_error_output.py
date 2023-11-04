@@ -16,7 +16,7 @@ def test_failing_positional(capture_output):
 
     assert err.value.code == 1
     assert (
-        "Incorrect value for my-value. Input should be greater than 0, value: -5"
+        "Incorrect value for my-value (-5). Input should be greater than 0"
         in capture_output.captured_output
     )
 
@@ -49,7 +49,7 @@ def test_failing_non_existing_path(capture_output):
 
     assert err.value.code == 1
     assert (
-        "Incorrect value for my-path. Path does not point to a file, value: clipstick/non_exist"
+        "Incorrect value for my-path (clipstick/non_exist). Path does not point to a file"
         in capture_output.captured_output
     )
 
@@ -64,7 +64,7 @@ def test_failing_choice(capture_output):
 
     assert err.value.code == 1
     assert (
-        "Incorrect value for --my-value. Input should be 'option1' or 'option2', value: option3"
+        "Incorrect value for --my-value (option3). Input should be 'option1' or 'option2'"
         in capture_output.captured_output
     )
 
@@ -86,5 +86,5 @@ def test_failing_optional(capture_output, args):
 
     assert err.value.code == 1
     assert (
-        f"Incorrect value for {args[0]}. Input should be greater than 0, value: -10"
+        f"Incorrect value for {args[0]} (-10). Input should be greater than 0"
     ) in capture_output.captured_output

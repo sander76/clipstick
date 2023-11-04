@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from pydantic import ValidationError
 from rich.console import Console, ConsoleOptions, RenderResult
-from rich.text import Span, Text
+from rich.text import Text
 
 from clipstick import _tokens
+from clipstick.style import ARGUMENTS_STYLE
 
 
 class ClipStickError(Exception):
@@ -28,11 +29,12 @@ class MissingPositional(ClipStickError):
     def __init__(self, key: str, idx: int, values: list[str]) -> None:
         super().__init__(
             Text.assemble(
-                "Missing a value for positional argument:", Text(key, style="orange3")
+                "Missing a value for positional argument:",
+                Text(key, style=ARGUMENTS_STYLE),
             ),
             Text.assemble(
                 f"user entered: {' '.join(values[:idx])} ",
-                Text(f"<MISSING {key}>", "bold red"),
+                Text(f"<EXPECTING {key} HERE>", "bold red"),
             ),
         )
 
@@ -75,7 +77,7 @@ class FieldError(ClipStickError):
         token: _tokens.Command | _tokens.Subcommand,
         provided_args: list[str],
     ) -> None:
-        errors = []
+        errors: list[str | Text] = []
         for error in exception.errors():
             input = error["input"]
             error_msg = error["msg"]
@@ -85,32 +87,34 @@ class FieldError(ClipStickError):
             failing_field = error["loc"][0]
 
             # find the token by using the input value (which is the key) that is causing the exception.
+            error_text = Text("Incorrect value for ")
+
             positional_token = next(
                 (tk for tk in token.args if tk.key == failing_field), None
             )
             if positional_token:
+                error_text.append(
+                    Text(positional_token.user_keys[0], style=ARGUMENTS_STYLE)
+                )
+
                 # this token relates to a positional argument.
                 if isinstance(token, _tokens.Subcommand):
-                    errors.append(
-                        f"Incorrect value for {positional_token.user_keys[0]} in {token.user_keys[0]}. {error_msg}, value: {input}"
-                    )
-                else:
-                    errors.append(
-                        f"Incorrect value for {positional_token.user_keys[0]}. {error_msg}, value: {input}"
-                    )
-            else:
-                optional_token = next(
-                    tk for tk in token.optional_kwargs if tk.key == failing_field
-                )
-                if optional_token and optional_token.indices:
-                    used_token = provided_args[optional_token.indices][0]
-                    # do token stuff
-                    if isinstance(token, _tokens.Subcommand):
-                        errors.append(
-                            f"Incorrect value for {used_token} in {token.user_keys[0]}. {error_msg}, value: {input}"
-                        )
-                    else:
-                        errors.append(
-                            f"Incorrect value for {used_token}. {error_msg}, value: {input}"
-                        )
-        super().__init__("\n".join(errors))
+                    error_text.append(f" in {token.user_keys[0]} ")
+
+                error_text.append(f" ({input}). {error_msg}")
+                errors.append(error_text)
+                continue
+
+            optional_token = next(
+                tk for tk in token.optional_kwargs if tk.key == failing_field
+            )
+            if optional_token and optional_token.indices:
+                used_token = provided_args[optional_token.indices][0]
+
+                error_text.append(Text(used_token, style=ARGUMENTS_STYLE))
+
+                if isinstance(token, _tokens.Subcommand):
+                    error_text.append(f" in {token.user_keys[0]} ")
+                error_text.append(f" ({input}). {error_msg}")
+                errors.append(error_text)
+        super().__init__(*errors)

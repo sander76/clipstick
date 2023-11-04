@@ -1,7 +1,5 @@
 Usage: dummy-entrypoint [Arguments] [Options]
 
-None
-
 Arguments:
     pos-value-1                         [str] 
     pos-value-2                         [int] 

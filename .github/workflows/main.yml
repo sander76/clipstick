@@ -125,7 +125,7 @@ jobs:
           if git diff --quiet && git diff --staged --quiet; then
             echo "No changes in README.md, skipping commit."
           else
-            git add README.md
+            git add .
             git commit -m "Update README.md"
             git push
           fi

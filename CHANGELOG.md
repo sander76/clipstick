@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.5
+
+- better help and error output.
+- refactor tests.
+
 ## 0.3.4
 
 - Add py.typed

@@ -1,9 +1,13 @@
 from __future__ import annotations
+
+from typing import TYPE_CHECKING, Iterator, Literal, get_args
+
 from pydantic.fields import FieldInfo
-from typing import Iterator, Literal, get_args, TYPE_CHECKING
-from rich.text import Text
 from rich.console import Console
 from rich.table import Table
+from rich.text import Text
+
+from clipstick.style import ARGUMENT_HEADER, ARGUMENTS_STYLE, DOCSTRING
 
 console = Console()
 if TYPE_CHECKING:  # pragma: no cover
@@ -19,8 +23,10 @@ def help(command: Command | Subcommand) -> None:
         ("/".join(token.user_keys) for token in reversed(call_stack))
     )
 
+    # print the first usage line
+    # example: dummy-entrypoint second-level-model-one [Options] [Subcommands]
     usage_line = Text()
-    usage_line.append("Usage: ", style="magenta")
+    usage_line.append("Usage: ")
     usage_line.append(entry_point)
     if command.args:
         usage_line.append(" [Arguments]")
@@ -29,8 +35,11 @@ def help(command: Command | Subcommand) -> None:
     if command.sub_commands:
         usage_line.append(" [Subcommands]")
     console.print(usage_line)
-    console.print("")
-    console.print(command.cls.__doc__)
+
+    # the class docstring as general help
+    if command.cls.__doc__:
+        console.print("")
+        console.print(Text(command.cls.__doc__, style=DOCSTRING))
 
     if command.args:
         tbl = Table.grid(collapse_padding=True, padding=(0, 1))
@@ -40,7 +49,7 @@ def help(command: Command | Subcommand) -> None:
         tbl.add_column()
 
         console.print("")
-        console.print("Arguments:", style="bold")
+        console.print("Arguments:", style=ARGUMENT_HEADER)
         for arg in command.args:
             tbl.add_row(
                 "",
@@ -59,7 +68,7 @@ def help(command: Command | Subcommand) -> None:
         tbl.add_column()  # default
 
         console.print("")
-        console.print("Options:", style="bold")
+        console.print("Options:", style=ARGUMENT_HEADER)
         for kwarg in command.optional_kwargs:
             tbl.add_row(
                 "",
@@ -77,7 +86,7 @@ def help(command: Command | Subcommand) -> None:
         tbl.add_column()  # description
 
         console.print("")
-        console.print("Subcommands:", style="bold")
+        console.print("Subcommands:", style=ARGUMENT_HEADER)
 
         for sub_command in command.sub_commands:
             tbl.add_row("", user_keys(sub_command.user_keys), sub_command.cls.__doc__)
@@ -121,4 +130,4 @@ def add_default(field_info: FieldInfo) -> str:
 
 
 def user_keys(user_keys: list[str]) -> Text:
-    return Text("/".join(user_keys), style="magenta")
+    return Text("/".join(user_keys), style=ARGUMENTS_STYLE)

@@ -1,9 +1,6 @@
-from typing import Annotated
-
 import pytest
 from pydantic import BaseModel
 
-from clipstick import _annotations
 from clipstick._clipstick import parse
 
 

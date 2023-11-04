@@ -1,6 +1,4 @@
 Usage: dummy-entrypoint [Arguments]
 
-None
-
 Arguments:
     choice                [allowed values: option1, option2]

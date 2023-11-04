@@ -26,7 +26,7 @@ def test_optional_choice():
 
 
 def test_choice_help(capture_output):
-    with pytest.raises(SystemExit) as err:
+    with pytest.raises(SystemExit):
         capture_output(ModelWithChoice, ["-h"])
 
     assert "Arguments" in capture_output.captured_output
@@ -34,7 +34,7 @@ def test_choice_help(capture_output):
 
 
 def test_optional_choice_help(capture_output):
-    with pytest.raises(SystemExit) as err:
+    with pytest.raises(SystemExit):
         capture_output(ModelWithOptionalChoice, ["-h"])
 
     assert "Options:" in capture_output.captured_output

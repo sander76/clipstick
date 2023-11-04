@@ -1,6 +1,4 @@
 Usage: dummy-entrypoint [Options]
 
-None
-
 Options:
     -v --value-1             [int] [default = 10]

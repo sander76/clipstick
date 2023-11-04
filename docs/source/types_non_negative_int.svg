@@ -19,31 +19,32 @@
         font-weight: 700;
     }
 
-    .terminal-1429513983-matrix {
+    .terminal-4216749714-matrix {
         font-family: Fira Code, monospace;
         font-size: 20px;
         line-height: 24.4px;
         font-variant-east-asian: full-width;
     }
 
-    .terminal-1429513983-title {
+    .terminal-4216749714-title {
         font-size: 18px;
         font-weight: bold;
         font-family: arial;
     }
 
-    .terminal-1429513983-r1 { fill: #c5c8c6 }
-.terminal-1429513983-r2 { fill: #68a0b3;font-weight: bold }
+    .terminal-4216749714-r1 { fill: #c5c8c6 }
+.terminal-4216749714-r2 { fill: #68a0b3;font-weight: bold }
+.terminal-4216749714-r3 { fill: #d78700 }
     </style>
 
     <defs>
-    <clipPath id="terminal-1429513983-clip-terminal">
+    <clipPath id="terminal-4216749714-clip-terminal">
       <rect x="0" y="0" width="1341.0" height="72.19999999999999" />
     </clipPath>
-    <clipPath id="terminal-1429513983-line-0">
+    <clipPath id="terminal-4216749714-line-0">
     <rect x="0" y="1.5" width="1342" height="24.65"/>
             </clipPath>
-<clipPath id="terminal-1429513983-line-1">
+<clipPath id="terminal-4216749714-line-1">
     <rect x="0" y="25.9" width="1342" height="24.65"/>
             </clipPath>
     </defs>
@@ -55,12 +56,12 @@
             <circle cx="44" cy="0" r="7" fill="#28c840"/>
             </g>
         
-    <g transform="translate(9, 41)" clip-path="url(#terminal-1429513983-clip-terminal)">
+    <g transform="translate(9, 41)" clip-path="url(#terminal-4216749714-clip-terminal)">
     
-    <g class="terminal-1429513983-matrix">
-    <text class="terminal-1429513983-r1" x="0" y="20" textLength="634.4" clip-path="url(#terminal-1429513983-line-0)">&gt;&gt;&gt;&#160;python&#160;docs/source/types_non_negative_int.py&#160;-m&#160;</text><text class="terminal-1429513983-r2" x="634.4" y="20" textLength="36.6" clip-path="url(#terminal-1429513983-line-0)">-12</text><text class="terminal-1429513983-r1" x="1342" y="20" textLength="12.2" clip-path="url(#terminal-1429513983-line-0)">
-</text><text class="terminal-1429513983-r1" x="1342" y="44.4" textLength="12.2" clip-path="url(#terminal-1429513983-line-1)">
-</text><text class="terminal-1429513983-r1" x="0" y="68.8" textLength="646.6" clip-path="url(#terminal-1429513983-line-2)">Incorrect&#160;value&#160;for&#160;-m.&#160;Input&#160;should&#160;be&#160;greater&#160;than&#160;</text><text class="terminal-1429513983-r2" x="646.6" y="68.8" textLength="12.2" clip-path="url(#terminal-1429513983-line-2)">0</text><text class="terminal-1429513983-r1" x="658.8" y="68.8" textLength="109.8" clip-path="url(#terminal-1429513983-line-2)">,&#160;value:&#160;</text><text class="terminal-1429513983-r2" x="768.6" y="68.8" textLength="36.6" clip-path="url(#terminal-1429513983-line-2)">-12</text><text class="terminal-1429513983-r1" x="1342" y="68.8" textLength="12.2" clip-path="url(#terminal-1429513983-line-2)">
+    <g class="terminal-4216749714-matrix">
+    <text class="terminal-4216749714-r1" x="0" y="20" textLength="634.4" clip-path="url(#terminal-4216749714-line-0)">&gt;&gt;&gt;&#160;python&#160;docs/source/types_non_negative_int.py&#160;-m&#160;</text><text class="terminal-4216749714-r2" x="634.4" y="20" textLength="36.6" clip-path="url(#terminal-4216749714-line-0)">-12</text><text class="terminal-4216749714-r1" x="1342" y="20" textLength="12.2" clip-path="url(#terminal-4216749714-line-0)">
+</text><text class="terminal-4216749714-r1" x="1342" y="44.4" textLength="12.2" clip-path="url(#terminal-4216749714-line-1)">
+</text><text class="terminal-4216749714-r1" x="0" y="68.8" textLength="244" clip-path="url(#terminal-4216749714-line-2)">Incorrect&#160;value&#160;for&#160;</text><text class="terminal-4216749714-r3" x="244" y="68.8" textLength="24.4" clip-path="url(#terminal-4216749714-line-2)">-m</text><text class="terminal-4216749714-r1" x="268.4" y="68.8" textLength="463.6" clip-path="url(#terminal-4216749714-line-2)">&#160;(-12).&#160;Input&#160;should&#160;be&#160;greater&#160;than&#160;0</text><text class="terminal-4216749714-r1" x="1342" y="68.8" textLength="12.2" clip-path="url(#terminal-4216749714-line-2)">
 </text>
     </g>
     </g>

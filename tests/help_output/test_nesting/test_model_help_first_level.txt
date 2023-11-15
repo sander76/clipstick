@@ -1,4 +1,4 @@
-Usage: dummy-entrypoint [Subcommands]
+Usage: my-cli-app [Subcommands]
 
 First level model.
 

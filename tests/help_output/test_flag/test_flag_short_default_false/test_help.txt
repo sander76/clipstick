@@ -1,4 +1,4 @@
-Usage: dummy-entrypoint [Options]
+Usage: my-cli-app [Options]
 
 A model including an optional boolean flag.
 

@@ -1,9 +1,6 @@
-Usage: my-cli-app [Arguments] [Options]
+Usage: my-app [Arguments]
 
 A simple model. Main description.
 
 Arguments:
     my-name              A snake cased argument. [str]
-
-Options:
-     --snake-cased-kwarg   [int] [default = 10]

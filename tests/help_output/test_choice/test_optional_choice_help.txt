@@ -1,4 +1,4 @@
-Usage: dummy-entrypoint [Options]
+Usage: my-cli-app [Options]
 
 Options:
      --choice              [allowed values: option1, option2] [default = option1]

@@ -273,7 +273,12 @@ class Command(Token[TPydanticModel]):
 
     @property
     def user_keys(self) -> list[str]:
-        return [self.key]
+        """Return the name of the main command that started this cli tool.
+
+        This name is most of times a full path to the python entrypoint.
+        We are only interested in the last item of this call."""
+        keys = (self.key.split("/")[-1]).split("\\")[-1]
+        return [keys]
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         """Check for token match.

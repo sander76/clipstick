@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+
 from clipstick import parse
 
 
@@ -34,6 +35,10 @@ class Boulder(BaseModel):
         self.sub_command.main()
 
 
-if __name__ == "__main__":
+def run():
     model = parse(Boulder)
     model.main()
+
+
+if __name__ == "__main__":
+    run()

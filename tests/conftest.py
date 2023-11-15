@@ -2,11 +2,11 @@ from pathlib import Path
 
 import cairosvg
 import pytest
-from clipstick import parse
-from clipstick._help import console
 from pydantic import BaseModel
 
 import tests
+from clipstick import parse
+from clipstick._help import console
 from tests import HELP_OUTPUT_FOLDER
 
 TEST_FOLDER = Path(tests.__file__).parent

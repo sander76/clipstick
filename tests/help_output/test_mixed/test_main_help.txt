@@ -1,4 +1,4 @@
-Usage: dummy-entrypoint [Arguments] [Options]
+Usage: my-cli-app [Arguments] [Options]
 
 Arguments:
     pos-value-1                         [str] 

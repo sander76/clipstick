@@ -19,51 +19,51 @@
         font-weight: 700;
     }
 
-    .terminal-2329307507-matrix {
+    .terminal-3700385399-matrix {
         font-family: Fira Code, monospace;
         font-size: 20px;
         line-height: 24.4px;
         font-variant-east-asian: full-width;
     }
 
-    .terminal-2329307507-title {
+    .terminal-3700385399-title {
         font-size: 18px;
         font-weight: bold;
         font-family: arial;
     }
 
-    .terminal-2329307507-r1 { fill: #c5c8c6 }
-.terminal-2329307507-r2 { fill: #98a84b }
-.terminal-2329307507-r3 { fill: #c5c8c6;font-weight: bold }
-.terminal-2329307507-r4 { fill: #d78700 }
+    .terminal-3700385399-r1 { fill: #c5c8c6 }
+.terminal-3700385399-r2 { fill: #98a84b }
+.terminal-3700385399-r3 { fill: #c5c8c6;font-weight: bold }
+.terminal-3700385399-r4 { fill: #d78700 }
     </style>
 
     <defs>
-    <clipPath id="terminal-2329307507-clip-terminal">
+    <clipPath id="terminal-3700385399-clip-terminal">
       <rect x="0" y="0" width="1341.0" height="218.6" />
     </clipPath>
-    <clipPath id="terminal-2329307507-line-0">
+    <clipPath id="terminal-3700385399-line-0">
     <rect x="0" y="1.5" width="1342" height="24.65"/>
             </clipPath>
-<clipPath id="terminal-2329307507-line-1">
+<clipPath id="terminal-3700385399-line-1">
     <rect x="0" y="25.9" width="1342" height="24.65"/>
             </clipPath>
-<clipPath id="terminal-2329307507-line-2">
+<clipPath id="terminal-3700385399-line-2">
     <rect x="0" y="50.3" width="1342" height="24.65"/>
             </clipPath>
-<clipPath id="terminal-2329307507-line-3">
+<clipPath id="terminal-3700385399-line-3">
     <rect x="0" y="74.7" width="1342" height="24.65"/>
             </clipPath>
-<clipPath id="terminal-2329307507-line-4">
+<clipPath id="terminal-3700385399-line-4">
     <rect x="0" y="99.1" width="1342" height="24.65"/>
             </clipPath>
-<clipPath id="terminal-2329307507-line-5">
+<clipPath id="terminal-3700385399-line-5">
     <rect x="0" y="123.5" width="1342" height="24.65"/>
             </clipPath>
-<clipPath id="terminal-2329307507-line-6">
+<clipPath id="terminal-3700385399-line-6">
     <rect x="0" y="147.9" width="1342" height="24.65"/>
             </clipPath>
-<clipPath id="terminal-2329307507-line-7">
+<clipPath id="terminal-3700385399-line-7">
     <rect x="0" y="172.3" width="1342" height="24.65"/>
             </clipPath>
     </defs>
@@ -75,18 +75,18 @@
             <circle cx="44" cy="0" r="7" fill="#28c840"/>
             </g>
         
-    <g transform="translate(9, 41)" clip-path="url(#terminal-2329307507-clip-terminal)">
+    <g transform="translate(9, 41)" clip-path="url(#terminal-3700385399-clip-terminal)">
     
-    <g class="terminal-2329307507-matrix">
-    <text class="terminal-2329307507-r1" x="0" y="20" textLength="500.2" clip-path="url(#terminal-2329307507-line-0)">&gt;&gt;&gt;&#160;&#160;python&#160;docs/source/keyword_arg.py&#160;-h</text><text class="terminal-2329307507-r1" x="1342" y="20" textLength="12.2" clip-path="url(#terminal-2329307507-line-0)">
-</text><text class="terminal-2329307507-r1" x="1342" y="44.4" textLength="12.2" clip-path="url(#terminal-2329307507-line-1)">
-</text><text class="terminal-2329307507-r1" x="0" y="68.8" textLength="402.6" clip-path="url(#terminal-2329307507-line-2)">Usage:&#160;dummy-entrypoint&#160;[Options]</text><text class="terminal-2329307507-r1" x="1342" y="68.8" textLength="12.2" clip-path="url(#terminal-2329307507-line-2)">
-</text><text class="terminal-2329307507-r1" x="1342" y="93.2" textLength="12.2" clip-path="url(#terminal-2329307507-line-3)">
-</text><text class="terminal-2329307507-r2" x="0" y="117.6" textLength="475.8" clip-path="url(#terminal-2329307507-line-4)">A&#160;model&#160;with&#160;a&#160;keyworded&#160;optional&#160;value</text><text class="terminal-2329307507-r1" x="1342" y="117.6" textLength="12.2" clip-path="url(#terminal-2329307507-line-4)">
-</text><text class="terminal-2329307507-r1" x="1342" y="142" textLength="12.2" clip-path="url(#terminal-2329307507-line-5)">
-</text><text class="terminal-2329307507-r3" x="0" y="166.4" textLength="97.6" clip-path="url(#terminal-2329307507-line-6)">Options:</text><text class="terminal-2329307507-r1" x="1342" y="166.4" textLength="12.2" clip-path="url(#terminal-2329307507-line-6)">
-</text><text class="terminal-2329307507-r4" x="85.4" y="190.8" textLength="244" clip-path="url(#terminal-2329307507-line-7)">--my-value&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</text><text class="terminal-2329307507-r1" x="341.6" y="190.8" textLength="292.8" clip-path="url(#terminal-2329307507-line-7)">My&#160;value&#160;with&#160;a&#160;default.</text><text class="terminal-2329307507-r1" x="646.6" y="190.8" textLength="61" clip-path="url(#terminal-2329307507-line-7)">[int]</text><text class="terminal-2329307507-r1" x="719.8" y="190.8" textLength="207.4" clip-path="url(#terminal-2329307507-line-7)">[default&#160;=&#160;22]&#160;&#160;&#160;</text><text class="terminal-2329307507-r1" x="1342" y="190.8" textLength="12.2" clip-path="url(#terminal-2329307507-line-7)">
-</text><text class="terminal-2329307507-r4" x="48.8" y="215.2" textLength="24.4" clip-path="url(#terminal-2329307507-line-8)">-a</text><text class="terminal-2329307507-r4" x="85.4" y="215.2" textLength="244" clip-path="url(#terminal-2329307507-line-8)">--another-value&#160;&#160;&#160;&#160;&#160;</text><text class="terminal-2329307507-r1" x="341.6" y="215.2" textLength="292.8" clip-path="url(#terminal-2329307507-line-8)">Value&#160;with&#160;a&#160;shorthand&#160;&#160;</text><text class="terminal-2329307507-r1" x="646.6" y="215.2" textLength="61" clip-path="url(#terminal-2329307507-line-8)">[str]</text><text class="terminal-2329307507-r1" x="719.8" y="215.2" textLength="207.4" clip-path="url(#terminal-2329307507-line-8)">[default&#160;=&#160;value]</text><text class="terminal-2329307507-r1" x="1342" y="215.2" textLength="12.2" clip-path="url(#terminal-2329307507-line-8)">
+    <g class="terminal-3700385399-matrix">
+    <text class="terminal-3700385399-r1" x="0" y="20" textLength="500.2" clip-path="url(#terminal-3700385399-line-0)">&gt;&gt;&gt;&#160;&#160;python&#160;docs/source/keyword_arg.py&#160;-h</text><text class="terminal-3700385399-r1" x="1342" y="20" textLength="12.2" clip-path="url(#terminal-3700385399-line-0)">
+</text><text class="terminal-3700385399-r1" x="1342" y="44.4" textLength="12.2" clip-path="url(#terminal-3700385399-line-1)">
+</text><text class="terminal-3700385399-r1" x="0" y="68.8" textLength="329.4" clip-path="url(#terminal-3700385399-line-2)">Usage:&#160;my-cli-app&#160;[Options]</text><text class="terminal-3700385399-r1" x="1342" y="68.8" textLength="12.2" clip-path="url(#terminal-3700385399-line-2)">
+</text><text class="terminal-3700385399-r1" x="1342" y="93.2" textLength="12.2" clip-path="url(#terminal-3700385399-line-3)">
+</text><text class="terminal-3700385399-r2" x="0" y="117.6" textLength="475.8" clip-path="url(#terminal-3700385399-line-4)">A&#160;model&#160;with&#160;a&#160;keyworded&#160;optional&#160;value</text><text class="terminal-3700385399-r1" x="1342" y="117.6" textLength="12.2" clip-path="url(#terminal-3700385399-line-4)">
+</text><text class="terminal-3700385399-r1" x="1342" y="142" textLength="12.2" clip-path="url(#terminal-3700385399-line-5)">
+</text><text class="terminal-3700385399-r3" x="0" y="166.4" textLength="97.6" clip-path="url(#terminal-3700385399-line-6)">Options:</text><text class="terminal-3700385399-r1" x="1342" y="166.4" textLength="12.2" clip-path="url(#terminal-3700385399-line-6)">
+</text><text class="terminal-3700385399-r4" x="85.4" y="190.8" textLength="244" clip-path="url(#terminal-3700385399-line-7)">--my-value&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</text><text class="terminal-3700385399-r1" x="341.6" y="190.8" textLength="292.8" clip-path="url(#terminal-3700385399-line-7)">My&#160;value&#160;with&#160;a&#160;default.</text><text class="terminal-3700385399-r1" x="646.6" y="190.8" textLength="61" clip-path="url(#terminal-3700385399-line-7)">[int]</text><text class="terminal-3700385399-r1" x="719.8" y="190.8" textLength="207.4" clip-path="url(#terminal-3700385399-line-7)">[default&#160;=&#160;22]&#160;&#160;&#160;</text><text class="terminal-3700385399-r1" x="1342" y="190.8" textLength="12.2" clip-path="url(#terminal-3700385399-line-7)">
+</text><text class="terminal-3700385399-r4" x="48.8" y="215.2" textLength="24.4" clip-path="url(#terminal-3700385399-line-8)">-a</text><text class="terminal-3700385399-r4" x="85.4" y="215.2" textLength="244" clip-path="url(#terminal-3700385399-line-8)">--another-value&#160;&#160;&#160;&#160;&#160;</text><text class="terminal-3700385399-r1" x="341.6" y="215.2" textLength="292.8" clip-path="url(#terminal-3700385399-line-8)">Value&#160;with&#160;a&#160;shorthand&#160;&#160;</text><text class="terminal-3700385399-r1" x="646.6" y="215.2" textLength="61" clip-path="url(#terminal-3700385399-line-8)">[str]</text><text class="terminal-3700385399-r1" x="719.8" y="215.2" textLength="207.4" clip-path="url(#terminal-3700385399-line-8)">[default&#160;=&#160;value]</text><text class="terminal-3700385399-r1" x="1342" y="215.2" textLength="12.2" clip-path="url(#terminal-3700385399-line-8)">
 </text>
     </g>
     </g>

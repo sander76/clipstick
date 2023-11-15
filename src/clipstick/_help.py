@@ -7,11 +7,25 @@ from rich.console import Console
 from rich.table import Table
 from rich.text import Text
 
-from clipstick.style import ARGUMENT_HEADER, ARGUMENTS_STYLE, DOCSTRING
+from clipstick._exceptions import ClipStickError
+from clipstick.style import ARGUMENT_HEADER, ARGUMENTS_STYLE, DOCSTRING, ERROR
 
 console = Console()
 if TYPE_CHECKING:  # pragma: no cover
     from clipstick._tokens import Command, Subcommand
+
+
+def suggest_help():
+    suggest_help = Text()
+    suggest_help.append("Use the ")
+    suggest_help.append("-h", ARGUMENTS_STYLE)
+    suggest_help.append(" argument for help.")
+    console.print(suggest_help)
+
+
+def error(message: Text | str | ClipStickError):
+    console.print("ERROR: ", style=ERROR, end="")
+    console.print(message)
 
 
 def help(command: Command | Subcommand) -> None:

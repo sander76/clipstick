@@ -1,1 +1,1 @@
-Incorrect value for --my-value (-10). Input should be greater than 0
+ERROR: Incorrect value for --my-value (-10). Input should be greater than 0

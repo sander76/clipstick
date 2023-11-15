@@ -1,5 +1,6 @@
-Unable to consume all provided arguments.
-Usage: dummy-entrypoint [Options]
+ERROR: Unable to consume all provided arguments.
+Use the -h argument for help.
+Usage: my-cli-app [Options]
 
 A model with only optionals.
 

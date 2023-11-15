@@ -1,1 +1,1 @@
-Incorrect value for --my-value (option3). Input should be 'option1' or 'option2'
+ERROR: Incorrect value for --my-value (option3). Input should be 'option1' or 'option2'

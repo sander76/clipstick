@@ -1,4 +1,4 @@
-Usage: dummy-entrypoint second-level-model-one [Options] [Subcommands]
+Usage: my-cli-app second-level-model-one [Options] [Subcommands]
 
 Second level model 1.
 

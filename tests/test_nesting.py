@@ -1,5 +1,5 @@
-from pydantic import BaseModel
 import pytest
+from pydantic import BaseModel
 
 from clipstick import parse
 
@@ -75,7 +75,7 @@ def test_model_help_second_level(capture_output):
 
     assert err.value.code == 0
     assert "First level model." not in capture_output.captured_output
-    assert "dummy-entrypoint second-level-model-one" in capture_output.captured_output
+    assert "my-cli-app second-level-model-one" in capture_output.captured_output
 
     assert "Second level model 1." in capture_output.captured_output
     assert "third-level-model-two" in capture_output.captured_output

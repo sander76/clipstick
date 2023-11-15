@@ -1,4 +1,4 @@
-Usage: dummy-entrypoint [Arguments]
+Usage: my-cli-app [Arguments]
 
 Model with a flag with shorthand
 

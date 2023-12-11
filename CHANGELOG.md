@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.8
+
+- fix wrong reference help file. (readme update)
+
 ## 0.3.7
 
 - minor readme update.

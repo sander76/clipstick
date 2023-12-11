@@ -1,13 +1,14 @@
 # examples/simple.py
 
 from pydantic import BaseModel
+
 from clipstick import parse
 
 
 class SimpleModel(BaseModel):
     """A simple model demonstrating clipstick.
 
-    This is used in help as describing the main command.
+    This docstring is used as the help output of the cli.
     """
 
     name: str

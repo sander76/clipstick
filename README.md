@@ -29,7 +29,7 @@ try and build my own parser instead of using `Argparse` because... why not.
 
 <!-- [[[cog
 import cog
-contents = open("examples/simple.py").read() 
+contents = open("docs/source/simple.py").read() 
 
 cog.outl("```python")
 cog.outl("")
@@ -41,6 +41,7 @@ cog.outl("```")
 # examples/simple.py
 
 from pydantic import BaseModel
+
 from clipstick import parse
 
 

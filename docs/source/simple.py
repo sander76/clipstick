@@ -1,20 +1,20 @@
 # examples/simple.py
 
-from typing import Annotated
 from pydantic import BaseModel
-from clipstick import parse, short
+
+from clipstick import parse
 
 
 class SimpleModel(BaseModel):
     """A simple model demonstrating clipstick.
 
-    This is used in help as describing the main command.
+    This docstring is used as the help output of the cli.
     """
 
     name: str
-    """Your name. This is used in help describing name."""
+    """Your name. This is used in help describing the name."""
 
-    repeat_count: Annotated[int, short("r")] = 10
+    repeat_count: int = 10
     """How many times to repeat your name. Used in help describing repeat_count."""
 
     def main(self):

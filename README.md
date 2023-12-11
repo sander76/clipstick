@@ -17,7 +17,8 @@ The goal of clipstip is to use pydantic to model your cli by leveraging:
 
 Clipstick is inspired by [tyro](https://brentyi.github.io/tyro/), which is excellent and more versatile than this tool. But in my opionion its primary focus is not building a cli tool along the lines of Argparse or Click but more on composing complex objects from the command line. Making tyro behave like a "traditional" cli requires additional `Annotation` flags, which I don't want.
 
-Next to that I decided to build my own parser instead of using `Argparse` because... why not.
+Some other similar tools don't support pydantic v2, so I decided to create my own. Next to that I wanted to
+try and build my own parser instead of using `Argparse` because... why not.
 
 ## Installation
 

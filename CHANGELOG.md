@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.7
+
+- minor readme update.
+
 ## 0.3.6
 
 - better help and error output.

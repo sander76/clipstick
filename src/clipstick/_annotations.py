@@ -13,6 +13,6 @@ def short(name: str) -> Short:
         name: The name of the short-hand name. Provide just the letter. not the preceding dash.
 
     Returns:
-        A Short marker inside a type annotation.
+        A `Short` marker inside a type annotation.
     """
     return Short(name)

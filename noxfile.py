@@ -1,6 +1,6 @@
 from pathlib import Path
-import nox
 
+import nox
 
 nox.options.reuse_existing_virtualenvs = True
 nox.options.sessions = ["fix_quality", "quality", "test", "check_version"]
@@ -52,9 +52,10 @@ def build(session):
 
 
 @nox.session
-def build_readme(session):
+def build_docs(session):
     session.run("poetry", "install", "--sync", external=True)
-    session.run("cog", "-r", "README.md")
+    session.run("python", "tools/cogger.py")
+    session.run("sphinx-build", "docs", "_build")
 
 
 @nox.session(python=False)

@@ -8,7 +8,7 @@ from rich.table import Table
 from rich.text import Text
 
 from clipstick._exceptions import ClipStickError
-from clipstick.style import ARGUMENT_HEADER, ARGUMENTS_STYLE, DOCSTRING, ERROR
+from clipstick._style import ARGUMENT_HEADER, ARGUMENTS_STYLE, DOCSTRING, ERROR
 
 console = Console()
 if TYPE_CHECKING:  # pragma: no cover

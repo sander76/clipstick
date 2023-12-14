@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.9
+
+- move to sphinx for documentation
+
 ## 0.3.8
 
 - fix wrong reference help file. (readme update)
@@ -19,7 +23,7 @@
 
 ## 0.3.4
 
-- Add py.typed
+- Ad py.typed
 
 ## 0.3.3
 

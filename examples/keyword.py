@@ -1,10 +1,12 @@
-from typing import Annotated
+from clipstick import parse
 from pydantic import BaseModel
-from clipstick import short
 
 
 class MyModel(BaseModel):
     """A model with a keyworded optional value"""
 
-    my_value: Annotated[int, short("m")] = 22  # <-- this adds a shorthand of `-m`.
+    my_value: int = 22
     """My value with a default."""
+
+
+print(parse(MyModel))

@@ -94,48 +94,13 @@ jobs:
           maxColorRange: 90
           valColorRange: ${{ env.total }}
   
-  update_readme:
-    if: github.ref == 'refs/heads/main'
-    name: update_readme
-    runs-on: ubuntu-latest
-    needs:
-      - test
-      - quality
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-      - run: pip install nox
-      - run: pip install poetry
-      - run: nox --session build_readme
-      - run: cat README.md
-        id: show_readme
-      - name: Commit updated README.md
-        id: commit
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          if git diff --quiet && git diff --staged --quiet; then
-            echo "No changes in README.md, skipping commit."
-          else
-            git add .
-            git commit -m "Update README.md"
-            git push
-          fi
+  
   tag_version:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs:
       - test
       - quality
-      - update_readme
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v3
@@ -162,7 +127,6 @@ jobs:
     needs:
       - test
       - quality
-      - update_readme
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

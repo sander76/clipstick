@@ -1,5 +1,5 @@
-from pydantic import BaseModel, FilePath
 from clipstick import parse
+from pydantic import BaseModel, FilePath
 
 
 class MyModel(BaseModel):
@@ -7,5 +7,4 @@ class MyModel(BaseModel):
     """provide an existing file location."""
 
 
-if __name__ == "__main__":
-    model = parse(MyModel)
+print(parse(MyModel))

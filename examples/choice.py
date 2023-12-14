@@ -1,6 +1,7 @@
 from typing import Literal
-from pydantic import BaseModel
+
 from clipstick import parse
+from pydantic import BaseModel
 
 
 class MyModel(BaseModel):
@@ -10,5 +11,4 @@ class MyModel(BaseModel):
     """A value with restricted values."""
 
 
-if __name__ == "__main__":
-    model = parse(MyModel)
+model = parse(MyModel)

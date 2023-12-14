@@ -1,5 +1,5 @@
-from pydantic import BaseModel
 from clipstick import parse
+from pydantic import BaseModel
 
 
 class MyModel(BaseModel):
@@ -9,6 +9,4 @@ class MyModel(BaseModel):
     """My required value."""
 
 
-if __name__ == "__main__":
-    """your cli entrypoint"""
-    model = parse(MyModel)
+print(parse(MyModel))

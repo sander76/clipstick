@@ -1,5 +1,5 @@
-from pydantic import BaseModel
 from clipstick import parse
+from pydantic import BaseModel
 
 
 class MyModel(BaseModel):
@@ -8,6 +8,8 @@ class MyModel(BaseModel):
     verbose: bool
     """Some verbose thingy."""
 
+    more_verbose: bool = False
+    """More verbose thingy with a default."""
 
-if __name__ == "__main__":
-    model = parse(MyModel)
+
+print(parse(MyModel))

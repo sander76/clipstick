@@ -5,7 +5,7 @@ from rich.console import Console, ConsoleOptions, RenderResult
 from rich.text import Text
 
 from clipstick import _tokens
-from clipstick.style import ARGUMENTS_STYLE
+from clipstick._style import ARGUMENTS_STYLE
 
 
 class ClipStickError(Exception):

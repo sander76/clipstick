@@ -18,7 +18,7 @@ jobs:
           pip install --upgrade pip
           pip install nox poetry
       - name: Building docs
-        run: nox --session "build_docs')"
+        run: nox --session build_docs
         env:
           PYTHONDEVMODE: 1
 

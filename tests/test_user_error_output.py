@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Optional
 
 import pytest
 from pydantic import BaseModel, FilePath, PositiveInt
@@ -44,6 +44,18 @@ def test_too_little_values(capture_output):
 
     assert err.value.code == 1
     assert ("Missing a value for positional argument") in capture_output.captured_output
+
+
+def test_incorrect_str_value(capture_output):
+    with pytest.raises(SystemExit) as err:
+        capture_output(RequiredValue, ["10", 12])
+
+    assert err.value.code == 1
+
+    assert (
+        "Incorrect value for another-value (12). Input should be a valid string"
+        in capture_output.captured_output
+    )
 
 
 class NonExistingPath(BaseModel):
@@ -96,3 +108,19 @@ def test_failing_optional(capture_output, args):
     assert (
         f"Incorrect value for {args[0]} (-10). Input should be greater than 0"
     ) in capture_output.captured_output
+
+
+class OptionalValueOldTyping(BaseModel):
+    my_first_optional: Optional[int] = None
+
+
+def test_optional_value_old_typing(capture_output):
+    capture_output(OptionalValueOldTyping, [])
+
+
+class OptionalValueNewTyping(BaseModel):
+    my_second_optional: int | None = None
+
+
+def test_optional_value_new_typing(capture_output):
+    capture_output(OptionalValueNewTyping, [])

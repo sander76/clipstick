@@ -1,35 +1,41 @@
 from inspect import isclass
 from itertools import chain
-from pydantic.fields import FieldInfo
 from types import UnionType
-from clipstick._docstring import set_undefined_field_descriptions_from_var_docstrings
+from typing import Iterator, get_args
+
+from pydantic import BaseModel
+from pydantic.fields import FieldInfo
+
 from clipstick._annotations import Short
+from clipstick._docstring import set_undefined_field_descriptions_from_var_docstrings
+from clipstick._exceptions import (
+    InvalidTypesInUnion,
+    NoDefaultAllowedForSubcommand,
+    TooManyShortsException,
+    TooManySubcommands,
+)
 from clipstick._tokens import (
+    BooleanFlag,
+    Command,
+    OptionalBooleanFlag,
     OptionalKeyArgs,
     PositionalArg,
     Subcommand,
-    Command,
-    BooleanFlag,
-    OptionalBooleanFlag,
 )
-from clipstick._exceptions import (
-    TooManyShortsException,
-    InvalidTypesInUnion,
-    NoDefaultAllowedForSubcommand,
-    TooManySubcommands,
-)
-
-from pydantic import BaseModel
-
-
-from typing import Iterator, get_args
 
 
 def _is_subcommand(attribute: str, field_info: FieldInfo) -> bool:
     """Check if the field annotated as a subcommand."""
+
     if not isinstance(field_info.annotation, UnionType):
         return False
+
     args = get_args(field_info.annotation)
+
+    # Checks to see if the type could be "int | None" for instance
+    if type(None) in args:
+        return False
+
     if not all(issubclass(arg, BaseModel) for arg in args):
         raise InvalidTypesInUnion()
     if not field_info.is_required():

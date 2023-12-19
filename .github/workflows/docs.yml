@@ -10,7 +10,7 @@ jobs:
     steps:
 
       # Check out source
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       # Build documentation
       - name: Installing dependencies

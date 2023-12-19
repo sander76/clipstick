@@ -68,18 +68,18 @@ That's it. The clipstick parser will convert this into a command line interface 
 
 So `python examples/name.py -h` gives you nicely formatted (and colored) output:
 
-![help_output](https://sander76.github.io/clipstick/_images/name-help.svg)
+![help_output](docs/_images/name-help.svg)
 
 And use your cli `python examples/name.py superman --repeat-count 4`:
 
-![usage output](https://sander76.github.io/clipstick/_images/name-output.svg)
+![usage output](docs/_images/name-output.svg)
 
 The provided annotations define the type to which your arguments need to be converted.
 If you provide a value which cannot be converted you will be presented with a nice error:
 
 `python examples/name.py superman --age too-old`
 
-![wrong age](https://sander76.github.io/clipstick/_images/name-wrong-age.svg)
+![wrong age](docs/_images/name-wrong-age.svg)
 
 > The inclusion of the `def main(self)` method is not a requirement. `clipstick` generates a pydantic model based on provided cli arguments and gives it back to you for your further usage. Using `def main()` is one of the options to further process it.
 

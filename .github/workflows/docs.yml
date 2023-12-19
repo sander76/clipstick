@@ -1,0 +1,30 @@
+name: docs
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+
+      # Check out source
+      - uses: actions/checkout@v2
+
+      # Build documentation
+      - name: Installing dependencies
+        run: |
+          pip install --upgrade pip
+          pip install nox poetry
+      - name: Building docs
+        run: nox --session "build_docs')"
+        env:
+          PYTHONDEVMODE: 1
+
+      # Deploy
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_build

@@ -250,13 +250,13 @@ but they all don’t do quite exactly what I want.</p>
 </div>
 <p>That’s it. The clipstick parser will convert this into a command line interface based on the properties assigned to the model, the provided typing and docstrings.</p>
 <p>So <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">examples/name.py</span> <span class="pre">-h</span></code> gives you nicely formatted (and colored) output:</p>
-<p><img alt="help_output" src="https://sander76.github.io/clipstick/_images/name-help.svg" /></p>
+<p><img alt="help_output" src="_images/name-help.svg" /></p>
 <p>And use your cli <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">examples/name.py</span> <span class="pre">superman</span> <span class="pre">--repeat-count</span> <span class="pre">4</span></code>:</p>
-<p><img alt="usage output" src="https://sander76.github.io/clipstick/_images/name-output.svg" /></p>
+<p><img alt="usage output" src="_images/name-output.svg" /></p>
 <p>The provided annotations define the type to which your arguments need to be converted.
 If you provide a value which cannot be converted you will be presented with a nice error:</p>
 <p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">examples/name.py</span> <span class="pre">superman</span> <span class="pre">--age</span> <span class="pre">too-old</span></code></p>
-<p><img alt="wrong age" src="https://sander76.github.io/clipstick/_images/name-wrong-age.svg" /></p>
+<p><img alt="wrong age" src="_images/name-wrong-age.svg" /></p>
 <blockquote>
 <div><p>The inclusion of the <code class="docutils literal notranslate"><span class="pre">def</span> <span class="pre">main(self)</span></code> method is not a requirement. <code class="docutils literal notranslate"><span class="pre">clipstick</span></code> generates a pydantic model based on provided cli arguments and gives it back to you for your further usage. Using <code class="docutils literal notranslate"><span class="pre">def</span> <span class="pre">main()</span></code> is one of the options to further process it.</p>
 </div></blockquote>

@@ -33,7 +33,7 @@ def _is_subcommand(attribute: str, field_info: FieldInfo) -> bool:
     args = get_args(field_info.annotation)
 
     # Checks to see if the type could be "int | None" for instance
-    if type(None) in args:
+    if not any(issubclass(arg, BaseModel) for arg in args):
         return False
 
     if not all(issubclass(arg, BaseModel) for arg in args):

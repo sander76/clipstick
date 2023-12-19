@@ -1,8 +1,10 @@
-from typing import Annotated
-from pydantic import BaseModel
-from clipstick._clipstick import parse
-from clipstick._annotations import short
+from typing import Annotated, Optional
+
 import pytest
+from pydantic import BaseModel
+
+from clipstick._annotations import short
+from clipstick._clipstick import parse
 
 
 class OptionalsModel(BaseModel):
@@ -61,3 +63,19 @@ def test_help_with_shorts(capture_output):
 
     assert err.value.code == 0
     assert "-v --value-1" in capture_output.captured_output
+
+
+class OptionalValueOldTyping(BaseModel):
+    my_first_optional: Optional[int] = None
+
+
+def test_optional_value_old_typing(capture_output):
+    capture_output(OptionalValueOldTyping, [])
+
+
+class OptionalValueNewTyping(BaseModel):
+    my_second_optional: int | None = None
+
+
+def test_optional_value_new_typing(capture_output):
+    capture_output(OptionalValueNewTyping, [])

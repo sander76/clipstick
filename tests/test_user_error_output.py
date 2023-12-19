@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Annotated, Literal, Optional
+from typing import Annotated, Literal
 
 import pytest
 from pydantic import BaseModel, FilePath, PositiveInt
@@ -108,19 +108,3 @@ def test_failing_optional(capture_output, args):
     assert (
         f"Incorrect value for {args[0]} (-10). Input should be greater than 0"
     ) in capture_output.captured_output
-
-
-class OptionalValueOldTyping(BaseModel):
-    my_first_optional: Optional[int] = None
-
-
-def test_optional_value_old_typing(capture_output):
-    capture_output(OptionalValueOldTyping, [])
-
-
-class OptionalValueNewTyping(BaseModel):
-    my_second_optional: int | None = None
-
-
-def test_optional_value_new_typing(capture_output):
-    capture_output(OptionalValueNewTyping, [])

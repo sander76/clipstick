@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.10
+
+- update pypi metadata
+
 ## 0.3.9
 
 - move to sphinx for documentation

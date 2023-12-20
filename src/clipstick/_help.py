@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from inspect import cleandoc
 from typing import TYPE_CHECKING, Iterator, Literal, get_args
 
 from pydantic.fields import FieldInfo
@@ -53,7 +54,7 @@ def help(command: Command | Subcommand) -> None:
     # the class docstring as general help
     if command.cls.__doc__:
         console.print("")
-        console.print(Text(command.cls.__doc__, style=DOCSTRING))
+        console.print(Text(cleandoc(command.cls.__doc__), style=DOCSTRING))
 
     if command.args:
         tbl = Table.grid(collapse_padding=True, padding=(0, 1))

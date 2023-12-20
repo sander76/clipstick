@@ -1,4 +1,8 @@
 # Changelog
+## 0.3.11
+
+- remove unused dependency
+- fix multiline help output (remove the indent)
 
 ## 0.3.10
 

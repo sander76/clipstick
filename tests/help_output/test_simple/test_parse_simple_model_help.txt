@@ -1,6 +1,8 @@
 Usage: my-cli-app [Arguments] [Options]
 
-A simple model. Main description.
+A simple model.
+
+Main description.
 
 Arguments:
     my-name              A snake cased argument. [str]

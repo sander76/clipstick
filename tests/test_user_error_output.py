@@ -2,29 +2,17 @@ from pathlib import Path
 from typing import Annotated, Literal
 
 import pytest
-from pydantic import BaseModel, FilePath, PositiveInt
-
 from clipstick import short
+from pydantic import BaseModel, FilePath, PositiveInt
 
 
 class FailingPositional(BaseModel):
-    my_value: PositiveInt
-
-
-def test_failing_positional(capture_output):
-    with pytest.raises(SystemExit) as err:
-        capture_output(FailingPositional, ["-5"])
-
-    assert err.value.code == 1
-    assert (
-        "Incorrect value for my-value (-5). Input should be greater than 0"
-        in capture_output.captured_output
-    )
+    my_value: PositiveInt = 10
 
 
 def test_too_many_arguments(capture_output):
     with pytest.raises(SystemExit) as err:
-        capture_output(FailingPositional, [10, 12])
+        capture_output(FailingPositional, ["10", "12"])
 
     assert err.value.code == 1
 

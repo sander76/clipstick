@@ -1,6 +1,6 @@
-from pydantic import BaseModel
 import pytest
 from clipstick import parse
+from pydantic import BaseModel
 
 
 class Main(BaseModel):
@@ -58,6 +58,23 @@ def test_main_some_args():
         required_bool=True,
         optional_2=22,
         optional_bool=True,
+    )
+
+
+def test_optionals_out_of_order():
+    model = parse(
+        Main,
+        [
+            "--optional-2",
+            "22",
+            "val1",
+            "10",
+            "--required-bool",
+        ],
+    )
+
+    assert model == Main(
+        pos_value_1="val1", pos_value_2=10, required_bool=True, optional_2=22
     )
 
 

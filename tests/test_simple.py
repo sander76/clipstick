@@ -23,6 +23,11 @@ def test_parse_simple_mode_with_optional():
     assert model == SimpleModel(my_name="Adam", snake_cased_kwarg=10)
 
 
+def test_parse_simple_model_unordered():
+    model = parse(SimpleModel, ["--snake-cased-kwarg", "10", "Adam"])
+    assert model == SimpleModel(my_name="Adam", snake_cased_kwarg=10)
+
+
 def test_too_much_positionals_must_raise(capture_output):
     with pytest.raises(SystemExit) as err:
         capture_output(SimpleModel, ["Adam", "Ondra"])

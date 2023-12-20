@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+from copy import copy
 from dataclasses import dataclass, field
 from functools import cached_property
 from itertools import chain
@@ -92,6 +93,9 @@ class PositionalArg(Token[str]):
             # we need this positional argument to match.
             # if not, it indicates the user has not provided it.
             raise _exceptions.MissingPositional("/".join(self.user_keys), idx, values)
+        if values[idx].startswith("-"):
+            return False, idx
+
         self.indices = slice(idx, idx + 1)
         return True, idx + 1
 
@@ -126,11 +130,10 @@ class OptionalKeyArgs(Token[str]):
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         try:
             if values[idx] not in self.user_keys:
-                # As this is an optional, we are returning true to continue matching.
-                return True, idx
+                return False, idx
         except IndexError:
             # As this is an optional, we are returning true to continue matching.
-            return True, idx
+            return False, idx
 
         # consume next two values
         self.indices = slice(idx, idx + 2)
@@ -234,12 +237,12 @@ class OptionalBooleanFlag(BooleanFlag):
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         if len(values) <= idx:
-            return True, idx
+            return False, idx
 
         if values[idx] in self.user_keys:
             self.indices = slice(idx, idx + 1)
             return True, idx + 1
-        return True, idx
+        return False, idx
 
 
 @dataclass
@@ -302,20 +305,54 @@ class Command(Token[TPydanticModel]):
         if _is_help_key(idx, values):
             _help.help(self)
             sys.exit(0)
-        for arg in chain(self.args, self.optional_kwargs):
-            success, idx = arg.match(idx, values)
-            if not success:
-                return False, start_idx
 
+        args = copy(self.args)
+
+        def _check_arg_or_optional(_idx: int, values: list[str]) -> tuple[bool, int]:
+            """Every arg in the values list must match one of the tokens in the model.
+
+            They need to match either:
+            - A positional argument in the correct order of the args list.
+            - One of the optional arguments.
+            """
+            if args:
+                arg = args[0]
+                success, _idx = arg.match(_idx, values)
+                if success:
+                    args.pop(0)
+                    return success, _idx
+            for optional in self.optional_kwargs:
+                success, _idx = optional.match(_idx, values)
+                if success:
+                    return success, _idx
+            return False, _idx
+
+        found_match = True
+        while found_match:
+            found_match, idx = _check_arg_or_optional(idx, values)
+
+        # no more match is found. Now we need to check whether all postional (required) arguments
+        # have been matched. If not, we have no match for this command.
+        if args:
+            return False, start_idx
+
+        # We now need to check whether this command has any subcommands.
+        # If no subcommands are inside this command we have a match.
         if len(self.sub_commands) == 0:
             return True, idx
 
+        # This command has a subcommand.
+        # We now try and match each subcommand with the remainder of the provided arguments.
+
+        # All parsed subcommands are collected here:
         subcommands: list[tuple[bool, int, Subcommand]] = []
+
         for sub_command in self.sub_commands:
             sub_command_start_idx = idx
             result = sub_command.match(sub_command_start_idx, values)
             subcommands.append((*result, sub_command))
 
+        # We expect only one subcommand to match.
         succesfull_subcommands = [
             sub_command_structure
             for sub_command_structure in subcommands

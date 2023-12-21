@@ -1,6 +1,8 @@
 ![coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/sander76/a25f1e6bfcb3b085ffe05f520b56e43c/raw/covbadge.json)
+[![PyPI - Version](https://img.shields.io/pypi/v/clipstick.svg?logo=pypi&label=PyPI&logoColor=gold)](https://pypi.org/project/clipstick/)
+[![code style - black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![types - Mypy](https://img.shields.io/badge/types-Mypy-blue.svg)](https://github.com/ambv/black)
 
-# Clipstick
 <!-- begin index -->
 
 Create your cli using Pydantic models

@@ -1,5 +1,28 @@
 # Changelog
-## 0.3.11
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog],
+and this project adheres to [Semantic Versioning].
+
+## [Unreleased]
+
+- /
+
+
+
+## [0.3.12] - 2023-12-21
+
+### Fixed
+
+- Allow for providing optional arguments in an unordered way.
+    
+    Previously, the parser assumed all optional arguments to follow after
+    the positional arguments. This version allows these to be whereever.
+
+## [0.3.11] - 2023-12-20
+
+### Fixed
 
 - remove unused dependency
 - fix multiline help output (remove the indent)
@@ -57,4 +80,3 @@
 
 - updated readme.
 - updated help output.
-

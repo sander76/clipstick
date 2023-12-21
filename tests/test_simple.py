@@ -43,7 +43,8 @@ def test_parse_simple_model_help(capture_output):
 
     assert (
         capture_output.captured_output
-        == """Usage: my-cli-app [Arguments] [Options]
+        == """
+Usage: my-cli-app [Arguments] [Options]
 
 A simple model.
 

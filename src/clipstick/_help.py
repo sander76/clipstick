@@ -17,10 +17,9 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 def suggest_help():
-    suggest_help = Text()
-    suggest_help.append("Use the ")
-    suggest_help.append("-h", ARGUMENTS_STYLE)
-    suggest_help.append(" argument for help.")
+    suggest_help = Text.assemble(
+        "Use the", Text("-h", ARGUMENTS_STYLE), " argument to help"
+    )
     console.print(suggest_help)
 
 
@@ -40,9 +39,8 @@ def help(command: Command | Subcommand) -> None:
 
     # print the first usage line
     # example: dummy-entrypoint second-level-model-one [Options] [Subcommands]
-    usage_line = Text()
-    usage_line.append("Usage: ")
-    usage_line.append(entry_point)
+    console.print("")
+    usage_line = Text.assemble(Text("Usage: ", style="bold"), entry_point)
     if command.args:
         usage_line.append(" [Arguments]")
     if command.optional_kwargs:

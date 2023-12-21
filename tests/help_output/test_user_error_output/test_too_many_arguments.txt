@@ -1,2 +1,2 @@
 ERROR: Unable to consume all provided arguments.
-Use the -h argument for help.
+Use the-h argument to help

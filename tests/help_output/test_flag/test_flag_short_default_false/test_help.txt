@@ -1,3 +1,4 @@
+
 Usage: my-cli-app [Options]
 
 A model including an optional boolean flag.

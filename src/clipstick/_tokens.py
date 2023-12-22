@@ -34,7 +34,6 @@ def _to_false_short(key: str) -> str:
     return f"-no-{key}"
 
 
-@dataclass
 class Token(Generic[TTokenType]):
     """Represents either a pydantic model or a pydantic field.
 
@@ -65,7 +64,7 @@ class Token(Generic[TTokenType]):
         """Parse data from the provided values based on the match logic implemented in this class."""
         raise NotImplementedError()
 
-    @property
+    @cached_property
     def user_keys(self) -> list[str]:
         """Argument keys (like --verbose or --value) provided by a user to indicate a keyword or flag.
 
@@ -74,19 +73,15 @@ class Token(Generic[TTokenType]):
         raise NotImplementedError()
 
 
-@dataclass
-class PositionalArg(Token[str]):
-    key: str
-    field_info: FieldInfo
-    indices: slice | None = None
+class PositionalArg:
+    def __init__(self, key: str, field_info: FieldInfo):
+        self.key = key
+        self.field_info = field_info
+        self.indices: slice | None = None
 
     @cached_property
-    def keys(self) -> list[str]:
-        return [(self.key.replace("_", "-"))]
-
-    @property
     def user_keys(self) -> list[str]:
-        return self.keys
+        return [(self.key.replace("_", "-"))]
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         if len(values) <= idx:
@@ -105,11 +100,11 @@ class PositionalArg(Token[str]):
         raise ValueError("Expecting a slice object. Got None.")
 
 
-@dataclass
-class OptionalKeyArgs(Token[str]):
-    key: str
-    field_info: FieldInfo
-    indices: slice | None = None
+class OptionalKeyArgs:
+    def __init__(self, key: str, field_info: FieldInfo):
+        self.key = key
+        self.field_info = field_info
+        self.indices: slice | None = None
 
     @cached_property
     def short_keys(self) -> list[str]:
@@ -145,14 +140,13 @@ class OptionalKeyArgs(Token[str]):
         return {}
 
 
-@dataclass
-class BooleanFlag(Token[bool]):
+class BooleanFlag:
     """A positional (required) boolean flag value."""
 
-    key: str
-    """A pydantic field key/name"""
-    field_info: FieldInfo
-    indices: slice | None = None
+    def __init__(self, key: str, field_info: FieldInfo):
+        self.key = key
+        self.field_info = field_info
+        self.indices: slice | None = None
 
     @cached_property
     def _short_true_keys(self) -> list[str]:
@@ -190,7 +184,7 @@ class BooleanFlag(Token[bool]):
     def keys(self) -> list[str]:
         return self._true_keys + self._false_keys
 
-    @property
+    @cached_property
     def user_keys(self) -> list[str]:
         return self.short_keys + self.keys
 
@@ -210,11 +204,11 @@ class BooleanFlag(Token[bool]):
         return {}
 
 
-@dataclass
 class OptionalBooleanFlag(BooleanFlag):
-    key: str
-    field_info: FieldInfo
-    indices: slice | None = None
+    def __init__(self, key: str, field_info: FieldInfo):
+        self.key = key
+        self.field_info = field_info
+        self.indices: slice | None = None
 
     @cached_property
     def short_keys(self) -> list[str]:
@@ -245,36 +239,32 @@ class OptionalBooleanFlag(BooleanFlag):
         return False, idx
 
 
-@dataclass
-class Command(Token[TPydanticModel]):
+class Command:
     """The main/base class of your CLI.
 
     There will be only one of this in your CLI.
     """
 
-    key: str
-    """Reference to the key in the pydantic model."""
+    def __init__(
+        self,
+        key: str,
+        cls: type[TPydanticModel],
+        parent: "Command" | "Subcommand" | None,
+    ):
+        self.key = key
+        self.cls = cls
+        self.parent = parent
+        self.indices: slice | None = None
 
-    cls: type[TPydanticModel]
-    """Pydantic class. Used for instantiating this command."""
+        self.args: list[PositionalArg | BooleanFlag] = []
+        """Collection of required arguments associated with this command."""
 
-    parent: "Command" | "Subcommand" | None
-    """The full command that got you here."""
+        self.optional_kwargs: list[OptionalKeyArgs | OptionalBooleanFlag] = []
+        """Collection of optional keyword arguments associated with this command."""
 
-    indices: slice | None = None
-    """The indices which are consumed of the provided arguments."""
+        self.sub_commands: list["Subcommand"] = []
 
-    args: list[PositionalArg | BooleanFlag] = field(default_factory=list)
-    """Collection of required arguments associated with this command."""
-
-    optional_kwargs: list[OptionalKeyArgs | OptionalBooleanFlag] = field(
-        default_factory=list
-    )
-    """Collection of optional keyword arguments associated with this command."""
-
-    sub_commands: list["Subcommand"] = field(default_factory=list)
-
-    @property
+    @cached_property
     def user_keys(self) -> list[str]:
         """Return the name of the main command that started this cli tool.
 
@@ -389,9 +379,8 @@ class Command(Token[TPydanticModel]):
         return {self.key: model}
 
 
-@dataclass
 class Subcommand(Command):
-    @property
+    @cached_property
     def user_keys(self) -> list[str]:
         snaked = to_snake(self.cls.__name__)
         return [snaked.replace("_", "-")]

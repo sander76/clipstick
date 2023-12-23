@@ -1,28 +1,27 @@
 from inspect import isclass
 from itertools import chain
-from pydantic.fields import FieldInfo
 from types import UnionType
-from clipstick._docstring import set_undefined_field_descriptions_from_var_docstrings
+from typing import Iterator, get_args
+
+from pydantic import BaseModel
+from pydantic.fields import FieldInfo
+
 from clipstick._annotations import Short
+from clipstick._docstring import set_undefined_field_descriptions_from_var_docstrings
+from clipstick._exceptions import (
+    InvalidTypesInUnion,
+    NoDefaultAllowedForSubcommand,
+    TooManyShortsException,
+    TooManySubcommands,
+)
 from clipstick._tokens import (
+    BooleanFlag,
+    Command,
+    OptionalBooleanFlag,
     OptionalKeyArgs,
     PositionalArg,
     Subcommand,
-    Command,
-    BooleanFlag,
-    OptionalBooleanFlag,
 )
-from clipstick._exceptions import (
-    TooManyShortsException,
-    InvalidTypesInUnion,
-    NoDefaultAllowedForSubcommand,
-    TooManySubcommands,
-)
-
-from pydantic import BaseModel
-
-
-from typing import Iterator, get_args
 
 
 def _is_subcommand(attribute: str, field_info: FieldInfo) -> bool:
@@ -57,7 +56,7 @@ def tokenize(model: type[BaseModel], sub_command: Subcommand | Command) -> None:
             # which is processed as a subcommand.
             for annotated_model in get_args(value.annotation):
                 new_sub_command = Subcommand(
-                    key=key, cls=annotated_model, parent=sub_command
+                    field=key, cls=annotated_model, parent=sub_command
                 )
 
                 sub_command.sub_commands.append(new_sub_command)

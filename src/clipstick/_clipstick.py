@@ -35,7 +35,7 @@ def parse(model: type[TPydanticModel], args: list[str] | None = None) -> TPydant
         # During testing you don't provide that (only the actual arguments you enter after that).
         entry_point = DUMMY_ENTRY_POINT
 
-    root_node = Command(key=entry_point, cls=model, parent=None)
+    root_node = Command(field=entry_point, cls=model, parent=None)
     try:
         tokenize(model=model, sub_command=root_node)
     except ClipStickError as err:

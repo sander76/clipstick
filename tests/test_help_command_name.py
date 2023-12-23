@@ -1,7 +1,6 @@
 import pytest
-from pydantic import BaseModel
-
 from clipstick import _clipstick
+from pydantic import BaseModel
 
 
 class SimpleModel(BaseModel):

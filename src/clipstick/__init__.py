@@ -1,4 +1,7 @@
-"""This is clipstick"""
+"""This is clipstick.
+
+Create your cli using Pydantic models.
+"""
 
 
 from clipstick._annotations import short  # noqa

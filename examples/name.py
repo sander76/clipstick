@@ -18,6 +18,7 @@ class MyName(BaseModel):
     """How many times to repeat your name."""
 
     def main(self):
+        """Main entrypoint for this cli."""
         for _ in range(self.repeat_count):
             print(f"Hello: {self.name}. You are {self.age} years old.")
 

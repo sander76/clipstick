@@ -131,7 +131,6 @@ def type_from_annotation(field_info: FieldInfo) -> str:
 
 def field_description(field_info: FieldInfo) -> str:
     """Return a description for a pydantic field."""
-
     d = field_info.description
     if d is None:
         return ""

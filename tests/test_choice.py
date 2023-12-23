@@ -1,9 +1,8 @@
 from typing import Literal
 
 import pytest
-from pydantic import BaseModel
-
 from clipstick import parse
+from pydantic import BaseModel
 
 
 class ModelWithChoice(BaseModel):

@@ -3,13 +3,14 @@
 Some constraints apply though. These constraints are tested here.
 """
 from typing import Annotated
-from pydantic import BaseModel
-from clipstick._annotations import short
-from clipstick._parse import _validate_shorts
+
 import pytest
+from clipstick._annotations import short
 from clipstick._exceptions import (
     TooManyShortsException,
 )
+from clipstick._parse import _validate_shorts
+from pydantic import BaseModel
 
 
 class Model_1(BaseModel):

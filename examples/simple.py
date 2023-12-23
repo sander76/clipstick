@@ -1,8 +1,7 @@
 # examples/simple.py
 
-from pydantic import BaseModel
-
 from clipstick import parse
+from pydantic import BaseModel
 
 
 class SimpleModel(BaseModel):
@@ -18,6 +17,7 @@ class SimpleModel(BaseModel):
     """How many times to repeat your name. Used in help describing repeat_count."""
 
     def main(self):
+        """Main entrypoint for this cli."""
         for _ in range(self.repeat_count):
             print(f"hello: {self.name}")
 

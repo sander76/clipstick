@@ -90,7 +90,7 @@ class FieldError(ClipStickError):
             error_text = Text("Incorrect value for ")
 
             positional_token = next(
-                (tk for tk in token.args if tk.key == failing_field), None
+                (tk for tk in token.args if tk.field == failing_field), None
             )
             if positional_token:
                 error_text.append(
@@ -106,10 +106,10 @@ class FieldError(ClipStickError):
                 continue
 
             optional_token = next(
-                tk for tk in token.optional_kwargs if tk.key == failing_field
+                tk for tk in token.optional_kwargs if tk.field == failing_field
             )
-            if optional_token and optional_token.indices:
-                used_token = provided_args[optional_token.indices][0]
+            if optional_token and optional_token._indices:
+                used_token = provided_args[optional_token._indices][0]
 
                 error_text.append(Text(used_token, style=ARGUMENTS_STYLE))
 

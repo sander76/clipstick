@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import sys
 from copy import copy
-from dataclasses import dataclass, field
 from functools import cached_property
 from itertools import chain
 from typing import Generic, TypeVar
@@ -18,20 +17,20 @@ TTokenType = TypeVar("TTokenType")
 TPydanticModel = TypeVar("TPydanticModel", bound=BaseModel)
 
 
-def _to_false_key(key: str) -> str:
-    return f"--no-{key.replace('_','-')}"
+def _to_false_key(field: str) -> str:
+    return f"--no-{field.replace('_','-')}"
 
 
-def _to_key(key: str) -> str:
-    return f"--{key.replace('_','-')}"
+def _to_key(field: str) -> str:
+    return f"--{field.replace('_','-')}"
 
 
-def _to_short(key: str) -> str:
-    return f"-{key}"
+def _to_short(field: str) -> str:
+    return f"-{field}"
 
 
-def _to_false_short(key: str) -> str:
-    return f"-no-{key}"
+def _to_false_short(field: str) -> str:
+    return f"-no-{field}"
 
 
 class Token(Generic[TTokenType]):
@@ -74,37 +73,47 @@ class Token(Generic[TTokenType]):
 
 
 class PositionalArg:
-    def __init__(self, key: str, field_info: FieldInfo):
-        self.key = key
+    """Positional/required argument token."""
+
+    def __init__(self, field: str, field_info: FieldInfo):
+        self.field = field
         self.field_info = field_info
-        self.indices: slice | None = None
+        self._indices: slice | None = None
 
     @cached_property
     def user_keys(self) -> list[str]:
-        return [(self.key.replace("_", "-"))]
+        return [(self.field.replace("_", "-"))]
 
-    def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
-        if len(values) <= idx:
+    def match(self, idx: int, arguments: list[str]) -> tuple[bool, int]:
+        """Check if this token is a match given the list of arguments."""
+        if len(arguments) <= idx:
             # we need this positional argument to match.
             # if not, it indicates the user has not provided it.
-            raise _exceptions.MissingPositional("/".join(self.user_keys), idx, values)
-        if values[idx].startswith("-"):
+            raise _exceptions.MissingPositional(
+                "/".join(self.user_keys), idx, arguments
+            )
+        if arguments[idx].startswith("-"):
             return False, idx
 
-        self.indices = slice(idx, idx + 1)
+        self._indices = slice(idx, idx + 1)
         return True, idx + 1
 
     def parse(self, values: list[str]) -> dict[str, str]:
-        if self.indices:
-            return {self.key: values[self.indices][0]}
+        """Return the token data in a parseable way.
+
+        This mean returning a (partial) dict with a key, value pair
+        which is to be consumed by pydantic.
+        """
+        if self._indices:
+            return {self.field: values[self._indices][0]}
         raise ValueError("Expecting a slice object. Got None.")
 
 
 class OptionalKeyArgs:
-    def __init__(self, key: str, field_info: FieldInfo):
-        self.key = key
+    def __init__(self, field: str, field_info: FieldInfo):
+        self.field = field
         self.field_info = field_info
-        self.indices: slice | None = None
+        self._indices: slice | None = None
 
     @cached_property
     def short_keys(self) -> list[str]:
@@ -116,7 +125,7 @@ class OptionalKeyArgs:
 
     @cached_property
     def keys(self) -> list[str]:
-        return [_to_key(self.key)]
+        return [_to_key(self.field)]
 
     @cached_property
     def user_keys(self) -> list[str]:
@@ -131,22 +140,22 @@ class OptionalKeyArgs:
             return False, idx
 
         # consume next two values
-        self.indices = slice(idx, idx + 2)
+        self._indices = slice(idx, idx + 2)
         return True, idx + 2
 
     def parse(self, values: list[str]) -> dict[str, str]:
-        if self.indices:
-            return {self.key: values[self.indices][-1]}
+        if self._indices:
+            return {self.field: values[self._indices][-1]}
         return {}
 
 
 class BooleanFlag:
     """A positional (required) boolean flag value."""
 
-    def __init__(self, key: str, field_info: FieldInfo):
-        self.key = key
+    def __init__(self, field: str, field_info: FieldInfo):
+        self.field = field
         self.field_info = field_info
-        self.indices: slice | None = None
+        self._indices: slice | None = None
 
     @cached_property
     def _short_true_keys(self) -> list[str]:
@@ -169,12 +178,12 @@ class BooleanFlag:
     @cached_property
     def _true_keys(self) -> list[str]:
         """Return a list of argument keys."""
-        return [_to_key(self.key)]
+        return [_to_key(self.field)]
 
     @cached_property
     def _false_keys(self) -> list[str]:
         """Return a list of negated argument keys."""
-        return [_to_false_key(self.key)]
+        return [_to_false_key(self.field)]
 
     @cached_property
     def short_keys(self) -> list[str]:
@@ -193,22 +202,22 @@ class BooleanFlag:
             return False, idx
 
         if values[idx] in self.user_keys:
-            self.indices = slice(idx, idx + 1)
+            self._indices = slice(idx, idx + 1)
             return True, idx + 1
         return False, idx
 
     def parse(self, values: list[str]) -> dict[str, bool]:
-        if self.indices:
-            val = values[self.indices][0] in self._true_keys + self._short_true_keys
-            return {self.key: val}
+        if self._indices:
+            val = values[self._indices][0] in self._true_keys + self._short_true_keys
+            return {self.field: val}
         return {}
 
 
 class OptionalBooleanFlag(BooleanFlag):
-    def __init__(self, key: str, field_info: FieldInfo):
-        self.key = key
+    def __init__(self, field: str, field_info: FieldInfo):
+        self.field = field
         self.field_info = field_info
-        self.indices: slice | None = None
+        self._indices: slice | None = None
 
     @cached_property
     def short_keys(self) -> list[str]:
@@ -234,7 +243,7 @@ class OptionalBooleanFlag(BooleanFlag):
             return False, idx
 
         if values[idx] in self.user_keys:
-            self.indices = slice(idx, idx + 1)
+            self._indices = slice(idx, idx + 1)
             return True, idx + 1
         return False, idx
 
@@ -247,14 +256,14 @@ class Command:
 
     def __init__(
         self,
-        key: str,
+        field: str,
         cls: type[TPydanticModel],
         parent: "Command" | "Subcommand" | None,
     ):
-        self.key = key
+        self.field = field
         self.cls = cls
         self.parent = parent
-        self.indices: slice | None = None
+        self._indices: slice | None = None
 
         self.args: list[PositionalArg | BooleanFlag] = []
         """Collection of required arguments associated with this command."""
@@ -270,7 +279,7 @@ class Command:
 
         This name is most of times a full path to the python entrypoint.
         We are only interested in the last item of this call."""
-        keys = (self.key.split("/")[-1]).split("\\")[-1]
+        keys = (self.field.split("/")[-1]).split("\\")[-1]
         return [keys]
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
@@ -376,7 +385,7 @@ class Command:
         except ValidationError as err:
             raise _exceptions.FieldError(err, token=self, provided_args=arguments)
 
-        return {self.key: model}
+        return {self.field: model}
 
 
 class Subcommand(Command):
@@ -409,7 +418,7 @@ class Subcommand(Command):
         except IndexError:
             return False, start_idx
 
-        self.indices = slice(idx, idx + 1)
+        self._indices = slice(idx, idx + 1)
 
         idx += 1
 

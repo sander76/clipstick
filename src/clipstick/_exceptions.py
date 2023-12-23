@@ -9,7 +9,7 @@ from clipstick._style import ARGUMENTS_STYLE
 
 
 class ClipStickError(Exception):
-    """Base clipstick Exception"""
+    """Base clipstick Exception."""
 
     def __init__(self, *message: str | Text) -> None:
         super().__init__()
@@ -40,7 +40,7 @@ class MissingPositional(ClipStickError):
 
 
 class InvalidModel(ClipStickError):
-    """Raised when your clipstick model is invalid"""
+    """Raised when your clipstick model is invalid."""
 
 
 class InvalidTypesInUnion(InvalidModel):
@@ -75,7 +75,6 @@ class FieldError(ClipStickError):
         self,
         exception: ValidationError,
         token: _tokens.Command | _tokens.Subcommand,
-        provided_args: list[str],
     ) -> None:
         errors: list[str | Text] = []
         for error in exception.errors():
@@ -108,13 +107,12 @@ class FieldError(ClipStickError):
             optional_token = next(
                 tk for tk in token.optional_kwargs if tk.field == failing_field
             )
-            if optional_token and optional_token._indices:
-                used_token = provided_args[optional_token._indices][0]
+            used_token = str(optional_token.used_arg)
 
-                error_text.append(Text(used_token, style=ARGUMENTS_STYLE))
+            error_text.append(Text(used_token, style=ARGUMENTS_STYLE))
 
-                if isinstance(token, _tokens.Subcommand):
-                    error_text.append(f" in {token.user_keys[0]} ")
-                error_text.append(f" ({input}). {error_msg}")
-                errors.append(error_text)
+            if isinstance(token, _tokens.Subcommand):
+                error_text.append(f" in {token.user_keys[0]} ")
+            error_text.append(f" ({input}). {error_msg}")
+            errors.append(error_text)
         super().__init__(*errors)

@@ -52,9 +52,9 @@ def parse(model: type[TPydanticModel], args: list[str] | None = None) -> TPydant
         sys.exit(1)
 
     try:
-        parsed = root_node.parse(args)
+        parsed = root_node.parse()
     except ClipStickError as err:
         _help.error(err)
         sys.exit(1)
-    else:
-        return parsed[entry_point]
+
+    return parsed

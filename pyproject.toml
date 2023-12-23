@@ -50,6 +50,19 @@ build-backend = "poetry.core.masonry.api"
 ignore = [
     'E501', # line-length. Black handles this.
 ]
+select = [
+    'F', # pyflakes
+    'I', # isort        
+    "D", # pydocstyle,
+    "E", # Pycodestyle]
+    ]
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.extend-per-file-ignores]
+"tests/*" =["D"]
+"docs/*"=["D"]
+"examples/*"=["D100"]
 
 [tool.coverage.report]
 fail_under = 96

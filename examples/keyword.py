@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 
 class MyModel(BaseModel):
-    """A model with a keyworded optional value"""
+    """A model with a keyworded optional value."""
 
     my_value: int = 22
     """My value with a default."""

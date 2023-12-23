@@ -1,7 +1,6 @@
 import pytest
-from pydantic import BaseModel
-
 from clipstick._clipstick import parse
+from pydantic import BaseModel
 
 
 class FlagDefaultTrue(BaseModel):

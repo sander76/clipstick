@@ -6,7 +6,8 @@ from pydantic import BaseModel
 class SimpleModel(BaseModel):
     """A simple model.
 
-    Main description."""
+    Main description.
+    """
 
     my_name: str
     """A snake cased argument."""

@@ -1,8 +1,9 @@
 from typing import Annotated
-from pydantic import BaseModel
-from clipstick._clipstick import parse
-from clipstick._annotations import short
+
 import pytest
+from clipstick._annotations import short
+from clipstick._clipstick import parse
+from pydantic import BaseModel
 
 
 class OptionalsModel(BaseModel):

@@ -5,7 +5,7 @@
 
 <!-- begin index -->
 
-Create your cli using Pydantic models
+Create your cli using Pydantic models.
 
 Define a pydantic model as you would normally do, pass it to clipstick and you get a cli including subcommands, nice docstrings and validations based on typing and pydantic validators.
 

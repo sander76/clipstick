@@ -9,6 +9,7 @@ class Clone(BaseModel):
     """Clone this repo."""
 
     def main(self):
+        """Run when this subcommand is choosen."""
         print(f"Cloning repo {self.repo}")
 
 
@@ -19,6 +20,7 @@ class Merge(BaseModel):
     """Branch to merge into active branch."""
 
     def main(self):
+        """Run when this subcommand is choosen."""
         print(f"Merging {self.branch} into current branch.")
 
 
@@ -28,6 +30,7 @@ class MyGit(BaseModel):
     sub_command: Clone | Merge  # <-- a subcommand of clone and merge
 
     def main(self):
+        """Main entrypoint for this cli."""
         self.sub_command.main()
 
 

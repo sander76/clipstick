@@ -76,8 +76,9 @@ def tokenize(model: type[BaseModel], sub_command: Subcommand | Command) -> None:
 
 
 def validate_model(model: type[BaseModel]) -> None:
-    """Before anything we validate the input model to see it is
-    useful for cli generation.
+    """Validate the input model to see it is useful for cli generation.
+
+    Done before anything else.
     """
     # todo: validate only one subcommand.
 

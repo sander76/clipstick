@@ -5,11 +5,11 @@ from rich.console import Console, ConsoleOptions, RenderResult
 from rich.text import Text
 
 from clipstick import _tokens
-from clipstick.style import ARGUMENTS_STYLE
+from clipstick._style import ARGUMENTS_STYLE
 
 
 class ClipStickError(Exception):
-    """Base clipstick Exception"""
+    """Base clipstick Exception."""
 
     def __init__(self, *message: str | Text) -> None:
         super().__init__()
@@ -40,7 +40,7 @@ class MissingPositional(ClipStickError):
 
 
 class InvalidModel(ClipStickError):
-    """Raised when your clipstick model is invalid"""
+    """Raised when your clipstick model is invalid."""
 
 
 class InvalidTypesInUnion(InvalidModel):
@@ -75,7 +75,6 @@ class FieldError(ClipStickError):
         self,
         exception: ValidationError,
         token: _tokens.Command | _tokens.Subcommand,
-        provided_args: list[str],
     ) -> None:
         errors: list[str | Text] = []
         for error in exception.errors():
@@ -90,7 +89,7 @@ class FieldError(ClipStickError):
             error_text = Text("Incorrect value for ")
 
             positional_token = next(
-                (tk for tk in token.args if tk.key == failing_field), None
+                (tk for tk in token.args if tk.field == failing_field), None
             )
             if positional_token:
                 error_text.append(
@@ -106,15 +105,14 @@ class FieldError(ClipStickError):
                 continue
 
             optional_token = next(
-                tk for tk in token.optional_kwargs if tk.key == failing_field
+                tk for tk in token.optional_kwargs if tk.field == failing_field
             )
-            if optional_token and optional_token.indices:
-                used_token = provided_args[optional_token.indices][0]
+            used_token = str(optional_token.used_arg)
 
-                error_text.append(Text(used_token, style=ARGUMENTS_STYLE))
+            error_text.append(Text(used_token, style=ARGUMENTS_STYLE))
 
-                if isinstance(token, _tokens.Subcommand):
-                    error_text.append(f" in {token.user_keys[0]} ")
-                error_text.append(f" ({input}). {error_msg}")
-                errors.append(error_text)
+            if isinstance(token, _tokens.Subcommand):
+                error_text.append(f" in {token.user_keys[0]} ")
+            error_text.append(f" ({input}). {error_msg}")
+            errors.append(error_text)
         super().__init__(*errors)

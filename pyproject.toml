@@ -1,11 +1,12 @@
 [tool.poetry]
 name = "clipstick"
-version = "0.3.8"
+version = "0.3.12"
 description = "A pydantic cli creation tool based on Pydantic models."
 license = "MIT"
 authors = ["Sander Teunissen <s.teunissen@gmail.com>"]
 readme = "README.md"
 repository = "https://github.com/sander76/clipstick"
+documentation = "https://sander76.github.io/clipstick/index.html"
 keywords = [
     "pydantic cli",
     "pydantic",
@@ -31,7 +32,15 @@ black = ">=23.9.1"
 cogapp = ">=3.3.0"
 coverage = "^7.3.2"
 cairosvg = "^2.7.1"
+icdiff = "^2.0.7"
 
+
+[tool.poetry.group.docs.dependencies]
+sphinx = "^7.2.6"
+sphinx-autobuild = "^2021.3.14"
+sphinx-autodoc-typehints = "^1.25.2"
+furo = "^2023.9.10"
+myst-parser = "^2.0.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -41,6 +50,19 @@ build-backend = "poetry.core.masonry.api"
 ignore = [
     'E501', # line-length. Black handles this.
 ]
+select = [
+    'F', # pyflakes
+    'I', # isort        
+    "D", # pydocstyle,
+    "E", # Pycodestyle]
+    ]
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.extend-per-file-ignores]
+"tests/*" =["D"]
+"docs/*"=["D"]
+"examples/*"=["D100"]
 
 [tool.coverage.report]
 fail_under = 96

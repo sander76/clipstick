@@ -1,11 +1,9 @@
-from typing import Annotated, Optional
 
 import pytest
 from pydantic import BaseModel
 
 from clipstick._annotations import short
 from clipstick._clipstick import parse
-
 
 class OptionalsModel(BaseModel):
     """A model with only optionals."""

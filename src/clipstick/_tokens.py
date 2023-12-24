@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import sys
-from dataclasses import dataclass, field
+from copy import copy
 from functools import cached_property
 from itertools import chain
 from typing import Generic, TypeVar
@@ -13,99 +13,93 @@ from pydantic.fields import FieldInfo
 from clipstick import _exceptions, _help
 from clipstick._annotations import Short
 
-TTokenType = TypeVar("TTokenType")
 TPydanticModel = TypeVar("TPydanticModel", bound=BaseModel)
 
 
-def _to_false_key(key: str) -> str:
-    return f"--no-{key.replace('_','-')}"
+def _to_false_key(field: str) -> str:
+    return f"--no-{field.replace('_','-')}"
 
 
-def _to_key(key: str) -> str:
-    return f"--{key.replace('_','-')}"
+def _to_key(field: str) -> str:
+    return f"--{field.replace('_','-')}"
 
 
-def _to_short(key: str) -> str:
-    return f"-{key}"
+def _to_short(field: str) -> str:
+    return f"-{field}"
 
 
-def _to_false_short(key: str) -> str:
-    return f"-no-{key}"
+def _to_false_short(field: str) -> str:
+    return f"-no-{field}"
 
 
-@dataclass
-class Token(Generic[TTokenType]):
-    """Represents either a pydantic model or a pydantic field.
+class PositionalArg:
+    """Positional/required argument token.
 
-    A token is used to interpret provided arguments (check if there is a match) and
-    if so, consume a part of provided arguments (during parsing.)
+    A token is generated based on the pydantic field definition and used
+    for matching and parsing a provided list of arguments.
     """
 
-    key: str
+    def __init__(self, field: str, field_info: FieldInfo):
+        """Init.
 
-    def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
-        """Try to match a (range of) value(s) starting from an index.
-
-        Matching logic is implemented depending on argument type (like positional, optional etc.)
-
-        If a match is found it will be added to the list of tokens which are used for final parsing.
-        The token stores the indices of the provided argument list to later parse the arguments.
-
-        Returns:
-            A boolean indicating the match was a success.
-                For a positional (required) argument this means an explicit match.
-                For an optional both an exact match will return True, but also no match will return True.
-                The latter is a signal for the match to continue.
-            A new index indicating the starting point for the next token match.
+        Args:
+            field: field name as defined in the class (a class attribute)
+            field_info: Pydantic fieldinfo
         """
-        raise NotImplementedError()
+        self.field = field
+        self.field_info = field_info
+        self.used_arg: str | None = None
+        self._match: dict[str, str] | None = None
 
-    def parse(self, values: list[str]) -> dict[str, TTokenType]:
-        """Parse data from the provided values based on the match logic implemented in this class."""
-        raise NotImplementedError()
-
-    @property
+    @cached_property
     def user_keys(self) -> list[str]:
         """Argument keys (like --verbose or --value) provided by a user to indicate a keyword or flag.
 
         Many times this is a list of normalized pydantic fields or provided shorthand names.
         """
-        raise NotImplementedError()
+        return [(self.field.replace("_", "-"))]
 
-
-@dataclass
-class PositionalArg(Token[str]):
-    key: str
-    field_info: FieldInfo
-    indices: slice | None = None
-
-    @cached_property
-    def keys(self) -> list[str]:
-        return [(self.key.replace("_", "-"))]
-
-    @property
-    def user_keys(self) -> list[str]:
-        return self.keys
-
-    def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
-        if len(values) <= idx:
+    def match(self, idx: int, arguments: list[str]) -> tuple[bool, int]:
+        """Check if this token is a match given the list of arguments."""
+        if len(arguments) <= idx:
             # we need this positional argument to match.
             # if not, it indicates the user has not provided it.
-            raise _exceptions.MissingPositional("/".join(self.user_keys), idx, values)
-        self.indices = slice(idx, idx + 1)
+            raise _exceptions.MissingPositional(
+                "/".join(self.user_keys), idx, arguments
+            )
+        if arguments[idx].startswith("-"):
+            return False, idx
+        self.used_arg = arguments[idx]
+        self._match = {self.field: arguments[idx]}
         return True, idx + 1
 
-    def parse(self, values: list[str]) -> dict[str, str]:
-        if self.indices:
-            return {self.key: values[self.indices][0]}
-        raise ValueError("Expecting a slice object. Got None.")
+    def parse(self) -> dict[str, str]:
+        """Return the token data in a parseable way.
+
+        This mean returning a (partial) dict with a key, value pair
+        which is to be consumed by pydantic.
+        """
+        return self._match if self._match else {}
 
 
-@dataclass
-class OptionalKeyArgs(Token[str]):
-    key: str
-    field_info: FieldInfo
-    indices: slice | None = None
+class OptionalKeyArgs:
+    """Optional/keyworded argument token.
+
+    A token is generated based on the pydantic field definition and used
+    for matching and parsing a provided list of arguments.
+    """
+
+    def __init__(self, field: str, field_info: FieldInfo):
+        """Init.
+
+        Args:
+            field: field name as defined in the class (a class attribute)
+            field_info: Pydantic fieldinfo
+        """
+        self.field = field
+        self.field_info = field_info
+        self.used_arg: str | None = None
+        self._match: dict[str, str] = {}
 
     @cached_property
     def short_keys(self) -> list[str]:
@@ -117,39 +111,51 @@ class OptionalKeyArgs(Token[str]):
 
     @cached_property
     def keys(self) -> list[str]:
-        return [_to_key(self.key)]
+        return [_to_key(self.field)]
 
     @cached_property
     def user_keys(self) -> list[str]:
+        """Argument keys (like --verbose or --value) provided by a user to indicate a keyword or flag.
+
+        Many times this is a list of normalized pydantic fields or provided shorthand names.
+        """
         return self.keys + self.short_keys
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
         try:
             if values[idx] not in self.user_keys:
-                # As this is an optional, we are returning true to continue matching.
-                return True, idx
+                return False, idx
         except IndexError:
             # As this is an optional, we are returning true to continue matching.
-            return True, idx
+            return False, idx
+        self.used_arg = values[idx]
+        self._match[self.field] = values[idx + 1]
 
-        # consume next two values
-        self.indices = slice(idx, idx + 2)
         return True, idx + 2
 
-    def parse(self, values: list[str]) -> dict[str, str]:
-        if self.indices:
-            return {self.key: values[self.indices][-1]}
-        return {}
+    def parse(self) -> dict[str, str]:
+        """Return the token data in a parseable way.
+
+        This mean returning a (partial) dict with a key, value pair
+        which is to be consumed by pydantic.
+        """
+        return self._match
 
 
-@dataclass
-class BooleanFlag(Token[bool]):
+class BooleanFlag:
     """A positional (required) boolean flag value."""
 
-    key: str
-    """A pydantic field key/name"""
-    field_info: FieldInfo
-    indices: slice | None = None
+    def __init__(self, field: str, field_info: FieldInfo):
+        """Init.
+
+        Args:
+            field: field name as defined in the class (a class attribute)
+            field_info: Pydantic fieldinfo
+        """
+        self.field = field
+        self.field_info = field_info
+        self.used_arg: str | None = None
+        self._match: dict[str, bool] = {}
 
     @cached_property
     def _short_true_keys(self) -> list[str]:
@@ -172,12 +178,12 @@ class BooleanFlag(Token[bool]):
     @cached_property
     def _true_keys(self) -> list[str]:
         """Return a list of argument keys."""
-        return [_to_key(self.key)]
+        return [_to_key(self.field)]
 
     @cached_property
     def _false_keys(self) -> list[str]:
         """Return a list of negated argument keys."""
-        return [_to_false_key(self.key)]
+        return [_to_false_key(self.field)]
 
     @cached_property
     def short_keys(self) -> list[str]:
@@ -187,8 +193,12 @@ class BooleanFlag(Token[bool]):
     def keys(self) -> list[str]:
         return self._true_keys + self._false_keys
 
-    @property
+    @cached_property
     def user_keys(self) -> list[str]:
+        """Argument keys (like --verbose or --value) provided by a user to indicate a keyword or flag.
+
+        Many times this is a list of normalized pydantic fields or provided shorthand names.
+        """
         return self.short_keys + self.keys
 
     def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
@@ -196,23 +206,23 @@ class BooleanFlag(Token[bool]):
             return False, idx
 
         if values[idx] in self.user_keys:
-            self.indices = slice(idx, idx + 1)
+            self.used_arg = values[idx]
+            self._match[self.field] = (
+                values[idx] in self._true_keys + self._short_true_keys
+            )
             return True, idx + 1
         return False, idx
 
-    def parse(self, values: list[str]) -> dict[str, bool]:
-        if self.indices:
-            val = values[self.indices][0] in self._true_keys + self._short_true_keys
-            return {self.key: val}
-        return {}
+    def parse(self) -> dict[str, bool]:
+        """Return the token data in a parseable way.
+
+        This mean returning a (partial) dict with a key, value pair
+        which is to be consumed by pydantic.
+        """
+        return self._match
 
 
-@dataclass
 class OptionalBooleanFlag(BooleanFlag):
-    key: str
-    field_info: FieldInfo
-    indices: slice | None = None
-
     @cached_property
     def short_keys(self) -> list[str]:
         if self.field_info.default is False:
@@ -227,60 +237,53 @@ class OptionalBooleanFlag(BooleanFlag):
 
     @cached_property
     def user_keys(self) -> list[str]:
+        """Argument keys (like --verbose or --value) provided by a user to indicate a keyword or flag.
+
+        Many times this is a list of normalized pydantic fields or provided shorthand names.
+        """
         if self.field_info.default is False:
             return self._true_keys + self._short_true_keys
         else:
             return self._false_keys + self._short_false_keys
 
-    def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
-        if len(values) <= idx:
-            return True, idx
 
-        if values[idx] in self.user_keys:
-            self.indices = slice(idx, idx + 1)
-            return True, idx + 1
-        return True, idx
-
-
-@dataclass
-class Command(Token[TPydanticModel]):
+class Command(Generic[TPydanticModel]):
     """The main/base class of your CLI.
 
     There will be only one of this in your CLI.
     """
 
-    key: str
-    """Reference to the key in the pydantic model."""
+    def __init__(
+        self,
+        field: str,
+        cls: type[TPydanticModel],
+        parent: "Command" | "Subcommand" | None,
+    ):
+        self.field = field
+        self.cls = cls
+        self.parent = parent
+        # self._indices: slice | None = None
+        self._match: dict[str, str | bool] = {}
 
-    cls: type[TPydanticModel]
-    """Pydantic class. Used for instantiating this command."""
+        self.args: list[PositionalArg | BooleanFlag] = []
+        """Collection of required arguments associated with this command."""
 
-    parent: "Command" | "Subcommand" | None
-    """The full command that got you here."""
+        self.optional_kwargs: list[OptionalKeyArgs | OptionalBooleanFlag] = []
+        """Collection of optional keyword arguments associated with this command."""
 
-    indices: slice | None = None
-    """The indices which are consumed of the provided arguments."""
+        self.sub_commands: list["Subcommand"] = []
 
-    args: list[PositionalArg | BooleanFlag] = field(default_factory=list)
-    """Collection of required arguments associated with this command."""
-
-    optional_kwargs: list[OptionalKeyArgs | OptionalBooleanFlag] = field(
-        default_factory=list
-    )
-    """Collection of optional keyword arguments associated with this command."""
-
-    sub_commands: list["Subcommand"] = field(default_factory=list)
-
-    @property
+    @cached_property
     def user_keys(self) -> list[str]:
         """Return the name of the main command that started this cli tool.
 
         This name is most of times a full path to the python entrypoint.
-        We are only interested in the last item of this call."""
-        keys = (self.key.split("/")[-1]).split("\\")[-1]
+        We are only interested in the last item of this call.
+        """
+        keys = (self.field.split("/")[-1]).split("\\")[-1]
         return [keys]
 
-    def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
+    def match(self, idx: int, arguments: list[str]) -> tuple[bool, int]:
         """Check for token match.
 
         As a result the subcommand has been stripped down to a one-branch tree, meaning
@@ -289,8 +292,8 @@ class Command(Token[TPydanticModel]):
 
 
         Args:
-            idx: values index to start the matching from.
-            values: the list of provided arguments that need parsing
+            idx: arguments index to start the matching from.
+            arguments: the list of provided arguments that need parsing
 
         Returns:
             tuple of bool and int.
@@ -299,62 +302,84 @@ class Command(Token[TPydanticModel]):
         """
         start_idx = idx
 
-        if _is_help_key(idx, values):
+        if _is_help_key(idx, arguments):
             _help.help(self)
             sys.exit(0)
-        for arg in chain(self.args, self.optional_kwargs):
-            success, idx = arg.match(idx, values)
-            if not success:
-                return False, start_idx
 
+        args = copy(self.args)
+
+        def _check_arg_or_optional(_idx: int, values: list[str]) -> tuple[bool, int]:
+            """Every arg in the values list must match one of the tokens in the model.
+
+            They need to match either:
+            - A positional argument in the correct order of the args list.
+            - One of the optional arguments.
+            """
+            if args:
+                arg = args[0]
+                success, _idx = arg.match(_idx, values)
+                if success:
+                    args.pop(0)
+                    return success, _idx
+            for optional in self.optional_kwargs:
+                success, _idx = optional.match(_idx, values)
+                if success:
+                    return success, _idx
+            return False, _idx
+
+        found_match = True
+        while found_match:
+            found_match, idx = _check_arg_or_optional(idx, arguments)
+
+        # no more match is found. Now we need to check whether all postional (required) arguments
+        # have been matched. If not, we have no match for this command.
+        if args:
+            return False, start_idx
+
+        # We now need to check whether this command has any subcommands.
+        # If no subcommands are inside this command we have a match.
         if len(self.sub_commands) == 0:
             return True, idx
 
-        subcommands: list[tuple[bool, int, Subcommand]] = []
+        # This command has a subcommand.
+        # We now try and match each subcommand with the remainder of the provided arguments.
+
+        # We are going to parse all available subcommands. Only one can exist
+        subcommand: Subcommand | None = None
         for sub_command in self.sub_commands:
-            sub_command_start_idx = idx
-            result = sub_command.match(sub_command_start_idx, values)
-            subcommands.append((*result, sub_command))
+            success, idx = sub_command.match(idx, arguments)
+            if success:
+                if subcommand:
+                    raise ValueError(
+                        "more than one solution-tree is found. Don't know what to do now."
+                    )
+                subcommand = sub_command
 
-        succesfull_subcommands = [
-            sub_command_structure
-            for sub_command_structure in subcommands
-            if sub_command_structure[0] is True
-        ]
-
-        if len(succesfull_subcommands) > 1:
-            raise ValueError(
-                "more than one solution-tree is found. Don't know what to do now."
-            )
-        if len(succesfull_subcommands) == 0:
+        if not subcommand:
             return False, start_idx
-        _, new_idx, sub_commands = succesfull_subcommands[0]
-        self.sub_commands = [sub_commands]
 
-        return True, new_idx
+        self.sub_commands = [subcommand]
 
-    def parse(self, arguments: list[str]) -> dict[str, TPydanticModel]:
+        return True, idx
+
+    def parse(self) -> TPydanticModel:
         """Populate all tokens with the provided arguments."""
-        args: dict[str, str | bool] = {}
         [
-            args.update(parsed.parse(arguments))
+            self._match.update(parsed.parse())
             for parsed in chain(self.args, self.optional_kwargs)
         ]
-        sub_commands: dict[str, BaseModel] = {}
-        assert len(self.sub_commands) <= 1
-        [sub_commands.update(parsed.parse(arguments)) for parsed in self.sub_commands]
 
+        if self.sub_commands:
+            subcommand = self.sub_commands[0]
+            self._match[subcommand.field] = subcommand.parse()
         try:
-            model = self.cls(**args, **sub_commands)
+            return self.cls.model_validate(self._match)
         except ValidationError as err:
-            raise _exceptions.FieldError(err, token=self, provided_args=arguments)
-
-        return {self.key: model}
+            raise _exceptions.FieldError(err, token=self)
 
 
-@dataclass
 class Subcommand(Command):
-    @property
+    @cached_property
     def user_keys(self) -> list[str]:
         snaked = to_snake(self.cls.__name__)
         return [snaked.replace("_", "-")]
@@ -376,18 +401,13 @@ class Subcommand(Command):
                 bool indicates whether to continue matching
                 int indicates the new starting point for the next token to match.
         """
-        start_idx = idx
         try:
             if values[idx] not in self.user_keys:
-                return False, start_idx
+                return False, idx
         except IndexError:
-            return False, start_idx
+            return False, idx
 
-        self.indices = slice(idx, idx + 1)
-
-        idx += 1
-
-        return super().match(idx, values)
+        return super().match(idx + 1, values)
 
 
 def _is_help_key(idx, values: list[str]) -> bool:

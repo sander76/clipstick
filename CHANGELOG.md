@@ -1,5 +1,40 @@
 # Changelog
 
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog],
+and this project adheres to [Semantic Versioning].
+
+## [Unreleased]
+
+- /
+
+
+
+## [0.3.12] - 2023-12-21
+
+### Fixed
+
+- Allow for providing optional arguments in an unordered way.
+    
+    Previously, the parser assumed all optional arguments to follow after
+    the positional arguments. This version allows these to be whereever.
+
+## [0.3.11] - 2023-12-20
+
+### Fixed
+
+- remove unused dependency
+- fix multiline help output (remove the indent)
+
+## 0.3.10
+
+- update pypi metadata
+
+## 0.3.9
+
+- move to sphinx for documentation
+
 ## 0.3.8
 
 - fix wrong reference help file. (readme update)
@@ -19,7 +54,7 @@
 
 ## 0.3.4
 
-- Add py.typed
+- Ad py.typed
 
 ## 0.3.3
 
@@ -45,4 +80,3 @@
 
 - updated readme.
 - updated help output.
-

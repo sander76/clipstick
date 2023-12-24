@@ -63,7 +63,7 @@ def tokenize(model: type[BaseModel], sub_command: Subcommand | Command) -> None:
             # which is processed as a subcommand.
             for annotated_model in get_args(value.annotation):
                 new_sub_command = Subcommand(
-                    key=key, cls=annotated_model, parent=sub_command
+                    field=key, cls=annotated_model, parent=sub_command
                 )
 
                 sub_command.sub_commands.append(new_sub_command)
@@ -83,8 +83,9 @@ def tokenize(model: type[BaseModel], sub_command: Subcommand | Command) -> None:
 
 
 def validate_model(model: type[BaseModel]) -> None:
-    """Before anything we validate the input model to see it is
-    useful for cli generation.
+    """Validate the input model to see it is useful for cli generation.
+
+    Done before anything else.
     """
     # todo: validate only one subcommand.
 

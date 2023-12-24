@@ -10,6 +10,19 @@ DUMMY_ENTRY_POINT: Final[str] = "my-cli-app"
 
 
 def parse(model: type[TPydanticModel], args: list[str] | None = None) -> TPydanticModel:
+    """Create an instance of the provided model.
+
+    Leave `args` to None in production. Only use it for testing.
+
+    Args:
+        model: The pydantic class we want to populate.
+        args: The list of arguments. This is useful for testing.
+            Provide a list and check if your model is parsed correctly.
+            If not provided clipstick will evaluate the arguments from `sys.argv`.
+
+    Returns:
+        An instance of the pydantic class we provided as argument populated with the provided args.
+    """
     try:
         validate_model(model)
     except ClipStickError as err:
@@ -22,7 +35,7 @@ def parse(model: type[TPydanticModel], args: list[str] | None = None) -> TPydant
         # During testing you don't provide that (only the actual arguments you enter after that).
         entry_point = DUMMY_ENTRY_POINT
 
-    root_node = Command(key=entry_point, cls=model, parent=None)
+    root_node = Command(field=entry_point, cls=model, parent=None)
     try:
         tokenize(model=model, sub_command=root_node)
     except ClipStickError as err:
@@ -39,9 +52,9 @@ def parse(model: type[TPydanticModel], args: list[str] | None = None) -> TPydant
         sys.exit(1)
 
     try:
-        parsed = root_node.parse(args)
+        parsed = root_node.parse()
     except ClipStickError as err:
         _help.error(err)
         sys.exit(1)
-    else:
-        return parsed[entry_point]
+
+    return parsed

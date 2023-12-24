@@ -1,7 +1,7 @@
 from inspect import isclass
 from itertools import chain
 from types import UnionType
-from typing import Iterator, get_args
+from typing import Iterator, Literal, get_args
 
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo
@@ -16,8 +16,12 @@ from clipstick._exceptions import (
 )
 from clipstick._tokens import (
     BooleanFlag,
+    Choice,
+    Collection,
     Command,
     OptionalBooleanFlag,
+    OptionalChoice,
+    OptionalCollection,
     OptionalKeyArgs,
     PositionalArg,
     Subcommand,
@@ -48,6 +52,20 @@ def _is_boolean_type(field_info: FieldInfo) -> bool:
     return False
 
 
+def _is_collection_type(field_info: FieldInfo) -> bool:
+    anno = field_info.annotation
+    if anno and getattr(anno, "__origin__", None) in (list, set):
+        return True
+    return False
+
+
+def _is_choice(field_info: FieldInfo) -> bool:
+    anno = field_info.annotation
+    if anno and getattr(anno, "__origin__", None) is Literal:
+        return True
+    return False
+
+
 def tokenize(model: type[BaseModel], sub_command: Subcommand | Command) -> None:
     # todo: move this somewhere else.
     set_undefined_field_descriptions_from_var_docstrings(model)
@@ -66,18 +84,29 @@ def tokenize(model: type[BaseModel], sub_command: Subcommand | Command) -> None:
 
                 sub_command.sub_commands.append(new_sub_command)
                 tokenize(annotated_model, new_sub_command)
+        elif _is_choice(value):
+            if value.is_required():
+                sub_command.tokens[key] = Choice(key, field_info=value)
+                # sub_command.args.append(Choice(key, field_info=value))
+            else:
+                sub_command.tokens[key] = OptionalChoice(key, field_info=value)
+
         elif _is_boolean_type(value):
             if value.is_required():
-                sub_command.args.append(BooleanFlag(key, field_info=value))
+                sub_command.tokens[key] = BooleanFlag(key, field_info=value)
             else:
-                sub_command.optional_kwargs.append(
-                    OptionalBooleanFlag(key, field_info=value)
-                )
+                sub_command.tokens[key] = OptionalBooleanFlag(key, field_info=value)
+
+        elif _is_collection_type(value):
+            if value.is_required():
+                sub_command.tokens[key] = Collection(key, field_info=value)
+            else:
+                sub_command.tokens[key] = OptionalCollection(key, field_info=value)
         elif value.is_required():
             # becomes a positional
-            sub_command.args.append(PositionalArg(key, field_info=value))
+            sub_command.tokens[key] = PositionalArg(key, field_info=value)
         else:
-            sub_command.optional_kwargs.append(OptionalKeyArgs(key, field_info=value))
+            sub_command.tokens[key] = OptionalKeyArgs(key, field_info=value)
 
 
 def validate_model(model: type[BaseModel]) -> None:
@@ -87,7 +116,9 @@ def validate_model(model: type[BaseModel]) -> None:
     """
     # todo: validate only one subcommand.
 
-    # todo: validate no model as field value.
+    # todo: a subcommand must always be the last one defined.
+
+    # todo: validate no pydantic model as field value.
 
     # check shorthands per model to be unique.
     _validate_shorts(model)

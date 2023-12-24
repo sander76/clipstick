@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 from inspect import cleandoc
-from typing import TYPE_CHECKING, Iterator, Literal, get_args
+from typing import TYPE_CHECKING, Iterator
 
-from pydantic.fields import FieldInfo
 from rich.console import Console
 from rich.table import Table
 from rich.text import Text
@@ -41,9 +40,12 @@ def help(command: Command | Subcommand) -> None:
     # example: dummy-entrypoint second-level-model-one [Options] [Subcommands]
     console.print("")
     usage_line = Text.assemble(Text("Usage: ", style="bold"), entry_point)
-    if command.args:
+
+    arguments = [token for token in command.tokens.values() if token.required]
+    options = [token for token in command.tokens.values() if not token.required]
+    if arguments:
         usage_line.append(" [Arguments]")
-    if command.optional_kwargs:
+    if options:
         usage_line.append(" [Options]")
     if command.sub_commands:
         usage_line.append(" [Subcommands]")
@@ -54,27 +56,20 @@ def help(command: Command | Subcommand) -> None:
         console.print("")
         console.print(Text(cleandoc(command.cls.__doc__), style=DOCSTRING))
 
-    if command.args:
-        tbl = Table.grid(collapse_padding=True, padding=(0, 1))
-        tbl.add_column(width=indent)  # empty column
-        tbl.add_column(min_width=min_args_width)
-        tbl.add_column()
-        tbl.add_column()
-
+    if arguments:
         console.print("")
         console.print("Arguments:", style=ARGUMENT_HEADER)
-        for arg in command.args:
-            tbl.add_row(
-                "",
-                user_keys(arg.user_keys),
-                field_description(arg.field_info),
-                Text(f"[{type_from_annotation(arg.field_info)}]"),
-            )
-        console.print(tbl)
-    if command.optional_kwargs:
+        for arg in arguments:
+            tbl = Table.grid(collapse_padding=True, padding=(0, 1))
+            tbl.add_column(width=indent)  # empty column
+            tbl.add_column(min_width=min_args_width)
+            tbl.add_column()
+            tbl.add_column()
+            tbl.add_row("", arg.help_arguments, arg.help_text, arg.help_type)
+            console.print(tbl)
+    if options:
         tbl = Table.grid(collapse_padding=True, padding=(0, 1))
         tbl.add_column(width=indent)  # empty column
-        tbl.add_column(min_width=0)  # for the shorthands.
         tbl.add_column(min_width=min_args_width)  # keys
         tbl.add_column()  # description
         tbl.add_column()  # type
@@ -82,14 +77,13 @@ def help(command: Command | Subcommand) -> None:
 
         console.print("")
         console.print("Options:", style=ARGUMENT_HEADER)
-        for kwarg in command.optional_kwargs:
+        for kwarg in options:
             tbl.add_row(
                 "",
-                user_keys(kwarg.short_keys),
-                user_keys(kwarg.keys),
-                field_description(kwarg.field_info),
-                Text(f"[{type_from_annotation(kwarg.field_info)}]"),
-                Text(f"[default = {add_default(kwarg.field_info)}]"),
+                kwarg.help_arguments,
+                kwarg.help_text,
+                kwarg.help_type,
+                kwarg.help_default,
             )
         console.print(tbl)
     if command.sub_commands:
@@ -102,7 +96,7 @@ def help(command: Command | Subcommand) -> None:
         console.print("Subcommands:", style=ARGUMENT_HEADER)
 
         for sub_command in command.sub_commands:
-            tbl.add_row("", user_keys(sub_command.user_keys), sub_command.cls.__doc__)
+            tbl.add_row("", sub_command.help_arguments, sub_command.cls.__doc__)
         console.print(tbl)
 
 
@@ -114,32 +108,3 @@ def call_stack_from_tokens(
     if token.parent is None:
         return
     yield from call_stack_from_tokens(token.parent)
-
-
-def is_literal(field_info: FieldInfo) -> bool:
-    return getattr(field_info.annotation, "__origin__", None) == Literal
-
-
-def type_from_annotation(field_info: FieldInfo) -> str:
-    if not field_info.annotation:
-        return "unknown"
-    if is_literal(field_info):
-        options = get_args(field_info.annotation)
-        return f"allowed values: {', '.join(options)}"
-    return field_info.annotation.__name__
-
-
-def field_description(field_info: FieldInfo) -> str:
-    """Return a description for a pydantic field."""
-    d = field_info.description
-    if d is None:
-        return ""
-    return d
-
-
-def add_default(field_info: FieldInfo) -> str:
-    return field_info.default
-
-
-def user_keys(user_keys: list[str]) -> Text:
-    return Text("/".join(user_keys), style=ARGUMENTS_STYLE)

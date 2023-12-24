@@ -4,4 +4,4 @@ Usage: my-cli-app [Options]
 A model including an optional boolean flag.
 
 Options:
-    -m --proceed            my optional flag [bool] [default = False]
+    -m --proceed         my optional flag [bool] [default = False]

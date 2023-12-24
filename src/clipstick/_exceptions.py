@@ -84,35 +84,19 @@ class FieldError(ClipStickError):
             # Have not encountered a situation where I need something else,
             # but it will need some investigating though.
             failing_field = error["loc"][0]
-
+            assert isinstance(failing_field, str)
             # find the token by using the input value (which is the key) that is causing the exception.
             error_text = Text("Incorrect value for ")
 
-            positional_token = next(
-                (tk for tk in token.args if tk.field == failing_field), None
-            )
-            if positional_token:
-                error_text.append(
-                    Text(positional_token.user_keys[0], style=ARGUMENTS_STYLE)
-                )
+            failing_token = token.tokens[failing_field]
 
-                # this token relates to a positional argument.
-                if isinstance(token, _tokens.Subcommand):
-                    error_text.append(f" in {token.user_keys[0]} ")
+            error_text.append(Text(failing_token.used_arg, style=ARGUMENTS_STYLE))
 
-                error_text.append(f" ({input}). {error_msg}")
-                errors.append(error_text)
-                continue
-
-            optional_token = next(
-                tk for tk in token.optional_kwargs if tk.field == failing_field
-            )
-            used_token = str(optional_token.used_arg)
-
-            error_text.append(Text(used_token, style=ARGUMENTS_STYLE))
-
+            # this token relates to a positional argument.
             if isinstance(token, _tokens.Subcommand):
                 error_text.append(f" in {token.user_keys[0]} ")
+
             error_text.append(f" ({input}). {error_msg}")
             errors.append(error_text)
+
         super().__init__(*errors)

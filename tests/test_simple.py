@@ -55,6 +55,6 @@ Arguments:
     my-name              A snake cased argument. [str]
 
 Options:
-     --snake-cased-kwarg   [int] [default = 10]
+    --snake-cased-kwarg   [int] [default = 10]
 """
     )

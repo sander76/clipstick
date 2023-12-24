@@ -4,4 +4,4 @@ Usage: my-cli-app [Options]
 A model with flag.
 
 Options:
-     --no-proceed         Continue with this operation. [bool] [default = True]
+    --no-proceed         Continue with this operation. [bool] [default = True]

@@ -12,6 +12,7 @@
 :caption: "Contents:"
 
 usage
+testing
 api
 ```
 

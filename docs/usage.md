@@ -1,5 +1,9 @@
 # Usage
 
+## General
+
+Crafting your cli is identical to composing a pydantic class. Toghether with some assumptions this is enough to create a fully working cli tool.
+
 ## Positional arguments
 
 All fields in your pydantic model *without* a default value are converted to cli positional arguments.
@@ -71,7 +75,7 @@ A flag (true/false) is defined by the `bool` annotation.
 ## Subcommands
 
 Bigger cli applications will need the use of subcommands.
-A probably well known example of this is the git cli with has `git clone ...`, `git merge ...` etc.
+A probably well known example of this is the git cli which has `git clone ...`, `git merge ...` etc.
 A subcommand is implemented by using pydantic models annotated with a `Union`:
 
 ```{literalinclude} ../examples/subcommand.py

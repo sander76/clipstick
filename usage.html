@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="API documentation" href="api.html" /><link rel="prev" title="Clipstick" href="index.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Testing your cli app." href="testing.html" /><link rel="prev" title="Clipstick" href="index.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
         <title>Usage - clipstick documentation</title>
@@ -157,6 +157,7 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing your cli app.</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API documentation</a></li>
 </ul>
 
@@ -194,6 +195,10 @@
         <article role="main">
           <section id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Link to this heading">#</a></h1>
+<section id="general">
+<h2>General<a class="headerlink" href="#general" title="Link to this heading">#</a></h2>
+<p>Crafting your cli is identical to composing a pydantic class. Toghether with some assumptions this is enough to create a fully working cli tool.</p>
+</section>
 <section id="positional-arguments">
 <h2>Positional arguments<a class="headerlink" href="#positional-arguments" title="Link to this heading">#</a></h2>
 <p>All fields in your pydantic model <em>without</em> a default value are converted to cli positional arguments.</p>
@@ -224,7 +229,7 @@
 
 
 <span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A model with a keyworded optional value&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A model with a keyworded optional value.&quot;&quot;&quot;</span>
 
 <span class="hll">    <span class="n">my_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">22</span>
 </span><span class="w">    </span><span class="sd">&quot;&quot;&quot;My value with a default.&quot;&quot;&quot;</span>
@@ -245,7 +250,7 @@
 
 
 <span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A model with a keyword and shorthand optional value&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A model with a keyword and shorthand optional value.&quot;&quot;&quot;</span>
 
 <span class="hll">    <span class="n">my_value</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">short</span><span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">22</span>  <span class="c1"># &lt;-- this adds a shorthand of `-m`.</span>
 </span><span class="w">    </span><span class="sd">&quot;&quot;&quot;My value with a default.&quot;&quot;&quot;</span>
@@ -307,7 +312,7 @@
 <section id="subcommands">
 <h2>Subcommands<a class="headerlink" href="#subcommands" title="Link to this heading">#</a></h2>
 <p>Bigger cli applications will need the use of subcommands.
-A probably well known example of this is the git cli with has <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">...</span></code>, <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">merge</span> <span class="pre">...</span></code> etc.
+A probably well known example of this is the git cli which has <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">...</span></code>, <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">merge</span> <span class="pre">...</span></code> etc.
 A subcommand is implemented by using pydantic models annotated with a <code class="docutils literal notranslate"><span class="pre">Union</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">clipstick</span> <span class="kn">import</span> <span class="n">parse</span>
 <span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
@@ -320,6 +325,7 @@ A subcommand is implemented by using pydantic models annotated with a <code clas
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Clone this repo.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run when this subcommand is choosen.&quot;&quot;&quot;</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cloning repo </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">repo</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
@@ -330,15 +336,17 @@ A subcommand is implemented by using pydantic models annotated with a <code clas
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Branch to merge into active branch.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run when this subcommand is choosen.&quot;&quot;&quot;</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Merging </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">branch</span><span class="si">}</span><span class="s2"> into current branch.&quot;</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">MyGit</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;My git tool.&quot;&quot;&quot;</span>
-
-<span class="hll">    <span class="n">sub_command</span><span class="p">:</span> <span class="n">Clone</span> <span class="o">|</span> <span class="n">Merge</span>  <span class="c1"># &lt;-- a subcommand of clone and merge</span>
+<span class="hll"><span class="w">    </span><span class="sd">&quot;&quot;&quot;My git tool.&quot;&quot;&quot;</span>
 </span>
+    <span class="n">sub_command</span><span class="p">:</span> <span class="n">Clone</span> <span class="o">|</span> <span class="n">Merge</span>  <span class="c1"># &lt;-- a subcommand of clone and merge</span>
+
     <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Main entrypoint for this cli.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 
 
@@ -365,8 +373,10 @@ A subcommand is implemented by using pydantic models annotated with a <code clas
 
 
 <span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="hll">    <span class="n">my_age</span><span class="p">:</span> <span class="n">PositiveInt</span> <span class="o">=</span> <span class="mi">10</span>
-</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Your age.&quot;&quot;&quot;</span>
+<span class="hll"><span class="w">    </span><span class="sd">&quot;&quot;&quot;Model with a pydantic validator.&quot;&quot;&quot;</span>
+</span>
+    <span class="n">my_age</span><span class="p">:</span> <span class="n">PositiveInt</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Your age.&quot;&quot;&quot;</span>
 
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">)</span>
@@ -380,8 +390,10 @@ A subcommand is implemented by using pydantic models annotated with a <code clas
 
 
 <span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="hll">    <span class="n">my_path</span><span class="p">:</span> <span class="n">FilePath</span>
-</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;provide an existing file location.&quot;&quot;&quot;</span>
+<span class="hll"><span class="w">    </span><span class="sd">&quot;&quot;&quot;Model with a pydantic validator.&quot;&quot;&quot;</span>
+</span>
+    <span class="n">my_path</span><span class="p">:</span> <span class="n">FilePath</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;provide an existing file location.&quot;&quot;&quot;</span>
 
 
 <span class="nb">print</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">))</span>
@@ -399,12 +411,12 @@ It is also pretty easy to write your own validators.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="api.html">
+          <a class="next-page" href="testing.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">API documentation</div>
+                <div class="title">Testing your cli app.</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -450,6 +462,7 @@ It is also pretty easy to write your own validators.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Usage</a><ul>
+<li><a class="reference internal" href="#general">General</a></li>
 <li><a class="reference internal" href="#positional-arguments">Positional arguments</a></li>
 <li><a class="reference internal" href="#keyword-arguments">Keyword arguments</a><ul>
 <li><a class="reference internal" href="#keyword-arguments-with-a-shorthand">Keyword arguments with a shorthand</a></li>

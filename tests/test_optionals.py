@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Optional
 
 import pytest
 from clipstick._annotations import short
@@ -17,6 +17,14 @@ class OptionalsModel(BaseModel):
 
 class OptionalWithShort(BaseModel):
     value_1: Annotated[int, short("v")] = 10
+
+
+class OptionalValueOldTyping(BaseModel):
+    value_1: Optional[int] = None
+
+
+class OptionalValueNewTyping(BaseModel):
+    value_1: int | None = None
 
 
 def test_no_optionals():
@@ -43,6 +51,16 @@ def test_all_optionals():
 def test_optional_with_short(args):
     model = parse(OptionalWithShort, args)
     assert model == OptionalWithShort(value_1=12)
+
+
+def test_optional_value_old_typing(capture_output):
+    model = parse(OptionalValueOldTyping, ["--value-1", 10])
+    assert model == OptionalValueOldTyping(value_1=10)
+
+
+def test_optional_value_new_typing(capture_output):
+    model = parse(OptionalValueNewTyping, ["--value-1", 10])
+    assert model == OptionalValueNewTyping(value_1=10)
 
 
 def test_help(capture_output):

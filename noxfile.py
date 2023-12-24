@@ -82,5 +82,7 @@ def check_version(session: nox.Session):
 
     # check whether this new version string exists inside the CHANGELOG.md
     change_log = Path("CHANGELOG.md").read_text(encoding="utf-8")
-    if str(branch_version) not in change_log:
+    if f"[{branch_version}]" not in change_log:
         session.error(f"missing an entry in the CHANGELOG for version {branch_version}")
+    else:
+        print("version is present in changelog.")

@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning].
 
 - /
 
+## [0.3.13] - 2023-12-24
+
+### Fixed
+
+- Proper parsing of optional type with `None` as a default.
+- Improved help output.
+- Replaced dataclasses with normal classes.
+- Refactored parsing code [wip].
+- Update readme.
 
 
 ## [0.3.12] - 2023-12-21

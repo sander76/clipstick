@@ -28,7 +28,12 @@ def _is_subcommand(attribute: str, field_info: FieldInfo) -> bool:
     """Check if the field annotated as a subcommand."""
     if not isinstance(field_info.annotation, UnionType):
         return False
+
     args = get_args(field_info.annotation)
+
+    if not any(issubclass(arg, BaseModel) for arg in args):
+        return False
+
     if not all(issubclass(arg, BaseModel) for arg in args):
         raise InvalidTypesInUnion()
     if not field_info.is_required():

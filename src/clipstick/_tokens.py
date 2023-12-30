@@ -70,7 +70,6 @@ class PositionalArg:
         if self._match:
             # this token was already a match.
             return False, idx
-        # self.used_arg = arguments[idx]
         self._match = {self.field: arguments[idx]}
         return True, idx + 1
 

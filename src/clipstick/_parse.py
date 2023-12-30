@@ -1,4 +1,3 @@
-from inspect import isclass
 from itertools import chain
 from types import UnionType
 from typing import Iterator, Literal, get_args
@@ -153,13 +152,34 @@ def _validate_shorts_in_model(model: type[BaseModel]):
 
 def iter_over_model(model: type[BaseModel]) -> Iterator[type[BaseModel]]:
     """Return all BaseModels within a provided BaseModel."""
-    yield model
+    try:
+        if issubclass(model, BaseModel):
+            yield model
+    except TypeError:
+        # python version 3.10 cannot handle annotated types.
+        # as soon as we drop support for 3.10 this call can be rewritten.
+        pass
 
-    for item in model.model_fields.values():
-        if isclass(item.annotation) and issubclass(item.annotation, BaseModel):
+    if fields := getattr(model, "model_fields", None):
+        for item in fields.values():
             yield from iter_over_model(item.annotation)
-        else:
-            args = get_args(item.annotation)
-            for arg in args:
-                if isclass(arg) and issubclass(arg, BaseModel):
-                    yield from iter_over_model(arg)
+            for arg in get_args(item.annotation):
+                yield from iter_over_model(arg)
+
+    # for item in model.model_fields.values():
+    #     if getattr(item.annotation, "__origin__", None):
+    #         # __origin__ is used can be seen as a container type. like a union, but also as a list.
+    #         # if we encounter this property we want to check the children of this container.
+    #         args = get_args(item.annotation)
+    #         for arg in args:
+    #             if isclass(arg) and issubclass(arg, BaseModel):
+    #                 yield from iter_over_model(arg)
+    #     elif getattr(item.annotation, "__class__", None):
+    #         if issubclass(item.annotation.__class__, BaseModel):
+    #             yield from iter_over_model(item.annotation)
+    #         args = get_args(item.annotation)
+    #         for arg in args:
+    #             if isclass(arg) and issubclass(arg, BaseModel):
+    #                 yield from iter_over_model(arg)
+    #     elif isclass(item.annotation) and issubclass(item.annotation, BaseModel):
+    #         yield from iter_over_model(item.annotation)

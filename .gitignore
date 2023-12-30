@@ -4,7 +4,7 @@ coverage.json
 __pycache__/
 *.py[cod]
 *$py.class
-
+venv_v3_10
 # C extensions
 *.so
 

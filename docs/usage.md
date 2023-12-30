@@ -12,13 +12,15 @@ All fields in your pydantic model *without* a default value are converted to cli
 :emphasize-lines: 8
 ```
 
-Help output:
-
-![positional help](_images/positional-help.svg)
-
 A positional argument is required. If you don't provide it an error will be raised. So running this without any arguments will result in the following error message:
 
 ![missing argument](_images/positional-error.svg)
+
+### Help output:
+
+![positional help](_images/positional-help.svg)
+
+
 
 ## Keyword arguments
 
@@ -28,9 +30,6 @@ All fields in your model *with* a default value are converted to cli optional ar
 :emphasize-lines: 8
 ```
 
-Getting help:
-
-![positional_arg help](_images/keyword-help.svg)
 
 ### Keyword arguments with a shorthand
 
@@ -39,6 +38,7 @@ Add a shorthand flag to a positional argument by providing a `short` annotation.
 ```{literalinclude} ../examples/keyword_with_short.py
 :emphasize-lines: 10
 ```
+### Help output:
 
 ![positional with short](_images/keyword_with_short-help.svg)
 
@@ -50,14 +50,14 @@ A contraint set of values for a certain argument is defined by using the `Litera
 :emphasize-lines: 10
 ```
 
-Help looks like this:
+Failing to provide a valid value gives you the error:
+
+![wrong choice](_images/choice-wrong-choice.svg)
+
+### Help output:
 
 ![choice argument](_images/choice-help.svg)
 
-Failing to provide a valid value gives you the error:
-
-
-![wrong choice](_images/choice-wrong-choice.svg)
 
 ## Booleans/Flags
 
@@ -68,9 +68,24 @@ A flag (true/false) is defined by the `bool` annotation.
 
 ```
 
-`python boolean.py -h`
+### Help output:
 
 ![boolean help](_images/boolean-help.svg)
+
+## Collections
+
+A collection (a list of ints or string) is defined providing a keyworded argument multiple times.
+
+```{literalinclude} ../examples/collection.py
+:emphasize-lines: 8
+```
+
+### example
+
+![collection usage](_images/collection-usage.svg)
+
+### help output
+![collection help](_images/collection-help.svg)
 
 ## Subcommands
 
@@ -79,10 +94,10 @@ A probably well known example of this is the git cli which has `git clone ...`, 
 A subcommand is implemented by using pydantic models annotated with a `Union`:
 
 ```{literalinclude} ../examples/subcommand.py
-:emphasize-lines: 28
+:emphasize-lines: 30
 ```
 
-Getting help:
+### Help output:
 
 ![subcommand help](_images/subcommand-help.svg)
 
@@ -101,7 +116,7 @@ Pydantic provides many field validators that can be used in clipstick too.
 For example a cli which requires you to provide your age which can (obviously not be negative):
 
 ```{literalinclude} ../examples/types_non_negative_int.py
-:emphasize-lines: 6
+:emphasize-lines: 8
 ```
 
 When you do provide a negative value, Pydantic raises an error which is picked up by clipstick and presented to the user.
@@ -111,7 +126,7 @@ When you do provide a negative value, Pydantic raises an error which is picked u
 Another example would be a cli which needs a reference to an *existing* file location.
 
 ```{literalinclude} ../examples/types_file_exists.py
-:emphasize-lines: 6
+:emphasize-lines: 8
 ```
 
 Failing to provide a valid file location gives you:

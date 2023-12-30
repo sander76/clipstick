@@ -2,7 +2,7 @@ from pathlib import Path
 
 import nox
 
-nox.options.reuse_existing_virtualenvs = True
+# nox.options.reuse_existing_virtualenvs = True
 nox.options.sessions = ["fix_quality", "quality", "test", "check_version"]
 PROJECT_FOLDER = "src"
 
@@ -35,11 +35,12 @@ def quality(session):
     session.run("ruff", PROJECT_FOLDER)
 
 
-@nox.session
-@nox.parametrize("python", ["3.10", "3.11"])
-def test(session, python):
+@nox.session(python=["3.10", "3.11"])
+# @nox.parametrize("python", ["3.10", "3.11"])
+def test(session: nox.Session):
     session.run("poetry", "install", "--sync", external=True)
-    if python == "3.11":
+
+    if session.python == "3.11":
         session.run("coverage", "run", "--source", "src/clipstick", "-m", "pytest")
         session.run("coverage", "json")
     else:

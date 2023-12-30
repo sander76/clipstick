@@ -1,11 +1,11 @@
 
-Usage: my-cli-app second-level-model-one [Options] [Subcommands]
+Usage: my-cli-app remote [Options] [Subcommands]
 
-Second level model 1.
+Clone a git repository.
 
 Options:
-     --value              Second level model one value. [str] [default = my-second-level-value]
+    --url                Url of the git repo. [str] [default = https://mysuperrepo]
 
 Subcommands:
-    third-level-model-two  
-    third-level-model-one  
+    clone                Clone a repo.                   
+    info                 Show information about this repo

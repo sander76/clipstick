@@ -2,11 +2,10 @@
 Usage: my-cli-app [Arguments] [Options]
 
 Arguments:
-    pos-value-1                         [str] 
-    pos-value-2                         [int] 
+    pos-value-1           [int]
     --required-bool/--no-required-bool  [bool]
+    --items               Can be applied multiple times. [list[int]]
 
 Options:
-     --optional-1          [str]  [default = opt1] 
-     --optional-2          [int]  [default = 20]   
-     --optional-bool       [bool] [default = False]
+    --optional-1          [str]  [default = opt1] 
+    --optional-bool       [bool] [default = False]

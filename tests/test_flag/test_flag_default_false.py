@@ -22,7 +22,13 @@ def test_help(capture_output):
 
     assert err.value.code == 0
     assert (
-        "--proceed            continue with this operation. [bool] [default = False]"
-        in capture_output.captured_output
+        """
+Usage: my-cli-app [Options]
+
+A model with flag.
+
+Options:
+    --proceed            continue with this operation. [bool] [default = False]
+"""
+        == capture_output.captured_output
     )
-    assert "--no-proceed" not in capture_output.captured_output

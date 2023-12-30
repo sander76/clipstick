@@ -1,0 +1,5 @@
+
+Usage: my-cli-app [Arguments]
+
+Arguments:
+    --my-list            A list type object Can be applied multiple times. [set[int]]

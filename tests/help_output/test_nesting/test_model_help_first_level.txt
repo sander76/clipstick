@@ -1,8 +1,8 @@
 
 Usage: my-cli-app [Subcommands]
 
-First level model.
+My custom git cli.
 
 Subcommands:
-    second-level-model-one Second level model 1.
-    second-level-model-two Second level model 2.
+    remote               Clone a git repository.
+    merge                Git merge command.     

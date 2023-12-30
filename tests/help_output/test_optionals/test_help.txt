@@ -6,5 +6,5 @@ Usage: my-cli-app [Options]
 A model with only optionals.
 
 Options:
-     --value-1            Optional value 1. [int] [default = 10] 
-     --value-2                              [str] [default = ABC]
+    --value-1            Optional value 1. [int] [default = 10] 
+    --value-2                              [str] [default = ABC]

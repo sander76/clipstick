@@ -21,8 +21,14 @@ def test_help(capture_output):
         capture_output(FlagDefaultTrue, ["-h"])
 
     assert err.value.code == 0
-    assert "--proceed" not in capture_output.captured_output
     assert (
-        "--no-proceed         Continue with this operation. [bool] [default = True]"
-        in capture_output.captured_output
+        """
+Usage: my-cli-app [Options]
+
+A model with flag.
+
+Options:
+    --no-proceed         Continue with this operation. [bool] [default = True]
+"""
+        == capture_output.captured_output
     )

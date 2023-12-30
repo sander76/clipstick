@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning].
 
 - /
 
+## [0.4.0] - 2023-12-30
+
+### Added
+
+- Collection fields. [docs](https://sander76.github.io/clipstick/usage.html#collections)
+
+### Fixed
+
+- Token refactoring
+- Re-arranged documentation
+- Simplified code
+
 ## [0.3.13] - 2023-12-24
 
 ### Fixed

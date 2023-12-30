@@ -1,0 +1,5 @@
+
+Usage: my-cli-app [Options]
+
+Options:
+    -m --my-list         A list type object Can be applied multiple times. [list[int]] [default = []]

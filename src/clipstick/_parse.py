@@ -1,7 +1,6 @@
-from inspect import isclass
 from itertools import chain
 from types import UnionType
-from typing import Iterator, get_args
+from typing import Iterator, Literal, get_args
 
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo
@@ -16,8 +15,12 @@ from clipstick._exceptions import (
 )
 from clipstick._tokens import (
     BooleanFlag,
+    Choice,
+    Collection,
     Command,
     OptionalBooleanFlag,
+    OptionalChoice,
+    OptionalCollection,
     OptionalKeyArgs,
     PositionalArg,
     Subcommand,
@@ -48,6 +51,20 @@ def _is_boolean_type(field_info: FieldInfo) -> bool:
     return False
 
 
+def _is_collection_type(field_info: FieldInfo) -> bool:
+    anno = field_info.annotation
+    if anno and getattr(anno, "__origin__", None) in (list, set):
+        return True
+    return False
+
+
+def _is_choice(field_info: FieldInfo) -> bool:
+    anno = field_info.annotation
+    if anno and getattr(anno, "__origin__", None) is Literal:
+        return True
+    return False
+
+
 def tokenize(model: type[BaseModel], sub_command: Subcommand | Command) -> None:
     # todo: move this somewhere else.
     set_undefined_field_descriptions_from_var_docstrings(model)
@@ -66,18 +83,29 @@ def tokenize(model: type[BaseModel], sub_command: Subcommand | Command) -> None:
 
                 sub_command.sub_commands.append(new_sub_command)
                 tokenize(annotated_model, new_sub_command)
+        elif _is_choice(value):
+            if value.is_required():
+                sub_command.tokens[key] = Choice(key, field_info=value)
+                # sub_command.args.append(Choice(key, field_info=value))
+            else:
+                sub_command.tokens[key] = OptionalChoice(key, field_info=value)
+
         elif _is_boolean_type(value):
             if value.is_required():
-                sub_command.args.append(BooleanFlag(key, field_info=value))
+                sub_command.tokens[key] = BooleanFlag(key, field_info=value)
             else:
-                sub_command.optional_kwargs.append(
-                    OptionalBooleanFlag(key, field_info=value)
-                )
+                sub_command.tokens[key] = OptionalBooleanFlag(key, field_info=value)
+
+        elif _is_collection_type(value):
+            if value.is_required():
+                sub_command.tokens[key] = Collection(key, field_info=value)
+            else:
+                sub_command.tokens[key] = OptionalCollection(key, field_info=value)
         elif value.is_required():
             # becomes a positional
-            sub_command.args.append(PositionalArg(key, field_info=value))
+            sub_command.tokens[key] = PositionalArg(key, field_info=value)
         else:
-            sub_command.optional_kwargs.append(OptionalKeyArgs(key, field_info=value))
+            sub_command.tokens[key] = OptionalKeyArgs(key, field_info=value)
 
 
 def validate_model(model: type[BaseModel]) -> None:
@@ -87,7 +115,9 @@ def validate_model(model: type[BaseModel]) -> None:
     """
     # todo: validate only one subcommand.
 
-    # todo: validate no model as field value.
+    # todo: a subcommand must always be the last one defined.
+
+    # todo: validate no pydantic model as field value.
 
     # check shorthands per model to be unique.
     _validate_shorts(model)
@@ -122,13 +152,34 @@ def _validate_shorts_in_model(model: type[BaseModel]):
 
 def iter_over_model(model: type[BaseModel]) -> Iterator[type[BaseModel]]:
     """Return all BaseModels within a provided BaseModel."""
-    yield model
+    try:
+        if issubclass(model, BaseModel):
+            yield model
+    except TypeError:
+        # python version 3.10 cannot handle annotated types.
+        # as soon as we drop support for 3.10 this call can be rewritten.
+        pass
 
-    for item in model.model_fields.values():
-        if isclass(item.annotation) and issubclass(item.annotation, BaseModel):
+    if fields := getattr(model, "model_fields", None):
+        for item in fields.values():
             yield from iter_over_model(item.annotation)
-        else:
-            args = get_args(item.annotation)
-            for arg in args:
-                if isclass(arg) and issubclass(arg, BaseModel):
-                    yield from iter_over_model(arg)
+            for arg in get_args(item.annotation):
+                yield from iter_over_model(arg)
+
+    # for item in model.model_fields.values():
+    #     if getattr(item.annotation, "__origin__", None):
+    #         # __origin__ is used can be seen as a container type. like a union, but also as a list.
+    #         # if we encounter this property we want to check the children of this container.
+    #         args = get_args(item.annotation)
+    #         for arg in args:
+    #             if isclass(arg) and issubclass(arg, BaseModel):
+    #                 yield from iter_over_model(arg)
+    #     elif getattr(item.annotation, "__class__", None):
+    #         if issubclass(item.annotation.__class__, BaseModel):
+    #             yield from iter_over_model(item.annotation)
+    #         args = get_args(item.annotation)
+    #         for arg in args:
+    #             if isclass(arg) and issubclass(arg, BaseModel):
+    #                 yield from iter_over_model(arg)
+    #     elif isclass(item.annotation) and issubclass(item.annotation, BaseModel):
+    #         yield from iter_over_model(item.annotation)

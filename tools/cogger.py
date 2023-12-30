@@ -90,3 +90,8 @@ if __name__ == "__main__":
         ["non-exising-file.txt"],
         output_folder / "types_file_exists-invalid.svg",
     )
+    capture(
+        examples_folder / "collection.py",
+        ["--my-values", "value1", "--my-values", "value2"],
+        output_folder / "collection-usage.svg",
+    )

@@ -1,17 +1,17 @@
 from __future__ import annotations
 
 import sys
-from copy import copy
 from functools import cached_property
-from itertools import chain
-from typing import Generic, TypeVar
+from typing import Final, Generic, TypeVar, get_args
 
 from pydantic import BaseModel, ValidationError
 from pydantic.alias_generators import to_snake
 from pydantic.fields import FieldInfo
+from rich.text import Text
 
 from clipstick import _exceptions, _help
 from clipstick._annotations import Short
+from clipstick._style import ARGUMENTS_STYLE
 
 TPydanticModel = TypeVar("TPydanticModel", bound=BaseModel)
 
@@ -39,6 +39,8 @@ class PositionalArg:
     for matching and parsing a provided list of arguments.
     """
 
+    required: Final[bool] = True
+
     def __init__(self, field: str, field_info: FieldInfo):
         """Init.
 
@@ -48,28 +50,26 @@ class PositionalArg:
         """
         self.field = field
         self.field_info = field_info
-        self.used_arg: str | None = None
+        # In case of an error we want to know which keyword was used (like --proceed or -p etc.)
+        # We store what used argument here.
+        self.used_arg: str = field.replace("_", "-")
         self._match: dict[str, str] | None = None
 
     @cached_property
     def user_keys(self) -> list[str]:
         """Argument keys (like --verbose or --value) provided by a user to indicate a keyword or flag.
 
-        Many times this is a list of normalized pydantic fields or provided shorthand names.
+        Many times this is a list of normalized model fields or provided shorthand names.
         """
         return [(self.field.replace("_", "-"))]
 
     def match(self, idx: int, arguments: list[str]) -> tuple[bool, int]:
         """Check if this token is a match given the list of arguments."""
-        if len(arguments) <= idx:
-            # we need this positional argument to match.
-            # if not, it indicates the user has not provided it.
-            raise _exceptions.MissingPositional(
-                "/".join(self.user_keys), idx, arguments
-            )
         if arguments[idx].startswith("-"):
             return False, idx
-        self.used_arg = arguments[idx]
+        if self._match:
+            # this token was already a match.
+            return False, idx
         self._match = {self.field: arguments[idx]}
         return True, idx + 1
 
@@ -81,6 +81,31 @@ class PositionalArg:
         """
         return self._match if self._match else {}
 
+    @cached_property
+    def help_arguments(self) -> Text:
+        return Text("/".join(self.user_keys), style=ARGUMENTS_STYLE)
+
+    @cached_property
+    def help_text(self) -> str:
+        return self.field_info.description or ""
+
+    @cached_property
+    def help_type(self) -> Text | str:
+        if self.field_info.annotation:
+            return Text(f"[{self.field_info.annotation.__name__}]")
+        return "[]"
+
+    @cached_property
+    def help_default(self) -> str | Text:
+        return ""
+
+
+class Choice(PositionalArg):
+    @cached_property
+    def help_type(self) -> Text:
+        options = get_args(self.field_info.annotation)
+        return Text(f"[allowed values: {', '.join(options)}]")
+
 
 class OptionalKeyArgs:
     """Optional/keyworded argument token.
@@ -88,6 +113,8 @@ class OptionalKeyArgs:
     A token is generated based on the pydantic field definition and used
     for matching and parsing a provided list of arguments.
     """
+
+    required: Final[bool] = False
 
     def __init__(self, field: str, field_info: FieldInfo):
         """Init.
@@ -98,7 +125,10 @@ class OptionalKeyArgs:
         """
         self.field = field
         self.field_info = field_info
-        self.used_arg: str | None = None
+
+        # In case of an error we want to know which keyword was used (like --proceed or -p etc.)
+        # We store what used argument here.
+        self.used_arg: str = ""
         self._match: dict[str, str] = {}
 
     @cached_property
@@ -126,7 +156,6 @@ class OptionalKeyArgs:
             if values[idx] not in self.user_keys:
                 return False, idx
         except IndexError:
-            # As this is an optional, we are returning true to continue matching.
             return False, idx
         self.used_arg = values[idx]
         self._match[self.field] = values[idx + 1]
@@ -141,6 +170,129 @@ class OptionalKeyArgs:
         """
         return self._match
 
+    @cached_property
+    def help_arguments(self) -> Text:
+        return Text(
+            (
+                f'{"/".join(self.short_keys)} {"/".join(self.keys)}'
+            ).strip(),  # doing a strip to remove leading space when short_keys is empty.
+            style=ARGUMENTS_STYLE,
+        )
+
+    @cached_property
+    def help_text(self) -> str:
+        return self.field_info.description or ""
+
+    @cached_property
+    def help_type(self) -> Text | str:
+        if self.field_info.annotation:
+            return Text(f"[{self.field_info.annotation.__name__}]")
+        return "[]"
+
+    @cached_property
+    def help_default(self) -> Text:
+        return Text(f"[default = {self.field_info.default}]")
+
+
+class OptionalChoice(OptionalKeyArgs):
+    @cached_property
+    def help_type(self) -> Text:
+        options = get_args(self.field_info.annotation)
+        return Text(f"[allowed values: {', '.join(options)}]")
+
+
+class Collection:
+    """A collection arguments.
+
+    Annotated as a list or set and its argument can be provided multiple times.
+    For example : `my_cli --items item1 --items item2`
+    will be parsed a models with an items collection containing item1 and item2
+
+    """
+
+    def __init__(self, field: str, field_info: FieldInfo):
+        """Init.
+
+        Args:
+            field: field name as defined in the class (a class attribute)
+            field_info: Pydantic fieldinfo
+        """
+        self.field = field
+        self.field_info = field_info
+        # In case of an error we want to know which keyword was used (like --proceed or -p etc.)
+        # We store what used argument here.
+        self.used_arg: str = ""
+        self.required: bool = True
+        self._match: dict[str, list] = {}
+
+    @cached_property
+    def short_keys(self) -> list[str]:
+        return [
+            _to_short(short.short)
+            for short in self.field_info.metadata
+            if isinstance(short, Short)
+        ]
+
+    @cached_property
+    def keys(self) -> list[str]:
+        return [_to_key(self.field)]
+
+    @cached_property
+    def user_keys(self) -> list[str]:
+        """Argument keys (like --verbose or --value) provided by a user to indicate a keyword or flag.
+
+        Many times this is a list of normalized pydantic fields or provided shorthand names.
+        """
+        return self.keys + self.short_keys
+
+    def match(self, idx: int, values: list[str]) -> tuple[bool, int]:
+        try:
+            if values[idx] not in self.user_keys:
+                return False, idx
+        except IndexError:
+            return False, idx
+        self.used_arg = values[idx]
+
+        matches = self._match.setdefault(self.field, [])
+        matches.append(values[idx + 1])
+
+        return True, idx + 2
+
+    def parse(self) -> dict[str, list]:
+        return self._match
+
+    @cached_property
+    def help_arguments(self) -> Text:
+        return Text(
+            (f'{"/".join(self.short_keys)} {"/".join(self.keys)}').strip(),
+            style=ARGUMENTS_STYLE,
+        )
+
+    @cached_property
+    def help_text(self) -> str:
+        extra = " Can be applied multiple times."
+        if self.field_info.description:
+            return self.field_info.description + extra
+        return extra
+
+    @cached_property
+    def help_type(self) -> Text:
+        return Text(f"[{self.field_info.annotation or 'list'}]")
+
+    @cached_property
+    def help_default(self) -> str | Text:
+        return Text(f"[default = {self.field_info.default}]")
+
+
+class OptionalCollection(Collection):
+    def __init__(self, field: str, field_info: FieldInfo):
+        super().__init__(field, field_info)
+        self.required = False
+
+    @cached_property
+    def help_default(self) -> Text:
+        return Text(f"[default = {self.field_info.default}]")
+
 
 class BooleanFlag:
     """A positional (required) boolean flag value."""
@@ -154,7 +306,10 @@ class BooleanFlag:
         """
         self.field = field
         self.field_info = field_info
-        self.used_arg: str | None = None
+        # In case of an error we want to know which keyword was used (like --proceed or -p etc.)
+        # We store what used argument here.
+        self.used_arg: str = ""
+        self.required: bool = True
         self._match: dict[str, bool] = {}
 
     @cached_property
@@ -221,8 +376,31 @@ class BooleanFlag:
         """
         return self._match
 
+    @cached_property
+    def help_arguments(self) -> Text:
+        return Text(
+            (f'{"/".join(self.short_keys)} {"/".join(self.keys)}').strip(),
+            style=ARGUMENTS_STYLE,
+        )
+
+    @cached_property
+    def help_text(self) -> str:
+        return self.field_info.description or ""
+
+    @cached_property
+    def help_type(self) -> Text:
+        return Text("[bool]")
+
+    @cached_property
+    def help_default(self) -> str | Text:
+        return Text(f"[default = {self.field_info.default}]")
+
 
 class OptionalBooleanFlag(BooleanFlag):
+    def __init__(self, field: str, field_info: FieldInfo):
+        super().__init__(field, field_info)
+        self.required: bool = False
+
     @cached_property
     def short_keys(self) -> list[str]:
         if self.field_info.default is False:
@@ -246,6 +424,10 @@ class OptionalBooleanFlag(BooleanFlag):
         else:
             return self._false_keys + self._short_false_keys
 
+    @cached_property
+    def help_default(self) -> str | Text:
+        return Text(f"[default = {self.field_info.default}]")
+
 
 class Command(Generic[TPydanticModel]):
     """The main/base class of your CLI.
@@ -262,15 +444,17 @@ class Command(Generic[TPydanticModel]):
         self.field = field
         self.cls = cls
         self.parent = parent
-        # self._indices: slice | None = None
-        self._match: dict[str, str | bool] = {}
+        self._match: dict[str, str | bool | list | None] = {}
 
-        self.args: list[PositionalArg | BooleanFlag] = []
-        """Collection of required arguments associated with this command."""
-
-        self.optional_kwargs: list[OptionalKeyArgs | OptionalBooleanFlag] = []
-        """Collection of optional keyword arguments associated with this command."""
-
+        self.tokens: dict[
+            str,
+            PositionalArg
+            | BooleanFlag
+            | OptionalBooleanFlag
+            | OptionalKeyArgs
+            | Collection
+            | OptionalCollection,
+        ] = {}
         self.sub_commands: list["Subcommand"] = []
 
     @cached_property
@@ -306,26 +490,19 @@ class Command(Generic[TPydanticModel]):
             _help.help(self)
             sys.exit(0)
 
-        args = copy(self.args)
+        values_count = len(arguments)
 
         def _check_arg_or_optional(_idx: int, values: list[str]) -> tuple[bool, int]:
-            """Every arg in the values list must match one of the tokens in the model.
-
-            They need to match either:
-            - A positional argument in the correct order of the args list.
-            - One of the optional arguments.
-            """
-            if args:
-                arg = args[0]
+            """Every arg in the values list must match one of the tokens in the model."""
+            if values_count == _idx:
+                return False, _idx
+            for arg in self.tokens.values():
                 success, _idx = arg.match(_idx, values)
                 if success:
-                    args.pop(0)
-                    return success, _idx
-            for optional in self.optional_kwargs:
-                success, _idx = optional.match(_idx, values)
-                if success:
-                    return success, _idx
-            return False, _idx
+                    break
+            else:
+                return False, _idx
+            return True, _idx
 
         found_match = True
         while found_match:
@@ -333,8 +510,17 @@ class Command(Generic[TPydanticModel]):
 
         # no more match is found. Now we need to check whether all postional (required) arguments
         # have been matched. If not, we have no match for this command.
-        if args:
-            return False, start_idx
+        non_matching_required_tokens = [
+            token
+            for token in self.tokens.values()
+            if token.required and not token._match
+        ]
+        if non_matching_required_tokens:
+            # only erroring on first token for now.
+            # todo: fix reporting on multiple missing positional arguments.
+            raise _exceptions.MissingPositional(
+                "/".join(non_matching_required_tokens[0].user_keys), idx, arguments
+            )
 
         # We now need to check whether this command has any subcommands.
         # If no subcommands are inside this command we have a match.
@@ -364,10 +550,7 @@ class Command(Generic[TPydanticModel]):
 
     def parse(self) -> TPydanticModel:
         """Populate all tokens with the provided arguments."""
-        [
-            self._match.update(parsed.parse())
-            for parsed in chain(self.args, self.optional_kwargs)
-        ]
+        [self._match.update(parsed.parse()) for parsed in self.tokens.values()]
 
         if self.sub_commands:
             subcommand = self.sub_commands[0]
@@ -408,6 +591,10 @@ class Subcommand(Command):
             return False, idx
 
         return super().match(idx + 1, values)
+
+    @cached_property
+    def help_arguments(self) -> Text:
+        return Text(f'{"/".join(self.user_keys)}', style=ARGUMENTS_STYLE)
 
 
 def _is_help_key(idx, values: list[str]) -> bool:

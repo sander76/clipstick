@@ -3,80 +3,91 @@ from clipstick import parse
 from pydantic import BaseModel
 
 
-class ThirdLevelModelOne(BaseModel):
-    value: int
+class Info(BaseModel):
+    """Show information about this repo"""
+
+    verbose: bool = True
 
 
-class ThirdLevelModelTwo(BaseModel):
-    value: str
+class Clone(BaseModel):
+    """Clone a repo."""
+
+    depth: int
 
 
-class SecondLevelModelOne(BaseModel):
-    """Second level model 1."""
+class Remote(BaseModel):
+    """Clone a git repository."""
 
-    value: str = "my-second-level-value"
-    """Second level model one value."""
+    url: str = "https://mysuperrepo"
+    """Url of the git repo."""
 
-    sub_command: ThirdLevelModelTwo | ThirdLevelModelOne
-
-
-class SecondLevelModelTwo(BaseModel):
-    """Second level model 2."""
-
-    value: int
+    sub_command: Clone | Info
 
 
-class FirstLevelNestedModel(BaseModel):
-    """First level model."""
+class Merge(BaseModel):
+    """Git merge command."""
 
-    sub_command: SecondLevelModelOne | SecondLevelModelTwo
+    branch: str
+    """Git branch to merge into current branch."""
+
+
+class MyGitModel(BaseModel):
+    """My custom git cli."""
+
+    sub_command: Remote | Merge
 
 
 def test_deeply_nested_model_nest_1():
-    model = parse(
-        FirstLevelNestedModel, ["second-level-model-one", "third-level-model-one", "10"]
-    )
-    assert model == FirstLevelNestedModel(
-        sub_command=SecondLevelModelOne(sub_command=ThirdLevelModelOne(value=10))
-    )
+    model = parse(MyGitModel, ["remote", "info", "--no-verbose"])
+    assert model == MyGitModel(sub_command=Remote(sub_command=Info(verbose=False)))
 
 
 def test_deeply_nested_model_nest_2():
-    model = parse(
-        FirstLevelNestedModel, ["second-level-model-one", "third-level-model-two", "11"]
-    )
-    assert model == FirstLevelNestedModel(
-        sub_command=SecondLevelModelOne(sub_command=ThirdLevelModelTwo(value="11"))
-    )
+    model = parse(MyGitModel, ["remote", "clone", "11"])
+    assert model == MyGitModel(sub_command=Remote(sub_command=Clone(depth=11)))
 
 
 def test_deeply_nested_model_nest_3():
-    model = parse(FirstLevelNestedModel, ["second-level-model-two", "21"])
-    assert model == FirstLevelNestedModel(sub_command=SecondLevelModelTwo(value=21))
+    model = parse(MyGitModel, ["merge", "my_working_branch"])
+    assert model == MyGitModel(sub_command=Merge(branch="my_working_branch"))
 
 
 def test_model_help_first_level(capture_output):
     with pytest.raises(SystemExit) as err:
-        capture_output(FirstLevelNestedModel, ["-h"])
+        capture_output(MyGitModel, ["-h"])
 
     assert err.value.code == 0
-    assert "First level model." in capture_output.captured_output
-    assert "second-level-model-one" in capture_output.captured_output
-    assert "Second level model 1." in capture_output.captured_output
+    assert (
+        """
+Usage: my-cli-app [Subcommands]
 
-    assert "second-level-model-two" in capture_output.captured_output
-    assert "Second level model 2." in capture_output.captured_output
+My custom git cli.
+
+Subcommands:
+    remote               Clone a git repository.
+    merge                Git merge command.     
+"""
+        == capture_output.captured_output
+    )
 
 
 def test_model_help_second_level(capture_output):
     with pytest.raises(SystemExit) as err:
-        capture_output(FirstLevelNestedModel, ["second-level-model-one", "-h"])
+        capture_output(MyGitModel, ["remote", "-h"])
 
     assert err.value.code == 0
-    assert "First level model." not in capture_output.captured_output
-    assert "my-cli-app second-level-model-one" in capture_output.captured_output
+    assert (
+        """
+Usage: my-cli-app remote [Options] [Subcommands]
 
-    assert "Second level model 1." in capture_output.captured_output
-    assert "third-level-model-two" in capture_output.captured_output
-    assert "third-level-model-one" in capture_output.captured_output
-    assert "Second level model one value." in capture_output.captured_output
+Clone a git repository.
+
+Options:
+    --url                Url of the git repo. [str] [default = https://mysuperrepo]
+
+Subcommands:
+    clone                Clone a repo.                   
+    info                 Show information about this repo
+"""
+        == capture_output.captured_output
+    )

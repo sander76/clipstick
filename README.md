@@ -9,25 +9,10 @@ Create your cli using Pydantic models.
 
 Define a pydantic model as you would normally do, pass it to clipstick and you get a cli including subcommands, nice docstrings and validations based on typing and pydantic validators.
 
-## Why?
-
-There are many other tools out there that do kind of the same, 
-but they all don't do quite exactly what I want.
-
-The goal of clipstip is to use pydantic to model your cli by leveraging:
-
-- The automatic casting of input variables.
-- The powerful validation capabilities.
-- Docstrings as cli documentation.
-- No other mental model required than Typing and Pydantic.
-
-Clipstick is inspired by [tyro](https://brentyi.github.io/tyro/), which is excellent and more versatile than this tool. But in my opionion its primary focus is not building a cli tool along the lines of Argparse or Click but more on composing complex objects from the command line. Making tyro behave like a "traditional" cli requires additional `Annotation` flags, which I don't want.
-
-Some other similar tools don't support pydantic v2, so I decided to create my own. Next to that I wanted to try and build my own parser instead of using `Argparse` because... why not.
-
 ## Installation
 
 `pip install clipstick`
+
 
 
 ## Example
@@ -84,6 +69,22 @@ If you provide a value which cannot be converted you will be presented with a ni
 ![wrong age](https://raw.githubusercontent.com/sander76/clipstick/main/docs/_images/name-wrong-age.svg)
 
 > The inclusion of the `def main(self)` method is not a requirement. `clipstick` generates a pydantic model based on provided cli arguments and gives it back to you for your further usage. Using `def main()` is one of the options to further process it.
+
+## Why?
+
+There are many other tools out there that do kind of the same, 
+but they all don't do quite exactly what I want.
+
+The goal of clipstip is to use pydantic to model your cli by leveraging:
+
+- The automatic casting of input variables.
+- The powerful validation capabilities.
+- Docstrings as cli documentation.
+- No other mental model required than Typing and Pydantic.
+
+Clipstick is inspired by [tyro](https://brentyi.github.io/tyro/), which is excellent and more versatile than this tool. But in my opionion its primary focus is not building a cli tool along the lines of Argparse or Click but more on composing complex objects from the command line. Making tyro behave like a "traditional" cli requires additional `Annotation` flags, which I don't want.
+
+Some other similar tools don't support pydantic v2, so I decided to create my own. Next to that I wanted to try and build my own parser instead of using `Argparse` because... why not.
 
 <!-- end index -->
 

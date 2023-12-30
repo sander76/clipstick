@@ -25,6 +25,13 @@ def test_help(capture_output):
     assert err.value.code == 0
 
     assert (
-        "-m --proceed            my optional flag [bool] [default = False]"
-        in capture_output.captured_output
+        """
+Usage: my-cli-app [Options]
+
+A model including an optional boolean flag.
+
+Options:
+    -m --proceed         my optional flag [bool] [default = False]
+"""
+        == capture_output.captured_output
     )

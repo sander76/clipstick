@@ -90,7 +90,7 @@
 </text><text class="abcdefg-r2" x="0" y="166.4" textLength="634.4" clip-path="url(#abcdefg-line-6)">A&#160;model&#160;with&#160;a&#160;keyword&#160;and&#160;shorthand&#160;optional&#160;value.</text><text class="abcdefg-r1" x="1220" y="166.4" textLength="12.2" clip-path="url(#abcdefg-line-6)">
 </text><text class="abcdefg-r1" x="1220" y="190.8" textLength="12.2" clip-path="url(#abcdefg-line-7)">
 </text><text class="abcdefg-r3" x="0" y="215.2" textLength="97.6" clip-path="url(#abcdefg-line-8)">Options:</text><text class="abcdefg-r1" x="1220" y="215.2" textLength="12.2" clip-path="url(#abcdefg-line-8)">
-</text><text class="abcdefg-r4" x="48.8" y="239.6" textLength="24.4" clip-path="url(#abcdefg-line-9)">-m</text><text class="abcdefg-r4" x="85.4" y="239.6" textLength="244" clip-path="url(#abcdefg-line-9)">--my-value&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</text><text class="abcdefg-r1" x="329.4" y="239.6" textLength="561.2" clip-path="url(#abcdefg-line-9)">&#160;My&#160;value&#160;with&#160;a&#160;default.&#160;[int]&#160;[default&#160;=&#160;22]</text><text class="abcdefg-r1" x="1220" y="239.6" textLength="12.2" clip-path="url(#abcdefg-line-9)">
+</text><text class="abcdefg-r4" x="48.8" y="239.6" textLength="244" clip-path="url(#abcdefg-line-9)">-m&#160;--my-value&#160;&#160;&#160;&#160;&#160;&#160;&#160;</text><text class="abcdefg-r1" x="292.8" y="239.6" textLength="561.2" clip-path="url(#abcdefg-line-9)">&#160;My&#160;value&#160;with&#160;a&#160;default.&#160;[int]&#160;[default&#160;=&#160;22]</text><text class="abcdefg-r1" x="1220" y="239.6" textLength="12.2" clip-path="url(#abcdefg-line-9)">
 </text>
     </g>
     </g>

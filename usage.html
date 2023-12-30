@@ -216,10 +216,12 @@
 <span class="nb">print</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>Help output:</p>
-<p><img alt="positional help" src="_images/positional-help.svg" /></p>
 <p>A positional argument is required. If you don’t provide it an error will be raised. So running this without any arguments will result in the following error message:</p>
 <p><img alt="missing argument" src="_images/positional-error.svg" /></p>
+<section id="help-output">
+<h3>Help output:<a class="headerlink" href="#help-output" title="Link to this heading">#</a></h3>
+<p><img alt="positional help" src="_images/positional-help.svg" /></p>
+</section>
 </section>
 <section id="keyword-arguments">
 <h2>Keyword arguments<a class="headerlink" href="#keyword-arguments" title="Link to this heading">#</a></h2>
@@ -238,8 +240,6 @@
 <span class="nb">print</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>Getting help:</p>
-<p><img alt="positional_arg help" src="_images/keyword-help.svg" /></p>
 <section id="keyword-arguments-with-a-shorthand">
 <h3>Keyword arguments with a shorthand<a class="headerlink" href="#keyword-arguments-with-a-shorthand" title="Link to this heading">#</a></h3>
 <p>Add a shorthand flag to a positional argument by providing a <code class="docutils literal notranslate"><span class="pre">short</span></code> annotation.</p>
@@ -259,6 +259,9 @@
 <span class="nb">print</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">))</span>
 </pre></div>
 </div>
+</section>
+<section id="id1">
+<h3>Help output:<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
 <p><img alt="positional with short" src="_images/keyword_with_short-help.svg" /></p>
 </section>
 </section>
@@ -281,10 +284,12 @@
 <span class="n">model</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Help looks like this:</p>
-<p><img alt="choice argument" src="_images/choice-help.svg" /></p>
 <p>Failing to provide a valid value gives you the error:</p>
 <p><img alt="wrong choice" src="_images/choice-wrong-choice.svg" /></p>
+<section id="id2">
+<h3>Help output:<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<p><img alt="choice argument" src="_images/choice-help.svg" /></p>
+</section>
 </section>
 <section id="booleans-flags">
 <h2>Booleans/Flags<a class="headerlink" href="#booleans-flags" title="Link to this heading">#</a></h2>
@@ -306,8 +311,36 @@
 <span class="nb">print</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">))</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">boolean.py</span> <span class="pre">-h</span></code></p>
+<section id="id3">
+<h3>Help output:<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
 <p><img alt="boolean help" src="_images/boolean-help.svg" /></p>
+</section>
+</section>
+<section id="collections">
+<h2>Collections<a class="headerlink" href="#collections" title="Link to this heading">#</a></h2>
+<p>A collection (a list of ints or string) is defined providing a keyworded argument multiple times.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">clipstick</span> <span class="kn">import</span> <span class="n">parse</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
+
+
+<span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;My model with with a collection.&quot;&quot;&quot;</span>
+
+<span class="hll">    <span class="n">my_values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;A collection type.&quot;&quot;&quot;</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">))</span>
+</pre></div>
+</div>
+<section id="example">
+<h3>example<a class="headerlink" href="#example" title="Link to this heading">#</a></h3>
+<p><img alt="collection usage" src="_images/collection-usage.svg" /></p>
+</section>
+<section id="id4">
+<h3>help output<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<p><img alt="collection help" src="_images/collection-help.svg" /></p>
+</section>
 </section>
 <section id="subcommands">
 <h2>Subcommands<a class="headerlink" href="#subcommands" title="Link to this heading">#</a></h2>
@@ -341,10 +374,10 @@ A subcommand is implemented by using pydantic models annotated with a <code clas
 
 
 <span class="k">class</span> <span class="nc">MyGit</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="hll"><span class="w">    </span><span class="sd">&quot;&quot;&quot;My git tool.&quot;&quot;&quot;</span>
-</span>
-    <span class="n">sub_command</span><span class="p">:</span> <span class="n">Clone</span> <span class="o">|</span> <span class="n">Merge</span>  <span class="c1"># &lt;-- a subcommand of clone and merge</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;My git tool.&quot;&quot;&quot;</span>
 
+<span class="hll">    <span class="n">sub_command</span><span class="p">:</span> <span class="n">Clone</span> <span class="o">|</span> <span class="n">Merge</span>  <span class="c1"># &lt;-- a subcommand of clone and merge</span>
+</span>
     <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Main entrypoint for this cli.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sub_command</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
@@ -354,7 +387,8 @@ A subcommand is implemented by using pydantic models annotated with a <code clas
 <span class="n">model</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Getting help:</p>
+<section id="id5">
+<h3>Help output:<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
 <p><img alt="subcommand help" src="_images/subcommand-help.svg" /></p>
 <p><img alt="subcommand sub help" src="_images/subcommand-merge-help.svg" /></p>
 <p>When using subcommands, be aware of the following points:</p>
@@ -363,6 +397,7 @@ A subcommand is implemented by using pydantic models annotated with a <code clas
 <li><p><code class="docutils literal notranslate"><span class="pre">sub_command</span></code> as a name is not required. Any name will do.</p></li>
 <li><p>Nesting of subcommands is possible.</p></li>
 </ul>
+</section>
 </section>
 <section id="validators">
 <h2>Validators<a class="headerlink" href="#validators" title="Link to this heading">#</a></h2>
@@ -373,10 +408,10 @@ A subcommand is implemented by using pydantic models annotated with a <code clas
 
 
 <span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="hll"><span class="w">    </span><span class="sd">&quot;&quot;&quot;Model with a pydantic validator.&quot;&quot;&quot;</span>
-</span>
-    <span class="n">my_age</span><span class="p">:</span> <span class="n">PositiveInt</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Your age.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Model with a pydantic validator.&quot;&quot;&quot;</span>
+
+<span class="hll">    <span class="n">my_age</span><span class="p">:</span> <span class="n">PositiveInt</span> <span class="o">=</span> <span class="mi">10</span>
+</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Your age.&quot;&quot;&quot;</span>
 
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">)</span>
@@ -390,10 +425,10 @@ A subcommand is implemented by using pydantic models annotated with a <code clas
 
 
 <span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="hll"><span class="w">    </span><span class="sd">&quot;&quot;&quot;Model with a pydantic validator.&quot;&quot;&quot;</span>
-</span>
-    <span class="n">my_path</span><span class="p">:</span> <span class="n">FilePath</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;provide an existing file location.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Model with a pydantic validator.&quot;&quot;&quot;</span>
+
+<span class="hll">    <span class="n">my_path</span><span class="p">:</span> <span class="n">FilePath</span>
+</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;provide an existing file location.&quot;&quot;&quot;</span>
 
 
 <span class="nb">print</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">))</span>
@@ -463,14 +498,32 @@ It is also pretty easy to write your own validators.</p>
             <ul>
 <li><a class="reference internal" href="#">Usage</a><ul>
 <li><a class="reference internal" href="#general">General</a></li>
-<li><a class="reference internal" href="#positional-arguments">Positional arguments</a></li>
-<li><a class="reference internal" href="#keyword-arguments">Keyword arguments</a><ul>
-<li><a class="reference internal" href="#keyword-arguments-with-a-shorthand">Keyword arguments with a shorthand</a></li>
+<li><a class="reference internal" href="#positional-arguments">Positional arguments</a><ul>
+<li><a class="reference internal" href="#help-output">Help output:</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#choices">Choices</a></li>
-<li><a class="reference internal" href="#booleans-flags">Booleans/Flags</a></li>
-<li><a class="reference internal" href="#subcommands">Subcommands</a></li>
+<li><a class="reference internal" href="#keyword-arguments">Keyword arguments</a><ul>
+<li><a class="reference internal" href="#keyword-arguments-with-a-shorthand">Keyword arguments with a shorthand</a></li>
+<li><a class="reference internal" href="#id1">Help output:</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#choices">Choices</a><ul>
+<li><a class="reference internal" href="#id2">Help output:</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#booleans-flags">Booleans/Flags</a><ul>
+<li><a class="reference internal" href="#id3">Help output:</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#collections">Collections</a><ul>
+<li><a class="reference internal" href="#example">example</a></li>
+<li><a class="reference internal" href="#id4">help output</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#subcommands">Subcommands</a><ul>
+<li><a class="reference internal" href="#id5">Help output:</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#validators">Validators</a></li>
 </ul>
 </li>

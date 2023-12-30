@@ -197,20 +197,6 @@
 <h1>Clipstick<a class="headerlink" href="#clipstick" title="Link to this heading">#</a></h1>
 <p>Create your cli using Pydantic models.</p>
 <p>Define a pydantic model as you would normally do, pass it to clipstick and you get a cli including subcommands, nice docstrings and validations based on typing and pydantic validators.</p>
-<section id="why">
-<h2>Why?<a class="headerlink" href="#why" title="Link to this heading">#</a></h2>
-<p>There are many other tools out there that do kind of the same,
-but they all don’t do quite exactly what I want.</p>
-<p>The goal of clipstip is to use pydantic to model your cli by leveraging:</p>
-<ul class="simple">
-<li><p>The automatic casting of input variables.</p></li>
-<li><p>The powerful validation capabilities.</p></li>
-<li><p>Docstrings as cli documentation.</p></li>
-<li><p>No other mental model required than Typing and Pydantic.</p></li>
-</ul>
-<p>Clipstick is inspired by <a class="reference external" href="https://brentyi.github.io/tyro/">tyro</a>, which is excellent and more versatile than this tool. But in my opionion its primary focus is not building a cli tool along the lines of Argparse or Click but more on composing complex objects from the command line. Making tyro behave like a “traditional” cli requires additional <code class="docutils literal notranslate"><span class="pre">Annotation</span></code> flags, which I don’t want.</p>
-<p>Some other similar tools don’t support pydantic v2, so I decided to create my own. Next to that I wanted to try and build my own parser instead of using <code class="docutils literal notranslate"><span class="pre">Argparse</span></code> because… why not.</p>
-</section>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">clipstick</span></code></p>
@@ -261,6 +247,20 @@ If you provide a value which cannot be converted you will be presented with a ni
 <blockquote>
 <div><p>The inclusion of the <code class="docutils literal notranslate"><span class="pre">def</span> <span class="pre">main(self)</span></code> method is not a requirement. <code class="docutils literal notranslate"><span class="pre">clipstick</span></code> generates a pydantic model based on provided cli arguments and gives it back to you for your further usage. Using <code class="docutils literal notranslate"><span class="pre">def</span> <span class="pre">main()</span></code> is one of the options to further process it.</p>
 </div></blockquote>
+</section>
+<section id="why">
+<h2>Why?<a class="headerlink" href="#why" title="Link to this heading">#</a></h2>
+<p>There are many other tools out there that do kind of the same,
+but they all don’t do quite exactly what I want.</p>
+<p>The goal of clipstip is to use pydantic to model your cli by leveraging:</p>
+<ul class="simple">
+<li><p>The automatic casting of input variables.</p></li>
+<li><p>The powerful validation capabilities.</p></li>
+<li><p>Docstrings as cli documentation.</p></li>
+<li><p>No other mental model required than Typing and Pydantic.</p></li>
+</ul>
+<p>Clipstick is inspired by <a class="reference external" href="https://brentyi.github.io/tyro/">tyro</a>, which is excellent and more versatile than this tool. But in my opionion its primary focus is not building a cli tool along the lines of Argparse or Click but more on composing complex objects from the command line. Making tyro behave like a “traditional” cli requires additional <code class="docutils literal notranslate"><span class="pre">Annotation</span></code> flags, which I don’t want.</p>
+<p>Some other similar tools don’t support pydantic v2, so I decided to create my own. Next to that I wanted to try and build my own parser instead of using <code class="docutils literal notranslate"><span class="pre">Argparse</span></code> because… why not.</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
@@ -270,6 +270,7 @@ If you provide a value which cannot be converted you will be presented with a ni
 <li class="toctree-l2"><a class="reference internal" href="usage.html#keyword-arguments">Keyword arguments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage.html#choices">Choices</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage.html#booleans-flags">Booleans/Flags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#collections">Collections</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage.html#subcommands">Subcommands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage.html#validators">Validators</a></li>
 </ul>
@@ -331,9 +332,9 @@ If you provide a value which cannot be converted you will be presented with a ni
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Clipstick</a><ul>
-<li><a class="reference internal" href="#why">Why?</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#example">Example</a></li>
+<li><a class="reference internal" href="#why">Why?</a></li>
 </ul>
 </li>
 </ul>

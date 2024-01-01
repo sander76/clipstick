@@ -11,6 +11,7 @@ class ModelWithChoice(BaseModel):
 
 class ModelWithOptionalChoice(BaseModel):
     choice: Literal["option1", "option2"] = "option1"
+    """A choice with a default."""
 
 
 def test_choice():
@@ -33,11 +34,15 @@ def test_choice_help(capture_output):
 
 
 def test_optional_choice_help(capture_output):
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as err:
         capture_output(ModelWithOptionalChoice, ["-h"])
-
-    assert "Options:" in capture_output.captured_output
+    assert err.value.code == 0
     assert (
-        "[allowed values: option1, option2] [default = option1]"
-        in capture_output.captured_output
+        """
+Usage: my-cli-app [Options]
+
+Options:
+    --choice             A choice with a default. [allowed values: option1, option2] [default = option1]
+"""
+        == capture_output.captured_output
     )

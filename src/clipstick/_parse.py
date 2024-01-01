@@ -14,15 +14,15 @@ from clipstick._exceptions import (
     TooManySubcommands,
 )
 from clipstick._tokens import (
-    BooleanFlag,
+    Boolean,
     Choice,
     Collection,
     Command,
-    OptionalBooleanFlag,
+    Optional,
+    OptionalBoolean,
     OptionalChoice,
     OptionalCollection,
-    OptionalKeyArgs,
-    PositionalArg,
+    Positional,
     Subcommand,
 )
 
@@ -92,9 +92,9 @@ def tokenize(model: type[BaseModel], sub_command: Subcommand | Command) -> None:
 
         elif _is_boolean_type(value):
             if value.is_required():
-                sub_command.tokens[key] = BooleanFlag(key, field_info=value)
+                sub_command.tokens[key] = Boolean(key, field_info=value)
             else:
-                sub_command.tokens[key] = OptionalBooleanFlag(key, field_info=value)
+                sub_command.tokens[key] = OptionalBoolean(key, field_info=value)
 
         elif _is_collection_type(value):
             if value.is_required():
@@ -103,9 +103,9 @@ def tokenize(model: type[BaseModel], sub_command: Subcommand | Command) -> None:
                 sub_command.tokens[key] = OptionalCollection(key, field_info=value)
         elif value.is_required():
             # becomes a positional
-            sub_command.tokens[key] = PositionalArg(key, field_info=value)
+            sub_command.tokens[key] = Positional(key, field_info=value)
         else:
-            sub_command.tokens[key] = OptionalKeyArgs(key, field_info=value)
+            sub_command.tokens[key] = Optional(key, field_info=value)
 
 
 def validate_model(model: type[BaseModel]) -> None:

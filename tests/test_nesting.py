@@ -65,7 +65,7 @@ My custom git cli.
 
 Subcommands:
     remote               Clone a git repository.
-    merge                Git merge command.     
+    merge                Git merge command.
 """
         == capture_output.captured_output
     )
@@ -86,7 +86,7 @@ Options:
     --url                Url of the git repo. [str] [default = https://mysuperrepo]
 
 Subcommands:
-    clone                Clone a repo.                   
+    clone                Clone a repo.
     info                 Show information about this repo
 """
         == capture_output.captured_output

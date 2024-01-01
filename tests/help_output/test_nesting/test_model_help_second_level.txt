@@ -7,5 +7,5 @@ Options:
     --url                Url of the git repo. [str] [default = https://mysuperrepo]
 
 Subcommands:
-    clone                Clone a repo.                   
+    clone                Clone a repo.
     info                 Show information about this repo

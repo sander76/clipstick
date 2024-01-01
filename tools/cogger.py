@@ -11,10 +11,13 @@ base_path = Path(__file__).parent.parent
 
 unique_svg_id = "abcdefg"
 
+console_width = 90
+
 
 def capture(file: Path, args: list[str], output: Path) -> Path:
+    """Capture output of a clipstick cli."""
     # create a console to capture and save the output.
-    console = Console(width=100, record=True)
+    console = Console(width=console_width, record=True)
     console.print("")
     console.print(
         Text.assemble(
@@ -28,7 +31,10 @@ def capture(file: Path, args: list[str], output: Path) -> Path:
         stdout=PIPE,
         stderr=STDOUT,
         env=os.environ
-        | {"FORCE_COLOR": "1"},  # make sure we also get ansi codes (colors back.)
+        | {
+            "FORCE_COLOR": "1",
+            "CLIPSTICK_CONSOLE_WIDTH": str(console_width),
+        },  # make sure we also get ansi codes (colors back.)
     )
 
     data = result.stdout.decode("utf-8")
@@ -45,11 +51,11 @@ if __name__ == "__main__":
     examples_folder = base_path / "examples"
 
     for fl in chain(
-        (base_path / "docs" / "_python").glob("*.py"),
+        (base_path / "docs" / "_python").glob(".py"),
         examples_folder.glob("*.py"),
     ):
         name = fl.stem + "-help.svg"
-        capture(fl, ["-h"], output=output_folder / name)
+        capture(fl, ["-h"], output_folder / name)
 
     name_source = (examples_folder / "name.py").read_text(encoding="utf-8")
     name_output = capture(

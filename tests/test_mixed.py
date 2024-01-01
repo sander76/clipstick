@@ -101,7 +101,7 @@ Arguments:
     --items               Can be applied multiple times. [list[int]]
 
 Options:
-    --optional-1          [str]  [default = opt1] 
+    --optional-1          [str] [default = opt1]
     --optional-bool       [bool] [default = False]
 """
         == capture_output.captured_output

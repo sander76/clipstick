@@ -2,18 +2,28 @@ from __future__ import annotations
 
 import sys
 from functools import cached_property
-from typing import Final, Generic, TypeVar, get_args
+from typing import Final, Generic, TypedDict, TypeVar, get_args
 
 from pydantic import BaseModel, ValidationError
 from pydantic.alias_generators import to_snake
 from pydantic.fields import FieldInfo
-from rich.text import Text
 
 from clipstick import _exceptions, _help
 from clipstick._annotations import Short
-from clipstick._style import ARGUMENTS_STYLE
 
 TPydanticModel = TypeVar("TPydanticModel", bound=BaseModel)
+
+
+class THelp(TypedDict):
+    """Help data for help output.
+
+    Data is different per token.
+    """
+
+    arguments: str
+    description: str
+    type: str
+    default: str
 
 
 def _to_false_key(field: str) -> str:
@@ -32,7 +42,7 @@ def _to_false_short(field: str) -> str:
     return f"-no-{field}"
 
 
-class PositionalArg:
+class Positional:
     """Positional/required argument token.
 
     A token is generated based on the pydantic field definition and used
@@ -81,33 +91,23 @@ class PositionalArg:
         """
         return self._match if self._match else {}
 
-    @cached_property
-    def help_arguments(self) -> Text:
-        return Text("/".join(self.user_keys), style=ARGUMENTS_STYLE)
+    def help(self) -> THelp:
+        """Help data based on field information.
 
-    @cached_property
-    def help_text(self) -> str:
-        return self.field_info.description or ""
-
-    @cached_property
-    def help_type(self) -> Text | str:
-        if self.field_info.annotation:
-            return Text(f"[{self.field_info.annotation.__name__}]")
-        return "[]"
-
-    @cached_property
-    def help_default(self) -> str | Text:
-        return ""
+        Returns:
+            Help information. To be processed for further output
+        """
+        return {
+            "arguments": "/".join(self.user_keys),
+            "description": self.field_info.description or "",
+            "type": self.field_info.annotation.__name__
+            if self.field_info.annotation
+            else "",
+            "default": "",
+        }
 
 
-class Choice(PositionalArg):
-    @cached_property
-    def help_type(self) -> Text:
-        options = get_args(self.field_info.annotation)
-        return Text(f"[allowed values: {', '.join(options)}]")
-
-
-class OptionalKeyArgs:
+class Optional:
     """Optional/keyworded argument token.
 
     A token is generated based on the pydantic field definition and used
@@ -170,35 +170,48 @@ class OptionalKeyArgs:
         """
         return self._match
 
-    @cached_property
-    def help_arguments(self) -> Text:
-        return Text(
-            (
-                f'{"/".join(self.short_keys)} {"/".join(self.keys)}'
-            ).strip(),  # doing a strip to remove leading space when short_keys is empty.
-            style=ARGUMENTS_STYLE,
-        )
+    def help(self) -> THelp:
+        """Help data based on field information.
 
-    @cached_property
-    def help_text(self) -> str:
-        return self.field_info.description or ""
-
-    @cached_property
-    def help_type(self) -> Text | str:
-        if self.field_info.annotation:
-            return Text(f"[{self.field_info.annotation.__name__}]")
-        return "[]"
-
-    @cached_property
-    def help_default(self) -> Text:
-        return Text(f"[default = {self.field_info.default}]")
+        Returns:
+            Help information. To be processed for further output
+        """
+        return {
+            "arguments": (f'{"/".join(self.short_keys)} {"/".join(self.keys)}').strip(),
+            "description": self.field_info.description or "",
+            "type": self.field_info.annotation.__name__
+            if self.field_info.annotation
+            else "",
+            "default": f"default = {self.field_info.default}",
+        }
 
 
-class OptionalChoice(OptionalKeyArgs):
-    @cached_property
-    def help_type(self) -> Text:
-        options = get_args(self.field_info.annotation)
-        return Text(f"[allowed values: {', '.join(options)}]")
+class Choice(Positional):
+    def help(self) -> THelp:
+        """Help data based on field information.
+
+        Returns:
+            Help information. To be processed for further output
+        """
+        _help = super().help()
+        _help[
+            "type"
+        ] = f"allowed values: {', '.join(get_args(self.field_info.annotation))}"
+        return _help
+
+
+class OptionalChoice(Optional):
+    def help(self) -> THelp:
+        """Help data based on field information.
+
+        Returns:
+            Help information. To be processed for further output
+        """
+        _help = super().help()
+        _help[
+            "type"
+        ] = f"allowed values: {', '.join(get_args(self.field_info.annotation))}"
+        return _help
 
 
 class Collection:
@@ -261,27 +274,19 @@ class Collection:
     def parse(self) -> dict[str, list]:
         return self._match
 
-    @cached_property
-    def help_arguments(self) -> Text:
-        return Text(
-            (f'{"/".join(self.short_keys)} {"/".join(self.keys)}').strip(),
-            style=ARGUMENTS_STYLE,
-        )
+    def help(self) -> THelp:
+        """Help data based on field information.
 
-    @cached_property
-    def help_text(self) -> str:
-        extra = " Can be applied multiple times."
-        if self.field_info.description:
-            return self.field_info.description + extra
-        return extra
-
-    @cached_property
-    def help_type(self) -> Text:
-        return Text(f"[{self.field_info.annotation or 'list'}]")
-
-    @cached_property
-    def help_default(self) -> str | Text:
-        return Text(f"[default = {self.field_info.default}]")
+        Returns:
+            Help information. To be processed for further output
+        """
+        desc = (self.field_info.description or "") + " Can be applied multiple times."
+        return {
+            "arguments": (f'{"/".join(self.short_keys)} {"/".join(self.keys)}').strip(),
+            "description": desc,
+            "type": str(self.field_info.annotation),
+            "default": "",
+        }
 
 
 class OptionalCollection(Collection):
@@ -289,12 +294,18 @@ class OptionalCollection(Collection):
         super().__init__(field, field_info)
         self.required = False
 
-    @cached_property
-    def help_default(self) -> Text:
-        return Text(f"[default = {self.field_info.default}]")
+    def help(self) -> THelp:
+        """Help data based on field information.
+
+        Returns:
+            Help information. To be processed for further output
+        """
+        _help = super().help()
+        _help["default"] = f"default = {self.field_info.default}"
+        return _help
 
 
-class BooleanFlag:
+class Boolean:
     """A positional (required) boolean flag value."""
 
     def __init__(self, field: str, field_info: FieldInfo):
@@ -376,27 +387,21 @@ class BooleanFlag:
         """
         return self._match
 
-    @cached_property
-    def help_arguments(self) -> Text:
-        return Text(
-            (f'{"/".join(self.short_keys)} {"/".join(self.keys)}').strip(),
-            style=ARGUMENTS_STYLE,
-        )
+    def help(self) -> THelp:
+        """Help data based on field information.
 
-    @cached_property
-    def help_text(self) -> str:
-        return self.field_info.description or ""
-
-    @cached_property
-    def help_type(self) -> Text:
-        return Text("[bool]")
-
-    @cached_property
-    def help_default(self) -> str | Text:
-        return Text(f"[default = {self.field_info.default}]")
+        Returns:
+            Help information. To be processed for further output
+        """
+        return {
+            "arguments": (f'{"/".join(self.short_keys)} {"/".join(self.keys)}').strip(),
+            "description": self.field_info.description or "",
+            "type": "bool",
+            "default": "",
+        }
 
 
-class OptionalBooleanFlag(BooleanFlag):
+class OptionalBoolean(Boolean):
     def __init__(self, field: str, field_info: FieldInfo):
         super().__init__(field, field_info)
         self.required: bool = False
@@ -424,9 +429,15 @@ class OptionalBooleanFlag(BooleanFlag):
         else:
             return self._false_keys + self._short_false_keys
 
-    @cached_property
-    def help_default(self) -> str | Text:
-        return Text(f"[default = {self.field_info.default}]")
+    def help(self) -> THelp:
+        """Help data based on field information.
+
+        Returns:
+            Help information. To be processed for further output
+        """
+        _help = super().help()
+        _help["default"] = f"default = {self.field_info.default!r}"
+        return _help
 
 
 class Command(Generic[TPydanticModel]):
@@ -448,10 +459,10 @@ class Command(Generic[TPydanticModel]):
 
         self.tokens: dict[
             str,
-            PositionalArg
-            | BooleanFlag
-            | OptionalBooleanFlag
-            | OptionalKeyArgs
+            Positional
+            | Boolean
+            | OptionalBoolean
+            | Optional
             | Collection
             | OptionalCollection,
         ] = {}
@@ -592,14 +603,23 @@ class Subcommand(Command):
 
         return super().match(idx + 1, values)
 
-    @cached_property
-    def help_arguments(self) -> Text:
-        return Text(f'{"/".join(self.user_keys)}', style=ARGUMENTS_STYLE)
+    def help(self) -> THelp:
+        """Help data based on field information.
+
+        Returns:
+            Help information. To be processed for further output
+        """
+        return {
+            "arguments": f'{"/".join(self.user_keys)}',
+            "description": self.cls.__doc__ or "",
+            "type": "",
+            "default": "",
+        }
 
 
 def _is_help_key(idx, values: list[str]) -> bool:
     try:
-        if values[idx] == "-h":
+        if values[idx] in ["-h", "--help"]:
             return True
     except IndexError:
         return False

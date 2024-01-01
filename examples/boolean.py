@@ -12,4 +12,5 @@ class MyModel(BaseModel):
     """More verbose thingy with a default."""
 
 
-print(parse(MyModel))
+if __name__ == "__main__":
+    print(parse(MyModel))

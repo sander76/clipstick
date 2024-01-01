@@ -2,7 +2,7 @@ from pathlib import Path
 
 import nox
 
-# nox.options.reuse_existing_virtualenvs = True
+nox.options.reuse_existing_virtualenvs = True
 nox.options.sessions = ["fix_quality", "quality", "test", "check_version"]
 PROJECT_FOLDER = "src"
 

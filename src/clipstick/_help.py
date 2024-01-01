@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from inspect import cleandoc
 from typing import TYPE_CHECKING, Iterator
 
@@ -9,8 +10,15 @@ from rich.text import Text
 
 from clipstick._exceptions import ClipStickError
 from clipstick._style import ARGUMENT_HEADER, ARGUMENTS_STYLE, DOCSTRING, ERROR
+from clipstick._tokens import THelp
 
-console = Console()
+# If you want to capture console output and set a width to properly word-wrap it,
+# you can set this env variable.
+# Have a look at `cogger.py (the capture function)` for an example.
+record_width = os.getenv("CLIPSTICK_CONSOLE_WIDTH")
+
+console = Console(width=int(record_width) if record_width else None)
+
 if TYPE_CHECKING:  # pragma: no cover
     from clipstick._tokens import Command, Subcommand
 
@@ -56,6 +64,19 @@ def help(command: Command | Subcommand) -> None:
         console.print("")
         console.print(Text(cleandoc(command.cls.__doc__), style=DOCSTRING))
 
+    def _help_from_token(help_info: THelp) -> tuple[Text, Text]:
+        args = Text(help_info["arguments"], ARGUMENTS_STYLE)
+
+        txt = Text()
+        if desc := help_info["description"]:
+            txt.append(desc)
+        if _type := help_info["type"]:
+            txt.append(Text(f" [{_type}]"))
+        if default := help_info["default"]:
+            txt.append(Text(f" [{default}]"))
+
+        return args, txt
+
     if arguments:
         console.print("")
         console.print("Arguments:", style=ARGUMENT_HEADER)
@@ -64,40 +85,31 @@ def help(command: Command | Subcommand) -> None:
             tbl.add_column(width=indent)  # empty column
             tbl.add_column(min_width=min_args_width)
             tbl.add_column()
-            tbl.add_column()
-            tbl.add_row("", arg.help_arguments, arg.help_text, arg.help_type)
+
+            tbl.add_row("", *_help_from_token(arg.help()))
             console.print(tbl)
     if options:
-        tbl = Table.grid(collapse_padding=True, padding=(0, 1))
-        tbl.add_column(width=indent)  # empty column
-        tbl.add_column(min_width=min_args_width)  # keys
-        tbl.add_column()  # description
-        tbl.add_column()  # type
-        tbl.add_column()  # default
-
         console.print("")
         console.print("Options:", style=ARGUMENT_HEADER)
         for kwarg in options:
-            tbl.add_row(
-                "",
-                kwarg.help_arguments,
-                kwarg.help_text,
-                kwarg.help_type,
-                kwarg.help_default,
-            )
-        console.print(tbl)
+            tbl = Table.grid(collapse_padding=True, padding=(0, 1))
+            tbl.add_column(width=indent)  # empty column
+            tbl.add_column(min_width=min_args_width)  # keys
+            tbl.add_column()  # description
+            tbl.add_row("", *_help_from_token(kwarg.help()))
+            console.print(tbl)
     if command.sub_commands:
-        tbl = Table.grid(collapse_padding=True, padding=(0, 1))
-        tbl.add_column(width=indent)  # empty column
-        tbl.add_column(min_width=min_args_width)  # commands
-        tbl.add_column()  # description
-
         console.print("")
         console.print("Subcommands:", style=ARGUMENT_HEADER)
 
         for sub_command in command.sub_commands:
-            tbl.add_row("", sub_command.help_arguments, sub_command.cls.__doc__)
-        console.print(tbl)
+            tbl = Table.grid(collapse_padding=True, padding=(0, 1))
+            tbl.add_column(width=indent)  # empty column
+            tbl.add_column(min_width=min_args_width)  # commands
+            tbl.add_column()  # description
+
+            tbl.add_row("", *_help_from_token(sub_command.help()))
+            console.print(tbl)
 
 
 def call_stack_from_tokens(

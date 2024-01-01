@@ -5,4 +5,4 @@ My custom git cli.
 
 Subcommands:
     remote               Clone a git repository.
-    merge                Git merge command.     
+    merge                Git merge command.

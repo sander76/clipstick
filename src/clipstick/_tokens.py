@@ -179,9 +179,12 @@ class Optional:
         return {
             "arguments": (f'{"/".join(self.short_keys)} {"/".join(self.keys)}').strip(),
             "description": self.field_info.description or "",
-            "type": self.field_info.annotation.__name__
-            if self.field_info.annotation
-            else "",
+            "type": (
+                # e.g. union type does not have __name__ attribute
+                getattr(self.field_info.annotation, "__name__", "")
+                if self.field_info.annotation
+                else ""
+            ),
             "default": f"default = {self.field_info.default}",
         }
 

@@ -211,9 +211,8 @@ class OptionalChoice(Optional):
             Help information. To be processed for further output
         """
         _help = super().help()
-        _help[
-            "type"
-        ] = f"allowed values: {', '.join(get_args(self.field_info.annotation))}"
+        args_list_descr = ", ".join(map(str, get_args(self.field_info.annotation)))
+        _help["type"] = f"allowed values: {args_list_descr}"
         return _help
 
 

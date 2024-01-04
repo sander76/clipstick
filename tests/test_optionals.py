@@ -80,3 +80,16 @@ def test_help_with_shorts(capture_output):
 
     assert err.value.code == 0
     assert "-v --value-1" in capture_output.captured_output
+
+
+def test_help_optional_none(capture_output):
+    with pytest.raises(SystemExit) as err:
+        capture_output(OptionalValueNewTyping, ["-h"])
+
+    assert err.value.code == 0
+    assert """
+Usage: my-cli-app [Options]
+
+Options:
+    --value-1             [default = None]
+"""

@@ -179,9 +179,12 @@ class Optional:
         return {
             "arguments": (f'{"/".join(self.short_keys)} {"/".join(self.keys)}').strip(),
             "description": self.field_info.description or "",
-            "type": self.field_info.annotation.__name__
-            if self.field_info.annotation
-            else "",
+            "type": (
+                # e.g. union type does not have __name__ attribute
+                getattr(self.field_info.annotation, "__name__", "")
+                if self.field_info.annotation
+                else ""
+            ),
             "default": f"default = {self.field_info.default}",
         }
 
@@ -208,9 +211,8 @@ class OptionalChoice(Optional):
             Help information. To be processed for further output
         """
         _help = super().help()
-        _help[
-            "type"
-        ] = f"allowed values: {', '.join(get_args(self.field_info.annotation))}"
+        args_list_descr = ", ".join(map(str, get_args(self.field_info.annotation)))
+        _help["type"] = f"allowed values: {args_list_descr}"
         return _help
 
 

@@ -53,12 +53,12 @@ def test_optional_with_short(args):
     assert model == OptionalWithShort(value_1=12)
 
 
-def test_optional_value_old_typing(capture_output):
+def test_optional_value_old_typing():
     model = parse(OptionalValueOldTyping, ["--value-1", 10])
     assert model == OptionalValueOldTyping(value_1=10)
 
 
-def test_optional_value_new_typing(capture_output):
+def test_optional_value_new_typing():
     model = parse(OptionalValueNewTyping, ["--value-1", 10])
     assert model == OptionalValueNewTyping(value_1=10)
 

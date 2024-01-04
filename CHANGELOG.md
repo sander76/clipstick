@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning].
 
 - /
 
+## [0.4.2] - 2024-01-04
+
+### Fixed
+
+- help output when using None in a `Union`. Thanks @NikolayHD !
+    
+    This has revealed another issue with help output when using `Union` types.
+    https://github.com/sander76/clipstick/issues/47
+    Will be fixed in next release.
+
 ## [0.4.1] - 2024-01-01
 
 ### Fixed

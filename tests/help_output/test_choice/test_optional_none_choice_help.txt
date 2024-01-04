@@ -1,0 +1,5 @@
+
+Usage: my-cli-app [Options]
+
+Options:
+    --choice             A choice with a default. [Optional] [default = None]

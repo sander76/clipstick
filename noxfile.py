@@ -35,8 +35,7 @@ def quality(session):
     session.run("ruff", PROJECT_FOLDER)
 
 
-@nox.session(python=["3.10", "3.11"])
-# @nox.parametrize("python", ["3.10", "3.11"])
+@nox.session(python=["3.10", "3.11", "3.12"])
 def test(session: nox.Session):
     session.run("poetry", "install", "--sync", external=True)
 

@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated, Optional, Union
 
 import pytest
 from clipstick._annotations import short
@@ -19,11 +19,15 @@ class OptionalWithShort(BaseModel):
     value_1: Annotated[int, short("v")] = 10
 
 
-class OptionalValueOldTyping(BaseModel):
+class OptionalValueNoneOptional(BaseModel):
     value_1: Optional[int] = None
 
 
-class OptionalValueNewTyping(BaseModel):
+class OptionalValueNoneUnion(BaseModel):
+    value_1: Union[int, None] = None
+
+
+class OptionalValueNonePipe(BaseModel):
     value_1: int | None = None
 
 
@@ -54,13 +58,13 @@ def test_optional_with_short(args):
 
 
 def test_optional_value_old_typing():
-    model = parse(OptionalValueOldTyping, ["--value-1", 10])
-    assert model == OptionalValueOldTyping(value_1=10)
+    model = parse(OptionalValueNoneOptional, ["--value-1", 10])
+    assert model == OptionalValueNoneOptional(value_1=10)
 
 
 def test_optional_value_new_typing():
-    model = parse(OptionalValueNewTyping, ["--value-1", 10])
-    assert model == OptionalValueNewTyping(value_1=10)
+    model = parse(OptionalValueNonePipe, ["--value-1", 10])
+    assert model == OptionalValueNonePipe(value_1=10)
 
 
 def test_help(capture_output):
@@ -68,10 +72,15 @@ def test_help(capture_output):
         capture_output(OptionalsModel, ["-h"])
 
     assert err.value.code == 0
-    assert "A model with only optionals." in capture_output.captured_output
-    assert "--value-1" in capture_output.captured_output
-    assert "Optional value 1." in capture_output.captured_output
-    assert "--value-2" in capture_output.captured_output
+    assert """
+Usage: my-cli-app [Options]
+
+A model with only optionals.
+
+Options:
+    --value-1            Optional value 1. [int] [default = 10]
+    --value-2             [str] [default = ABC]
+"""
 
 
 def test_help_with_shorts(capture_output):
@@ -82,14 +91,20 @@ def test_help_with_shorts(capture_output):
     assert "-v --value-1" in capture_output.captured_output
 
 
-def test_help_optional_none(capture_output):
+@pytest.mark.parametrize(
+    "model", [OptionalValueNonePipe, OptionalValueNoneOptional, OptionalValueNoneUnion]
+)
+def test_help_union_none(model, capture_output):
     with pytest.raises(SystemExit) as err:
-        capture_output(OptionalValueNewTyping, ["-h"])
+        capture_output(model, ["-h"])
 
     assert err.value.code == 0
-    assert """
+    assert (
+        """
 Usage: my-cli-app [Options]
 
 Options:
-    --value-1             [default = None]
+    --value-1             [int | None] [default = None]
 """
+        == capture_output.captured_output
+    )

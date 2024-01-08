@@ -58,6 +58,13 @@ class TooManySubcommands(InvalidModel):
         super().__init__("Only one subcommand per model allowed.")
 
 
+class InvalidUnion(InvalidModel):
+    def __init__(self, *message: str | Text) -> None:
+        super().__init__(
+            "A union type can only contain 2 types of which one must be None (the default)"
+        )
+
+
 class TooManyShortsException(ClipStickError):
     def __init__(self, model, shorts: list[str]) -> None:
         super().__init__("too many shorts defined inside model")

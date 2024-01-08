@@ -2,7 +2,14 @@ from __future__ import annotations
 
 import sys
 from functools import cached_property
-from typing import Final, Generic, TypedDict, TypeVar, get_args
+from types import NoneType, UnionType
+from typing import (
+    Final,
+    Generic,
+    TypedDict,
+    TypeVar,
+    get_args,
+)
 
 from pydantic import BaseModel, ValidationError
 from pydantic.alias_generators import to_snake
@@ -40,6 +47,42 @@ def _to_short(field: str) -> str:
 
 def _to_false_short(field: str) -> str:
     return f"-no-{field}"
+
+
+def is_union(field_info: FieldInfo) -> bool:
+    """Check whether the annotation is of a union type.
+
+    Checks for both old style union (`:Union[str,None]`) and new style unions (`:str|None`)
+    Also the `:Optional[str]` type is considered a union (which it just is.)
+    """
+    assert field_info.annotation is not None
+    _name = getattr(field_info.annotation, "__name__", None)
+
+    if _name in ("Optional", "Union") or isinstance(field_info.annotation, UnionType):
+        return True
+    return False
+
+
+def one_from_union(annotation: type) -> type:
+    """Return the type of a union which is not the NoneType.
+
+    Clipstick allows Unions (or Optionals) when it is a Union between a
+    type and None. We check and return the not None type for further processing.
+
+    Args:
+        annotation: The the union annotation object.
+
+    Returns:
+        the not-None annotation.
+
+    Raises:
+        InvalidUnion: when not a union of two where one is None.
+    """
+    without_none = tuple((arg for arg in get_args(annotation) if arg is not NoneType))
+
+    if len(without_none) == 1:
+        return without_none[0]
+    raise _exceptions.InvalidUnion()
 
 
 class Positional:
@@ -176,17 +219,26 @@ class Optional:
         Returns:
             Help information. To be processed for further output
         """
+        assert self.field_info.annotation is not None
+
+        if is_union(self.field_info):
+            _type = " | ".join(
+                (arg.__name__ for arg in get_args(self.field_info.annotation))
+            )
+            _type = _type.replace("NoneType", "None")
+        else:
+            _type = self.field_info.annotation.__name__
+
         return {
             "arguments": (f'{"/".join(self.short_keys)} {"/".join(self.keys)}').strip(),
             "description": self.field_info.description or "",
-            "type": (
-                # e.g. union type does not have __name__ attribute
-                getattr(self.field_info.annotation, "__name__", "")
-                if self.field_info.annotation
-                else ""
-            ),
+            "type": _type,
             "default": f"default = {self.field_info.default}",
         }
+
+
+def _allowed_values(annotation: object) -> str:
+    return f"allowed values: {', '.join(str(arg) for arg in get_args(annotation))}"
 
 
 class Choice(Positional):
@@ -197,9 +249,7 @@ class Choice(Positional):
             Help information. To be processed for further output
         """
         _help = super().help()
-        _help[
-            "type"
-        ] = f"allowed values: {', '.join(get_args(self.field_info.annotation))}"
+        _help["type"] = _allowed_values(self.field_info.annotation)
         return _help
 
 
@@ -211,8 +261,20 @@ class OptionalChoice(Optional):
             Help information. To be processed for further output
         """
         _help = super().help()
-        args_list_descr = ", ".join(map(str, get_args(self.field_info.annotation)))
-        _help["type"] = f"allowed values: {args_list_descr}"
+        if is_union(self.field_info):
+            # assuming it is a union of a Literal and a None (as default)
+            # So we are ripping out the None and process the Literal arguments.
+            literal = next(
+                (
+                    arg
+                    for arg in get_args(self.field_info.annotation)
+                    if arg is not NoneType
+                )
+            )
+            _help["type"] = _allowed_values(literal)
+        else:
+            _help["type"] = _allowed_values(self.field_info.annotation)
+        _help["default"] = f"default = {self.field_info.default}"
         return _help
 
 
@@ -320,7 +382,7 @@ class Boolean:
         self.field = field
         self.field_info = field_info
         # In case of an error we want to know which keyword was used (like --proceed or -p etc.)
-        # We store what used argument here.
+        # We store that used argument here.
         self.used_arg: str = ""
         self.required: bool = True
         self._match: dict[str, bool] = {}

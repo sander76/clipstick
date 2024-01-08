@@ -197,7 +197,7 @@
 <h1>Usage<a class="headerlink" href="#usage" title="Link to this heading">#</a></h1>
 <section id="general">
 <h2>General<a class="headerlink" href="#general" title="Link to this heading">#</a></h2>
-<p>Crafting your cli is identical to composing a pydantic class. Toghether with some assumptions this is enough to create a fully working cli tool.</p>
+<p>Crafting your cli is identical to composing a pydantic class. Toghether with some assumptions this is enough to create a fully working cli tool:</p>
 </section>
 <section id="positional-arguments">
 <h2>Positional arguments<a class="headerlink" href="#positional-arguments" title="Link to this heading">#</a></h2>
@@ -213,7 +213,7 @@
 </span><span class="w">    </span><span class="sd">&quot;&quot;&quot;My required value.&quot;&quot;&quot;</span>
 
 
-<span class="nb">print</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">)))</span>
 </pre></div>
 </div>
 <p>A positional argument is required. If you don’t provide it an error will be raised. So running this without any arguments will result in the following error message:</p>
@@ -226,23 +226,6 @@
 <section id="keyword-arguments">
 <h2>Keyword arguments<a class="headerlink" href="#keyword-arguments" title="Link to this heading">#</a></h2>
 <p>All fields in your model <em>with</em> a default value are converted to cli optional arguments.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">clipstick</span> <span class="kn">import</span> <span class="n">parse</span>
-<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
-
-
-<span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A model with a keyworded optional value.&quot;&quot;&quot;</span>
-
-<span class="hll">    <span class="n">my_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">22</span>
-</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;My value with a default.&quot;&quot;&quot;</span>
-
-
-<span class="nb">print</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">))</span>
-</pre></div>
-</div>
-<section id="keyword-arguments-with-a-shorthand">
-<h3>Keyword arguments with a shorthand<a class="headerlink" href="#keyword-arguments-with-a-shorthand" title="Link to this heading">#</a></h3>
-<p>Add a shorthand flag to a positional argument by providing a <code class="docutils literal notranslate"><span class="pre">short</span></code> annotation.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Annotated</span>
 
 <span class="kn">from</span> <span class="nn">clipstick</span> <span class="kn">import</span> <span class="n">parse</span><span class="p">,</span> <span class="n">short</span>
@@ -250,19 +233,24 @@
 
 
 <span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A model with a keyword and shorthand optional value.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A model with keyworded optional values.&quot;&quot;&quot;</span>
 
-<span class="hll">    <span class="n">my_value</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">short</span><span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">22</span>  <span class="c1"># &lt;-- this adds a shorthand of `-m`.</span>
-</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;My value with a default.&quot;&quot;&quot;</span>
+    <span class="n">my_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">22</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;My value with a default.&quot;&quot;&quot;</span>
+
+    <span class="n">other_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Value with None as default.&quot;&quot;&quot;</span>
+
+    <span class="n">with_short</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">short</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="s2">&quot;some_value&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;With a shorthand key.&quot;&quot;&quot;</span>
 
 
-<span class="nb">print</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">)))</span>
 </pre></div>
 </div>
-</section>
 <section id="id1">
 <h3>Help output:<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
-<p><img alt="positional with short" src="_images/keyword_with_short-help.svg" /></p>
+<p><img alt="positional with short" src="_images/keyword-help.svg" /></p>
 </section>
 </section>
 <section id="choices">
@@ -277,11 +265,17 @@
 <span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;My model with choice values.&quot;&quot;&quot;</span>
 
-<span class="hll">    <span class="n">my_value</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;option1&quot;</span><span class="p">,</span> <span class="s2">&quot;option2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;option1&quot;</span>
-</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;A value with restricted values.&quot;&quot;&quot;</span>
+    <span class="n">required_choice</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;option1&quot;</span><span class="p">,</span> <span class="s2">&quot;option2&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Required restricted values.&quot;&quot;&quot;</span>
+
+    <span class="n">optional_choice</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Optional with a literal default.&quot;&quot;&quot;</span>
+
+    <span class="n">optional_with_none</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Optional with None as default.&quot;&quot;&quot;</span>
 
 
-<span class="n">model</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">)))</span>
 </pre></div>
 </div>
 <p>Failing to provide a valid value gives you the error:</p>
@@ -294,22 +288,29 @@
 <section id="booleans-flags">
 <h2>Booleans/Flags<a class="headerlink" href="#booleans-flags" title="Link to this heading">#</a></h2>
 <p>A flag (true/false) is defined by the <code class="docutils literal notranslate"><span class="pre">bool</span></code> annotation.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">clipstick</span> <span class="kn">import</span> <span class="n">parse</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Annotated</span>
+
+<span class="kn">from</span> <span class="nn">clipstick</span> <span class="kn">import</span> <span class="n">parse</span><span class="p">,</span> <span class="n">short</span>
 <span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
 
 
 <span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A model with a required boolean value.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A model with flags.&quot;&quot;&quot;</span>
 
-<span class="hll">    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span>
-</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Some verbose thingy.&quot;&quot;&quot;</span>
+    <span class="n">required</span><span class="p">:</span> <span class="nb">bool</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Some required thingy.&quot;&quot;&quot;</span>
 
-<span class="hll">    <span class="n">more_verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;More verbose thingy with a default.&quot;&quot;&quot;</span>
+    <span class="n">with_short</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">short</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;required flag with short.&quot;&quot;&quot;</span>
+
+    <span class="n">an_optional</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An optional.&quot;&quot;&quot;</span>
+
+    <span class="n">optional_with_short</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">short</span><span class="p">(</span><span class="s2">&quot;o&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Optional with short.&quot;&quot;&quot;</span>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">)))</span>
 </pre></div>
 </div>
 <section id="id3">
@@ -320,23 +321,29 @@
 <section id="collections">
 <h2>Collections<a class="headerlink" href="#collections" title="Link to this heading">#</a></h2>
 <p>A collection (a list of ints or string) is defined providing a keyworded argument multiple times.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">clipstick</span> <span class="kn">import</span> <span class="n">parse</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Annotated</span>
+
+<span class="kn">from</span> <span class="nn">clipstick</span> <span class="kn">import</span> <span class="n">parse</span><span class="p">,</span> <span class="n">short</span>
 <span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
 
 
 <span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;My model with with a collection.&quot;&quot;&quot;</span>
 
-<span class="hll">    <span class="n">my_values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;A collection type.&quot;&quot;&quot;</span>
+    <span class="n">required_collection</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A required collection.&quot;&quot;&quot;</span>
+
+    <span class="n">optional_short</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">short</span><span class="p">(</span><span class="s2">&quot;o&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Optional collection.&quot;&quot;&quot;</span>
 
 
-<span class="nb">print</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">)))</span>
 </pre></div>
 </div>
 <section id="example">
 <h3>example<a class="headerlink" href="#example" title="Link to this heading">#</a></h3>
-<p><img alt="collection usage" src="_images/collection-usage.svg" /></p>
+<p><img alt="collection usage" src="_images/collection-required.svg" /></p>
+<p><img alt="collection usage" src="_images/collection-optional.svg" /></p>
 </section>
 <section id="id4">
 <h3>help output<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
@@ -344,7 +351,7 @@
 </section>
 </section>
 <section id="subcommands">
-<h2>Subcommands<a class="headerlink" href="#subcommands" title="Link to this heading">#</a></h2>
+<span id="id5"></span><h2>Subcommands<a class="headerlink" href="#subcommands" title="Link to this heading">#</a></h2>
 <p>Bigger cli applications will need the use of subcommands.
 A probably well known example of this is the git cli which has <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">...</span></code>, <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">merge</span> <span class="pre">...</span></code> etc.
 A subcommand is implemented by using pydantic models annotated with a <code class="docutils literal notranslate"><span class="pre">Union</span></code>:</p>
@@ -353,7 +360,10 @@ A subcommand is implemented by using pydantic models annotated with a <code clas
 
 
 <span class="k">class</span> <span class="nc">Clone</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clone a repo.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clone a repo.</span>
+
+<span class="sd">    This is a subcommand.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">repo</span><span class="p">:</span> <span class="nb">str</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Clone this repo.&quot;&quot;&quot;</span>
@@ -364,10 +374,13 @@ A subcommand is implemented by using pydantic models annotated with a <code clas
 
 
 <span class="k">class</span> <span class="nc">Merge</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge a branch.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge a branch.</span>
+
+<span class="sd">    Provide a branch and merge it into your active branch.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">branch</span><span class="p">:</span> <span class="nb">str</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Branch to merge into active branch.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Branch name.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Run when this subcommand is choosen.&quot;&quot;&quot;</span>
@@ -388,13 +401,26 @@ A subcommand is implemented by using pydantic models annotated with a <code clas
 <span class="n">model</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 </div>
-<section id="id5">
-<h3>Help output:<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
-<p><img alt="subcommand help" src="_images/subcommand-help.svg" /></p>
-<p><img alt="subcommand sub help" src="_images/subcommand-merge-help.svg" /></p>
-<p>When using subcommands, be aware of the following points:</p>
+<section id="id6">
+<h3>Help output<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<p>Clipstick assumes you are using google docstring (or any other docstring) convention
+which follows these rules for class docstrings:</p>
+<ul class="simple">
+<li><p>The first line is used as a summary description what the class is all about.</p></li>
+<li><p>The rest of the lines contain a more detailed description.</p></li>
+</ul>
+<p>With the above docstring of the <code class="docutils literal notranslate"><span class="pre">Merge</span></code> class in mind
+see only the first line of the docstring being used for the <code class="docutils literal notranslate"><span class="pre">merge</span></code> subcommand:
+<img alt="subcommand help" src="_images/subcommand-help.svg" /></p>
+<p>And observe the full docstring when printing out help for the <code class="docutils literal notranslate"><span class="pre">merge</span></code> subcommand:
+<img alt="subcommand sub help" src="_images/subcommand-merge-help.svg" /></p>
+</section>
+<section id="points-of-attention">
+<h3>Points of attention<a class="headerlink" href="#points-of-attention" title="Link to this heading">#</a></h3>
+<p>When using subcommands, be aware of the following:</p>
 <ul class="simple">
 <li><p>Only one subcommand per model is allowed. (If you need more (and want to follow the more object-composition path), have a look at <a class="reference external" href="https://brentyi.github.io/tyro/">tyro</a>)</p></li>
+<li><p>A subcommand cannot have a default: It needs to always be provided by the user.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">sub_command</span></code> as a name is not required. Any name will do.</p></li>
 <li><p>Nesting of subcommands is possible.</p></li>
 </ul>
@@ -402,8 +428,8 @@ A subcommand is implemented by using pydantic models annotated with a <code clas
 </section>
 <section id="validators">
 <h2>Validators<a class="headerlink" href="#validators" title="Link to this heading">#</a></h2>
-<p>Pydantic provides many field validators that can be used in clipstick too.</p>
-<p>For example a cli which requires you to provide your age which can (obviously not be negative):</p>
+<p>Pydantic provides many field validators which can be used in clipstick too.</p>
+<p>For example a cli which requires you to provide your age which can (obviously) not be negative:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">clipstick</span> <span class="kn">import</span> <span class="n">parse</span>
 <span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">PositiveInt</span>
 
@@ -415,7 +441,7 @@ A subcommand is implemented by using pydantic models annotated with a <code clas
 </span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Your age.&quot;&quot;&quot;</span>
 
 
-<span class="n">model</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">)))</span>
 </pre></div>
 </div>
 <p>When you do provide a negative value, Pydantic raises an error which is picked up by clipstick and presented to the user.</p>
@@ -432,13 +458,30 @@ A subcommand is implemented by using pydantic models annotated with a <code clas
 </span><span class="w">    </span><span class="sd">&quot;&quot;&quot;provide an existing file location.&quot;&quot;&quot;</span>
 
 
-<span class="nb">print</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="n">MyModel</span><span class="p">)))</span>
 </pre></div>
 </div>
 <p>Failing to provide a valid file location gives you:</p>
 <p><img alt="invalid file" src="_images/types_file_exists-invalid.svg" /></p>
 <p>There are many more out-of-the-box validators available. Have a look <a class="reference external" href="https://docs.pydantic.dev/latest/api/types/">here</a>
 It is also pretty easy to write your own validators.</p>
+<section id="restrictions">
+<h3>Restrictions<a class="headerlink" href="#restrictions" title="Link to this heading">#</a></h3>
+<p>While most of the model definitions will just work, some don’t and some work better than others:</p>
+<ul>
+<li><p>A nesting of Models (a field inside a pydantic object which has a type of a pydantic object) is not allowed unless it is used in a <code class="docutils literal notranslate"><span class="pre">Union</span></code> as described in <a class="reference internal" href="#subcommands"><span class="std std-ref">Subcommands</span></a>.</p></li>
+<li><p>Restrict the usage of <code class="docutils literal notranslate"><span class="pre">Unions</span></code> to using a <code class="docutils literal notranslate"><span class="pre">type</span></code> and a <code class="docutils literal notranslate"><span class="pre">NoneType</span></code> where <code class="docutils literal notranslate"><span class="pre">None</span></code> is the default value of a field:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">)</span>
+    <span class="n">my_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># &lt;-- Union with a None. Omitted in help output</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">)</span>
+    <span class="n">my_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="c1"># &lt;-- Not allowed. Doesn&#39;t make sense of having a model like this?</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
 </section>
 </section>
 
@@ -504,7 +547,6 @@ It is also pretty easy to write your own validators.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#keyword-arguments">Keyword arguments</a><ul>
-<li><a class="reference internal" href="#keyword-arguments-with-a-shorthand">Keyword arguments with a shorthand</a></li>
 <li><a class="reference internal" href="#id1">Help output:</a></li>
 </ul>
 </li>
@@ -522,10 +564,14 @@ It is also pretty easy to write your own validators.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#subcommands">Subcommands</a><ul>
-<li><a class="reference internal" href="#id5">Help output:</a></li>
+<li><a class="reference internal" href="#id6">Help output</a></li>
+<li><a class="reference internal" href="#points-of-attention">Points of attention</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#validators">Validators</a></li>
+<li><a class="reference internal" href="#validators">Validators</a><ul>
+<li><a class="reference internal" href="#restrictions">Restrictions</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

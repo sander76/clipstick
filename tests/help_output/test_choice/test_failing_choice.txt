@@ -1,0 +1,1 @@
+ERROR: Incorrect value for --choice (option3). Input should be 'option1' or 'option2'

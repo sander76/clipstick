@@ -9,4 +9,4 @@ class MyModel(BaseModel):
     """Your age."""
 
 
-model = parse(MyModel)
+print(repr(parse(MyModel)))

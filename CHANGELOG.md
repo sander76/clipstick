@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning].
 
 - /
 
+## [0.5.0] - 2024-01-08
+
+### Added
+
+- None as a default value. See overal Usage documentation.
+- Add python 3.12 to testing matrix
+- Short and long description usage in subcommands (see subcommands section in help.)
+
 ## [0.4.2] - 2024-01-04
 
 ### Fixed

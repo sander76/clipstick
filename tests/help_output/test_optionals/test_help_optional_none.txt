@@ -1,5 +1,0 @@
-
-Usage: my-cli-app [Options]
-
-Options:
-    --value-1             [default = None]

@@ -50,10 +50,13 @@ class CapturedOutput:
             )
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def capture_output(request) -> CapturedOutput:
     # set this very long width. othewise rich will assume the console with of your ide window
     # and potentially wrap output breaking your tests.
     # console.width = 1000
+    captured_output = CapturedOutput(request)
 
-    return CapturedOutput(request)
+    yield captured_output
+    console.clear()
+    console.record = False

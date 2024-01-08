@@ -49,21 +49,20 @@ def _to_false_short(field: str) -> str:
     return f"-no-{field}"
 
 
-def is_union(field_info: FieldInfo) -> bool:
+def is_union(annotation: type) -> bool:
     """Check whether the annotation is of a union type.
 
     Checks for both old style union (`:Union[str,None]`) and new style unions (`:str|None`)
     Also the `:Optional[str]` type is considered a union (which it just is.)
     """
-    assert field_info.annotation is not None
-    _name = getattr(field_info.annotation, "__name__", None)
+    _name = getattr(annotation, "__name__", None)
 
-    if _name in ("Optional", "Union") or isinstance(field_info.annotation, UnionType):
+    if _name in ("Optional", "Union") or isinstance(annotation, UnionType):
         return True
     return False
 
 
-def one_from_union(annotation: type) -> type:
+def one_from_union(args: tuple[type]) -> type:
     """Return the type of a union which is not the NoneType.
 
     Clipstick allows Unions (or Optionals) when it is a Union between a
@@ -78,7 +77,7 @@ def one_from_union(annotation: type) -> type:
     Raises:
         InvalidUnion: when not a union of two where one is None.
     """
-    without_none = tuple((arg for arg in get_args(annotation) if arg is not NoneType))
+    without_none = tuple((arg for arg in args if arg is not NoneType))
 
     if len(without_none) == 1:
         return without_none[0]
@@ -221,11 +220,9 @@ class Optional:
         """
         assert self.field_info.annotation is not None
 
-        if is_union(self.field_info):
-            _type = " | ".join(
-                (arg.__name__ for arg in get_args(self.field_info.annotation))
-            )
-            _type = _type.replace("NoneType", "None")
+        if is_union(self.field_info.annotation):
+            _type = (one_from_union(get_args(self.field_info.annotation))).__name__
+
         else:
             _type = self.field_info.annotation.__name__
 
@@ -260,18 +257,12 @@ class OptionalChoice(Optional):
         Returns:
             Help information. To be processed for further output
         """
+        assert self.field_info.annotation is not None
         _help = super().help()
-        if is_union(self.field_info):
-            # assuming it is a union of a Literal and a None (as default)
-            # So we are ripping out the None and process the Literal arguments.
-            literal = next(
-                (
-                    arg
-                    for arg in get_args(self.field_info.annotation)
-                    if arg is not NoneType
-                )
-            )
-            _help["type"] = _allowed_values(literal)
+        if is_union(self.field_info.annotation):
+            _type = one_from_union(get_args(self.field_info.annotation))
+
+            _help["type"] = _allowed_values(_type)
         else:
             _help["type"] = _allowed_values(self.field_info.annotation)
         _help["default"] = f"default = {self.field_info.default}"

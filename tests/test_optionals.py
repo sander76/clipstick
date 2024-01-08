@@ -104,7 +104,7 @@ def test_help_union_none(model, capture_output):
 Usage: my-cli-app [Options]
 
 Options:
-    --value-1             [int | None] [default = None]
+    --value-1             [int] [default = None]
 """
         == capture_output.captured_output
     )

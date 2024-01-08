@@ -73,7 +73,7 @@ def tokenize(model: type[BaseModel], sub_command: Subcommand | Command) -> None:
     _sub_command_found: bool = False
     for key, value in model.model_fields.items():
         assert value.annotation is not None
-        if is_union(value):
+        if is_union(value.annotation):
             if _is_subcommand(value):
                 if _sub_command_found:
                     raise TooManySubcommands()
@@ -89,7 +89,7 @@ def tokenize(model: type[BaseModel], sub_command: Subcommand | Command) -> None:
                     tokenize(annotated_model, new_sub_command)
                 continue
             else:
-                annotation = one_from_union(value.annotation)
+                annotation = one_from_union(get_args(value.annotation))
         else:
             annotation = value.annotation
 

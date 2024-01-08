@@ -9,4 +9,4 @@ class MyModel(BaseModel):
     """provide an existing file location."""
 
 
-print(parse(MyModel))
+print(repr(parse(MyModel)))

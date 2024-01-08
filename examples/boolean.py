@@ -1,16 +1,23 @@
-from clipstick import parse
+from typing import Annotated
+
+from clipstick import parse, short
 from pydantic import BaseModel
 
 
 class MyModel(BaseModel):
-    """A model with a required boolean value."""
+    """A model with flags."""
 
-    verbose: bool
-    """Some verbose thingy."""
+    required: bool
+    """Some required thingy."""
 
-    more_verbose: bool = False
-    """More verbose thingy with a default."""
+    with_short: Annotated[bool, short("w")]
+    """required flag with short."""
+
+    an_optional: bool = True
+    """An optional."""
+
+    optional_with_short: Annotated[bool, short("o")] = False
+    """Optional with short."""
 
 
-if __name__ == "__main__":
-    print(parse(MyModel))
+print(repr(parse(MyModel)))

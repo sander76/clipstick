@@ -69,7 +69,8 @@ def one_from_union(args: tuple[type]) -> type:
     type and None. We check and return the not None type for further processing.
 
     Args:
-        annotation: The the union annotation object.
+        args: The arguments of the Union type.
+            Most likely received from the get_args call from the typing module.
 
     Returns:
         the not-None annotation.
@@ -408,7 +409,7 @@ class Boolean:
 
     @cached_property
     def short_keys(self) -> list[str]:
-        return self._short_false_keys + self._short_true_keys
+        return self._short_true_keys + self._short_false_keys
 
     @cached_property
     def keys(self) -> list[str]:

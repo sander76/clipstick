@@ -1,12 +1,17 @@
-from clipstick import parse
+from typing import Annotated
+
+from clipstick import parse, short
 from pydantic import BaseModel
 
 
 class MyModel(BaseModel):
     """My model with with a collection."""
 
-    my_values: list[str]
-    """A collection type."""
+    required_collection: list[str]
+    """A required collection."""
+
+    optional_short: Annotated[list[int], short("o")] = [1]
+    """Optional collection."""
 
 
-print(parse(MyModel))
+print(repr(parse(MyModel)))

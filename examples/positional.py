@@ -9,4 +9,4 @@ class MyModel(BaseModel):
     """My required value."""
 
 
-print(parse(MyModel))
+print(repr(parse(MyModel)))

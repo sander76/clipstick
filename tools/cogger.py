@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
     capture(
         examples_folder / "choice.py",
-        ["--my-value", "option3"],
+        ["option3"],
         output=output_folder / "choice-wrong-choice.svg",
     )
     capture(
@@ -98,6 +98,11 @@ if __name__ == "__main__":
     )
     capture(
         examples_folder / "collection.py",
-        ["--my-values", "value1", "--my-values", "value2"],
-        output_folder / "collection-usage.svg",
+        ["--required-collection", "value1", "--required-collection", "value2"],
+        output_folder / "collection-required.svg",
+    )
+    capture(
+        examples_folder / "collection.py",
+        ["--required-collection", "value1", "-o", "2", "-o", "3"],
+        output_folder / "collection-optional.svg",
     )

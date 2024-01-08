@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 
 class MyModel(BaseModel):
-    my_list: Annotated[list[int], short("m")] = []
+    my_list: Annotated[list[int], short("m")] = [9]
     """A list type object"""
 
 
@@ -50,7 +50,7 @@ def test_help(capture_output):
 Usage: my-cli-app [Options]
 
 Options:
-    -m --my-list         A list type object Can be applied multiple times. [list[int]] [default = []]
+    -m --my-list         A list type object Can be applied multiple times. [list[int]] [default = [9]]
 """
         == capture_output.captured_output
     )

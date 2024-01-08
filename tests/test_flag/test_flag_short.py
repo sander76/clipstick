@@ -37,7 +37,7 @@ Usage: my-cli-app [Arguments]
 Model with a flag with shorthand
 
 Arguments:
-    -no-p/-p --proceed/--no-proceed Continue with this operation. [bool]
+    -p/-no-p --proceed/--no-proceed Continue with this operation. [bool]
 """
         == capture_output.captured_output
     )

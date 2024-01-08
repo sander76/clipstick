@@ -101,3 +101,15 @@ Options:
 """
         == capture_output.captured_output
     )
+
+
+def test_failing_choice(capture_output):
+    with pytest.raises(SystemExit) as err:
+        capture_output(ModelWithOptionalChoice, ["--choice", "option3"])
+
+    assert err.value.code == 1
+    assert (
+        """ERROR: Incorrect value for --choice (option3). Input should be 'option1' or 'option2'
+"""
+        == capture_output.captured_output
+    )

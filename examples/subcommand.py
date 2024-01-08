@@ -3,7 +3,10 @@ from pydantic import BaseModel
 
 
 class Clone(BaseModel):
-    """Clone a repo."""
+    """Clone a repo.
+
+    This is a subcommand.
+    """
 
     repo: str
     """Clone this repo."""

@@ -54,17 +54,6 @@ class FailingChoice(BaseModel):
     my_value: Literal["option1", "option2"] = "option1"
 
 
-def test_failing_choice(capture_output):
-    with pytest.raises(SystemExit) as err:
-        capture_output(FailingChoice, ["--my-value", "option3"])
-
-    assert err.value.code == 1
-    assert (
-        "Incorrect value for --my-value (option3). Input should be 'option1' or 'option2'"
-        in capture_output.captured_output
-    )
-
-
 class FailingOptional(BaseModel):
     my_value: Annotated[PositiveInt, short("m")] = 10
 

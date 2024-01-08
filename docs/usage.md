@@ -87,19 +87,31 @@ A probably well known example of this is the git cli which has `git clone ...`, 
 A subcommand is implemented by using pydantic models annotated with a `Union`:
 
 ```{literalinclude} ../examples/subcommand.py
-:emphasize-lines: 30
+:emphasize-lines: 36
 ```
 
 ### Help output
 
+Clipstick assumes you are using google docstring (or any other docstring) convention
+which follows these rules for class docstrings:
+
+- The first line is used as a summary description what the class is all about.
+- The rest of the lines contain a more detailed description.
+
+With the above docstring of the `Merge` class in mind
+see only the first line of the docstring being used for the `merge` subcommand:
 ![subcommand help](_images/subcommand-help.svg)
 
+And observe the full docstring when printing out help for the `merge` subcommand:
 ![subcommand sub help](_images/subcommand-merge-help.svg)
 
-When using subcommands, be aware of the following points:
+
+### Points of attention
+
+When using subcommands, be aware of the following:
 
 - Only one subcommand per model is allowed. (If you need more (and want to follow the more object-composition path), have a look at [tyro](https://brentyi.github.io/tyro/))
-- A subcommand cannot have a default.
+- A subcommand cannot have a default: It needs to always be provided by the user.
 - `sub_command` as a name is not required. Any name will do.
 - Nesting of subcommands is possible.
 

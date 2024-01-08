@@ -35,6 +35,23 @@ def error(message: Text | str | ClipStickError):
     console.print(message)
 
 
+def _help_from_token(help_info: THelp, short=False) -> tuple[Text, Text]:
+    args = Text(help_info["arguments"], ARGUMENTS_STYLE)
+
+    txt = Text()
+    if desc := help_info["description"]:
+        if short:
+            txt.append(desc.split("\n")[0])
+        else:
+            txt.append(desc)
+    if _type := help_info["type"]:
+        txt.append(Text(f" [{_type}]"))
+    if default := help_info["default"]:
+        txt.append(Text(f" [{default}]"))
+
+    return args, txt
+
+
 def help(command: Command | Subcommand) -> None:
     indent = 2
     min_args_width = 20
@@ -63,19 +80,6 @@ def help(command: Command | Subcommand) -> None:
     if command.cls.__doc__:
         console.print("")
         console.print(Text(cleandoc(command.cls.__doc__), style=DOCSTRING))
-
-    def _help_from_token(help_info: THelp) -> tuple[Text, Text]:
-        args = Text(help_info["arguments"], ARGUMENTS_STYLE)
-
-        txt = Text()
-        if desc := help_info["description"]:
-            txt.append(desc)
-        if _type := help_info["type"]:
-            txt.append(Text(f" [{_type}]"))
-        if default := help_info["default"]:
-            txt.append(Text(f" [{default}]"))
-
-        return args, txt
 
     if arguments:
         console.print("")
@@ -108,7 +112,7 @@ def help(command: Command | Subcommand) -> None:
             tbl.add_column(min_width=min_args_width)  # commands
             tbl.add_column()  # description
 
-            tbl.add_row("", *_help_from_token(sub_command.help()))
+            tbl.add_row("", *_help_from_token(sub_command.help(), short=True))
             console.print(tbl)
 
 

@@ -17,10 +17,13 @@ class Clone(BaseModel):
 
 
 class Merge(BaseModel):
-    """Merge a branch."""
+    """Merge a branch.
+
+    Provide a branch and merge it into your active branch.
+    """
 
     branch: str
-    """Branch to merge into active branch."""
+    """Branch name."""
 
     def main(self):
         """Run when this subcommand is choosen."""

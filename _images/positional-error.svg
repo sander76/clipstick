@@ -36,7 +36,6 @@
 .abcdefg-r2 { fill: #98a84b }
 .abcdefg-r3 { fill: #cc555a }
 .abcdefg-r4 { fill: #d0b344 }
-.abcdefg-r5 { fill: #cc555a;font-weight: bold }
     </style>
 
     <defs>
@@ -70,8 +69,8 @@
     <text class="abcdefg-r1" x="1098" y="20" textLength="12.2" clip-path="url(#abcdefg-line-0)">
 </text><text class="abcdefg-r2" x="0" y="44.4" textLength="24.4" clip-path="url(#abcdefg-line-1)">➜&#160;</text><text class="abcdefg-r1" x="24.4" y="44.4" textLength="366" clip-path="url(#abcdefg-line-1)">python&#160;examples/positional.py&#160;</text><text class="abcdefg-r1" x="1098" y="44.4" textLength="12.2" clip-path="url(#abcdefg-line-1)">
 </text><text class="abcdefg-r1" x="1098" y="68.8" textLength="12.2" clip-path="url(#abcdefg-line-2)">
-</text><text class="abcdefg-r3" x="0" y="93.2" textLength="85.4" clip-path="url(#abcdefg-line-3)">ERROR:&#160;</text><text class="abcdefg-r1" x="85.4" y="93.2" textLength="488" clip-path="url(#abcdefg-line-3)">Missing&#160;a&#160;value&#160;for&#160;positional&#160;argument:</text><text class="abcdefg-r4" x="573.4" y="93.2" textLength="97.6" clip-path="url(#abcdefg-line-3)">my-value</text><text class="abcdefg-r1" x="1098" y="93.2" textLength="12.2" clip-path="url(#abcdefg-line-3)">
-</text><text class="abcdefg-r1" x="0" y="117.6" textLength="183" clip-path="url(#abcdefg-line-4)">user&#160;entered:&#160;&#160;</text><text class="abcdefg-r5" x="183" y="117.6" textLength="305" clip-path="url(#abcdefg-line-4)">&lt;EXPECTING&#160;my-value&#160;HERE&gt;</text><text class="abcdefg-r1" x="1098" y="117.6" textLength="12.2" clip-path="url(#abcdefg-line-4)">
+</text><text class="abcdefg-r3" x="0" y="93.2" textLength="73.2" clip-path="url(#abcdefg-line-3)">ERROR:</text><text class="abcdefg-r1" x="1098" y="93.2" textLength="12.2" clip-path="url(#abcdefg-line-3)">
+</text><text class="abcdefg-r1" x="0" y="117.6" textLength="488" clip-path="url(#abcdefg-line-4)">Missing&#160;a&#160;value&#160;for&#160;positional&#160;argument&#160;</text><text class="abcdefg-r4" x="488" y="117.6" textLength="122" clip-path="url(#abcdefg-line-4)">&#x27;my-value&#x27;</text><text class="abcdefg-r1" x="1098" y="117.6" textLength="12.2" clip-path="url(#abcdefg-line-4)">
 </text>
     </g>
     </g>

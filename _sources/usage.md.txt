@@ -1,7 +1,5 @@
 # Usage
 
-## General
-
 Crafting your cli is identical to composing a pydantic class. Toghether with some assumptions this is enough to create a fully working cli tool:
 
 

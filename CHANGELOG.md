@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning].
 
 ## [Unreleased]
 
-- /
+### Fixed
+
+- Word wrapping on error output.
+- Minor docs changes.
+
 
 ## [0.5.0] - 2024-01-08
 

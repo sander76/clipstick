@@ -51,7 +51,12 @@ def test_too_little_values(capture_output):
         capture_output(RequiredValue, ["10"])
 
     assert err.value.code == 1
-    assert ("Missing a value for positional argument") in capture_output.captured_output
+    assert (
+        """ERROR:
+Missing a value for positional argument 'another-value'
+"""
+        == capture_output.captured_output
+    )
 
 
 class NonExistingPath(BaseModel):

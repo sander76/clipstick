@@ -1,1 +1,2 @@
-ERROR: too many shorts defined inside model
+ERROR:
+too many shorts defined inside model

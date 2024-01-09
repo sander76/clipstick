@@ -103,7 +103,7 @@ class FieldError(ClipStickError):
             if isinstance(token, _tokens.Subcommand):
                 error_text.append(f" in {token.user_keys[0]} ")
 
-            error_text.append(f" ({input}). {error_msg}")
+            error_text.append(f" ({input!r}). {error_msg}")
             errors.append(error_text)
 
         super().__init__(*errors)

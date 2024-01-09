@@ -1,1 +1,2 @@
-ERROR: A subcommand cannot have a default value.
+ERROR:
+A subcommand cannot have a default value.

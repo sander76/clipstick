@@ -1,2 +1,2 @@
-ERROR: Missing a value for positional argument:another-value
-user entered: 10 <EXPECTING another-value HERE>
+ERROR:
+Missing a value for positional argument 'another-value'

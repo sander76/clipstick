@@ -29,13 +29,9 @@ class MissingPositional(ClipStickError):
     def __init__(self, key: str, idx: int, values: list[str]) -> None:
         super().__init__(
             Text.assemble(
-                "Missing a value for positional argument:",
-                Text(key, style=ARGUMENTS_STYLE),
-            ),
-            Text.assemble(
-                f"user entered: {' '.join(values[:idx])} ",
-                Text(f"<EXPECTING {key} HERE>", "bold red"),
-            ),
+                "Missing a value for positional argument ",
+                Text(f"{key!r}", style=ARGUMENTS_STYLE),
+            )
         )
 
 
@@ -103,7 +99,7 @@ class FieldError(ClipStickError):
             if isinstance(token, _tokens.Subcommand):
                 error_text.append(f" in {token.user_keys[0]} ")
 
-            error_text.append(f" ({input}). {error_msg}")
+            error_text.append(f" ({input!r}). {error_msg}")
             errors.append(error_text)
 
         super().__init__(*errors)

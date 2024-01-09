@@ -31,7 +31,7 @@ def suggest_help():
 
 
 def error(message: Text | str | ClipStickError):
-    console.print("ERROR: ", style=ERROR, end="")
+    console.print("ERROR:", style=ERROR)
     console.print(message)
 
 

@@ -1,1 +1,2 @@
-ERROR: Incorrect value for my-path (clipstick/non_exist). Path does not point to a file
+ERROR:
+Incorrect value for my-path ('clipstick/non_exist'). Path does not point to a file

@@ -34,7 +34,8 @@ def test_invalid_list_item_raises(capture_output):
         capture_output(MyModel, ["--my-list", "10", "--my-list", "eleven"])
     assert err.value.code != 0
     assert (
-        """ERROR: Incorrect value for --my-list (eleven). Input should be a valid integer, unable to parse string as an integer
+        """ERROR:
+Incorrect value for --my-list ('eleven'). Input should be a valid integer, unable to parse string as an integer
 """
         == capture_output.captured_output
     )

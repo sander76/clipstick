@@ -1,1 +1,2 @@
-ERROR: Only one subcommand per model allowed.
+ERROR:
+Only one subcommand per model allowed.

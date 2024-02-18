@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning].
 
 ## [Unreleased]
 
+## [0.6.0] - 2024-02-18
+
+- allow help flag at any point.
+    https://sander76.github.io/clipstick/usage.html#help
+
 ## [0.5.1] - 2024-01-09
 
 ### Fixed

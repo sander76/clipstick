@@ -1,6 +1,6 @@
 # Usage
 
-Crafting your cli is identical to composing a pydantic class. Toghether with some assumptions this is enough to create a fully working cli tool:
+Crafting your cli is identical to composing a pydantic class. Together with some assumptions this is enough to create a fully working cli tool.
 
 
 ## Positional arguments
@@ -113,7 +113,34 @@ When using subcommands, be aware of the following:
 - `sub_command` as a name is not required. Any name will do.
 - Nesting of subcommands is possible.
 
+## Help
 
+As with all cli applications providing `-h` or `--help` as an argument gives you printed help output. Clipstick (any possibly others) allow this argument to be provided at any point during
+entry.
+
+For example consider the help output of a git cli:
+
+```
+Usage: my-cli-app [Options] [Subcommands]
+
+Clone a git repository.
+
+Options:
+    --url                Url of the git repo. [str] [default = https://mysuperrepo]
+
+Subcommands:
+    clone                Clone a repo.
+    info                 Show information about this repo
+```
+
+Halfway through command entry -you have provided the `--url` flag-
+you have forgotten about the rest. In this case which subcommands are available.
+
+You can now add the `-h` flag (`> m-cli-app --url my_url -h`) and help output will be printed.
+Assuming your shell supports this, you can press up, remove the `-h` flag and continue your entry without losing the arguments you already provided.
+
+Tab completion might be a solution to this problem too, but I have never found it really working:
+For example, positional arguments are not supported or mess with Tab completion for paths.
 
 ## Validators
 

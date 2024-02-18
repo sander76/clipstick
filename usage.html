@@ -195,7 +195,7 @@
         <article role="main">
           <section id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Link to this heading">#</a></h1>
-<p>Crafting your cli is identical to composing a pydantic class. Toghether with some assumptions this is enough to create a fully working cli tool:</p>
+<p>Crafting your cli is identical to composing a pydantic class. Together with some assumptions this is enough to create a fully working cli tool.</p>
 <section id="positional-arguments">
 <h2>Positional arguments<a class="headerlink" href="#positional-arguments" title="Link to this heading">#</a></h2>
 <p>All fields in your pydantic model <em>without</em> a default value are converted to cli positional arguments.</p>
@@ -423,6 +423,30 @@ see only the first line of the docstring being used for the <code class="docutil
 </ul>
 </section>
 </section>
+<section id="help">
+<h2>Help<a class="headerlink" href="#help" title="Link to this heading">#</a></h2>
+<p>As with all cli applications providing <code class="docutils literal notranslate"><span class="pre">-h</span></code> or <code class="docutils literal notranslate"><span class="pre">--help</span></code> as an argument gives you printed help output. Clipstick (any possibly others) allow this argument to be provided at any point during
+entry.</p>
+<p>For example consider the help output of a git cli:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Usage</span><span class="p">:</span> <span class="n">my</span><span class="o">-</span><span class="n">cli</span><span class="o">-</span><span class="n">app</span> <span class="p">[</span><span class="n">Options</span><span class="p">]</span> <span class="p">[</span><span class="n">Subcommands</span><span class="p">]</span>
+
+<span class="n">Clone</span> <span class="n">a</span> <span class="n">git</span> <span class="n">repository</span><span class="o">.</span>
+
+<span class="n">Options</span><span class="p">:</span>
+    <span class="o">--</span><span class="n">url</span>                <span class="n">Url</span> <span class="n">of</span> <span class="n">the</span> <span class="n">git</span> <span class="n">repo</span><span class="o">.</span> <span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="p">[</span><span class="n">default</span> <span class="o">=</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">mysuperrepo</span><span class="p">]</span>
+
+<span class="n">Subcommands</span><span class="p">:</span>
+    <span class="n">clone</span>                <span class="n">Clone</span> <span class="n">a</span> <span class="n">repo</span><span class="o">.</span>
+    <span class="n">info</span>                 <span class="n">Show</span> <span class="n">information</span> <span class="n">about</span> <span class="n">this</span> <span class="n">repo</span>
+</pre></div>
+</div>
+<p>Halfway through command entry -you have provided the <code class="docutils literal notranslate"><span class="pre">--url</span></code> flag-
+you have forgotten about the rest. In this case which subcommands are available.</p>
+<p>You can now add the <code class="docutils literal notranslate"><span class="pre">-h</span></code> flag (<code class="docutils literal notranslate"><span class="pre">&gt;</span> <span class="pre">m-cli-app</span> <span class="pre">--url</span> <span class="pre">my_url</span> <span class="pre">-h</span></code>) and help output will be printed.
+Assuming your shell supports this, you can press up, remove the <code class="docutils literal notranslate"><span class="pre">-h</span></code> flag and continue your entry without losing the arguments you already provided.</p>
+<p>Tab completion might be a solution to this problem too, but I have never found it really working:
+For example, positional arguments are not supported or mess with Tab completion for paths.</p>
+</section>
 <section id="validators">
 <h2>Validators<a class="headerlink" href="#validators" title="Link to this heading">#</a></h2>
 <p>Pydantic provides many field validators which can be used in clipstick too.</p>
@@ -564,6 +588,7 @@ It is also pretty easy to write your own validators.</p>
 <li><a class="reference internal" href="#points-of-attention">Points of attention</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#help">Help</a></li>
 <li><a class="reference internal" href="#validators">Validators</a><ul>
 <li><a class="reference internal" href="#restrictions">Restrictions</a></li>
 </ul>

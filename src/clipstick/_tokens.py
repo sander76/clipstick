@@ -19,6 +19,7 @@ from clipstick import _exceptions, _help
 from clipstick._annotations import Short
 
 TPydanticModel = TypeVar("TPydanticModel", bound=BaseModel)
+_HELP_KEYS = ("-h", "--help")
 
 
 class THelp(TypedDict):
@@ -553,16 +554,15 @@ class Command(Generic[TPydanticModel]):
         """
         start_idx = idx
 
-        if _is_help_key(idx, arguments):
-            _help.help(self)
-            sys.exit(0)
-
         values_count = len(arguments)
 
         def _check_arg_or_optional(_idx: int, values: list[str]) -> tuple[bool, int]:
             """Every arg in the values list must match one of the tokens in the model."""
             if values_count == _idx:
                 return False, _idx
+            if values[_idx] in _HELP_KEYS:
+                _help.help(self)
+                sys.exit(0)
             for arg in self.tokens.values():
                 success, _idx = arg.match(_idx, values)
                 if success:
@@ -671,12 +671,3 @@ class Subcommand(Command):
             "type": "",
             "default": "",
         }
-
-
-def _is_help_key(idx, values: list[str]) -> bool:
-    try:
-        if values[idx] in ["-h", "--help"]:
-            return True
-    except IndexError:
-        return False
-    return False

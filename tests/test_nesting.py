@@ -91,3 +91,26 @@ Subcommands:
 """
         == capture_output.captured_output
     )
+
+
+def test_help_second_level_partially_completed(capture_output):
+    """The help flag can be given at any time. Even when a command
+    is already partially completed. (like the --url flag in this test.)"""
+    with pytest.raises(SystemExit) as err:
+        capture_output(MyGitModel, ["remote", "--url", "some_url", "-h"])
+    assert err.value.code == 0
+    assert (
+        """
+Usage: my-cli-app remote [Options] [Subcommands]
+
+Clone a git repository.
+
+Options:
+    --url                Url of the git repo. [str] [default = https://mysuperrepo]
+
+Subcommands:
+    clone                Clone a repo.
+    info                 Show information about this repo
+"""
+        == capture_output.captured_output
+    )

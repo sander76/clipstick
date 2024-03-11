@@ -17,11 +17,13 @@ class CapturedOutput:
         self.captured_output: str | None = None
         self._fixture_request = fixture_request
 
-    def __call__(self, model: type[BaseModel], args: list[str]) -> None:
+    def __call__(
+        self, model: type[BaseModel], args: list[str], entry_point: str | None = None
+    ) -> None:
         try:
             console.width = 1000
             console.record = True
-            parse(model, args)
+            parse(model, args, entry_point)
 
         finally:
             self.captured_output = console.export_text(clear=False)

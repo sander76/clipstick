@@ -9,7 +9,11 @@ from clipstick._tokens import Command, TPydanticModel
 DUMMY_ENTRY_POINT: Final[str] = "my-cli-app"
 
 
-def parse(model: type[TPydanticModel], args: list[str] | None = None) -> TPydanticModel:
+def parse(
+    model: type[TPydanticModel],
+    args: list[str] | None = None,
+    entry_point: str | None = None,
+) -> TPydanticModel:
     """Create an instance of the provided model.
 
     Leave `args` to None in production. Only use it for testing.
@@ -19,6 +23,9 @@ def parse(model: type[TPydanticModel], args: list[str] | None = None) -> TPydant
         args: The list of arguments. This is useful for testing.
             Provide a list and check if your model is parsed correctly.
             If not provided clipstick will evaluate the arguments from `sys.argv`.
+        entry_point: Entry point name. This is useful for testing.
+            Provide an entry point name and check for value in help output.
+            If not provided clipstick will evaluate an entry point from `sys.argv`.
 
     Returns:
         An instance of the pydantic class we provided as argument populated with the provided args.
@@ -30,7 +37,7 @@ def parse(model: type[TPydanticModel], args: list[str] | None = None) -> TPydant
         sys.exit(1)
     if args is None:
         entry_point, args = sys.argv[0], sys.argv[1:]
-    else:
+    elif entry_point is None:
         # Normally the first item in your sys.argv is the command/entrypoint you've entered.
         # During testing you don't provide that (only the actual arguments you enter after that).
         entry_point = DUMMY_ENTRY_POINT

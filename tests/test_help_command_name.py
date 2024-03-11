@@ -18,3 +18,11 @@ def test_command_name(entrypoint, monkeypatch, capture_output):
         capture_output(SimpleModel, ["-h"])
 
     assert "Usage: my-app [Arguments]" in capture_output.captured_output
+
+
+@pytest.mark.parametrize("entrypoint", ["/test/my-app", "\\test\\my-app", "my-app"])
+def test_command_name_from_args(entrypoint, monkeypatch, capture_output):
+    with pytest.raises(SystemExit):
+        capture_output(SimpleModel, ["-h"], entrypoint)
+
+    assert "Usage: my-app [Arguments]" in capture_output.captured_output

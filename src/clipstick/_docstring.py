@@ -1,5 +1,6 @@
 import ast
 import inspect
+import textwrap
 
 from pydantic import BaseModel
 
@@ -7,7 +8,7 @@ from pydantic import BaseModel
 def set_undefined_field_descriptions_from_var_docstrings(
     model: type[BaseModel],
 ) -> None:
-    module = ast.parse(inspect.getsource(model))
+    module = ast.parse(textwrap.dedent(inspect.getsource(model)))
     assert isinstance(module, ast.Module)
     class_def = module.body[0]
     assert isinstance(class_def, ast.ClassDef)

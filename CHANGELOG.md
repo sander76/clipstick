@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning].
 
 ## [Unreleased]
 
+## [0.6.1] - 2024-03-16
+
+### Fixed
+
+- Crash on cli when composing your cli using nested models.
+
 ## [0.6.0] - 2024-02-18
 
 - allow help flag at any point.

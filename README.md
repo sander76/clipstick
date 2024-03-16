@@ -89,3 +89,17 @@ Some other similar tools don't support pydantic v2, so I decided to create my ow
 <!-- end index -->
 
 For more information visit the [documentation](https://sander76.github.io/clipstick/index.html)
+
+## Development
+
+Pull requests are very much appreciated!
+Some guidance:
+
+- Fork this repo and use this to create your branch based on the `dev` branch.
+- This project makes use of **Poetry**. `Poetry install` to install everything
+    need for development.
+- This project makes use of **Nox**. `nox -s test` and `nox -s quality` are your friends here.
+- Please update the `CHANGELOG.md` file with your changes under `## [Unreleased]` section.
+- When finished, point your pull-request towards the `dev` dev branch.
+
+Thanks!

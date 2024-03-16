@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning].
 
 ## [0.6.1] - 2024-03-16
 
+### Added
+
+- Added "how to create" a pr to the README.md.
+
 ### Fixed
 
 - Crash on cli when composing your cli using nested models.
